@@ -27,6 +27,15 @@
 
 #pragma once
 
+//
+// Required for external hardware DSKY.
+//
+class DSKYSerial;
+#include "DSKYSerialClass.h" // only include in cpp file?
+
+class DSKYTCP;
+#include "DSKYTCPClass.h"
+
 ///
 /// \ingroup DSKY
 /// DSKY simulation.
@@ -181,7 +190,67 @@ public:
 	char *GetR2() { return R2; };
 	char *GetR3() { return R3; };
 
+	typedef union
+	{
+		struct
+		{
+			unsigned NoDAPLight : 1;
+			unsigned VelLight : 1;
+			unsigned spare2 : 1;
+			unsigned spare3 : 1;
+			unsigned AltLight : 1;
+			unsigned spare4 : 1;
+			unsigned spare5 : 1;
+			unsigned spare6 : 1;
+			unsigned spare7 : 1;
+			unsigned spare8 : 1;
+			unsigned VerbFlashing : 1;
+			unsigned spare9 : 1;
+			unsigned NounFlashing : 1;
+			unsigned spare10 : 1;
+			unsigned spare11 : 1;
+			unsigned UplinkLight : 1;
+			unsigned NoAttLight : 1;
+			unsigned StbyLight : 1;
+			unsigned KbRelLight : 1;
+			unsigned OprErrLight : 1;
+			unsigned TempLight : 1;
+			unsigned GimbalLockLight : 1;
+			unsigned ProgLight : 1;
+			unsigned RestartLight : 1;
+			unsigned TrackerLight : 1;
+			unsigned spare12 : 1;
+			unsigned spare13 : 1;
+			unsigned spare14 : 1;
+			unsigned spare15 : 1;
+			unsigned CompActy : 1;
+			unsigned ELOff : 1;
+			unsigned PrioDispLight : 1;
+		} u;
+		unsigned long word;
+	} DSKYState;
+
+	//
+	// Required for external hardware DSKY.
+	//
+
+	void SendDataToExternalDSKYSerial(int channel, ChannelValue val) const;
+	void SendDataToExternalDSKYTCP(int channel, ChannelValue val) const;
+
 protected:
+
+	//
+	// Required for external hardware DSKY.
+	//
+
+	static DSKYSerial* pDSKYSerial;
+	static DSKYTCP* pDSKYTCP;
+	unsigned short GetChannel11Value();
+	unsigned CharValue(char val);
+
+	//
+	// misc
+	//
 
 	bool IsStatusPowered();
 	bool IsSegmentPowered();
@@ -242,7 +311,7 @@ protected:
 	bool KeyDown_8;
 	bool KeyDown_9;
 	bool KeyDown_Clear;
-	bool KeyDown_Prog;
+	bool KeyDown_Proceed;
 	bool KeyDown_KeyRel;
 	bool KeyDown_Enter;
 	bool KeyDown_Reset;

@@ -89,11 +89,11 @@ GDIParams g_Param;
 // ==============================================================
 
 DLLCLBK VESSEL *ovcInit(OBJHANDLE hvessel, int flightmodel)
-
 {
 	LEM *lem;
 
-	if (!refcount++) {
+	if (!refcount++) 
+	{
 		LEMLoadMeshes();
 	}
 
@@ -104,13 +104,13 @@ DLLCLBK VESSEL *ovcInit(OBJHANDLE hvessel, int flightmodel)
 }
 
 DLLCLBK void ovcExit(VESSEL *vessel)
-
 {
 	TRACESETUP("ovcExit LMPARKED");
 
 	--refcount;
 
-	if (!refcount) {
+	if (!refcount) 
+	{
 		TRACE("refcount == 0");
 
 		//
@@ -123,7 +123,9 @@ DLLCLBK void ovcExit(VESSEL *vessel)
 }
 
 #define LM_AXIS_INPUT_CNT  39
-VesimInputDefinition vesim_lm_inputs[LM_AXIS_INPUT_CNT] = {
+
+VesimInputDefinition vesim_lm_inputs[LM_AXIS_INPUT_CNT] = 
+{
 	{ LM_AXIS_INPUT_ACAR,          "ACA Roll",                                 VESIM_INPUTTYPE_AXIS,     VESIM_DEFAULT_AXIS_VALUE, false },
 	{ LM_AXIS_INPUT_ACAP,          "ACA Pitch",                                VESIM_INPUTTYPE_AXIS,     VESIM_DEFAULT_AXIS_VALUE, false },
 	{ LM_AXIS_INPUT_ACAY,          "ACA Yaw",                                  VESIM_INPUTTYPE_AXIS,     VESIM_DEFAULT_AXIS_VALUE, false },
@@ -165,11 +167,14 @@ VesimInputDefinition vesim_lm_inputs[LM_AXIS_INPUT_CNT] = {
 	{ LM_AXIS_THR_JET_LEVER,       "TTCA Throttle/Jets Select lever",          VESIM_INPUTTYPE_AXIS,    0, false }
 };
 
-void cbLMVesim(int inputID, int eventType, int newValue, void *pdata) {
+void cbLMVesim(int inputID, int eventType, int newValue, void *pdata) 
+{
 	LEM *pLM = (LEM *)pdata;
 	int state;
-	if (eventType == VESIM_EVTTYPE_BUTTON_ON) {
-		switch (inputID) {
+	if (eventType == VESIM_EVTTYPE_BUTTON_ON) 
+	{
+		switch (inputID) 
+		{
 		case LM_BUTTON_ROT_LIN:
 			if (pLM->GetAttitudeMode() == RCS_ROT)
 				pLM->SetAttitudeMode(RCS_LIN);
@@ -193,31 +198,38 @@ void cbLMVesim(int inputID, int eventType, int newValue, void *pdata) {
 			break;
 		case LM_BUTTON_ABORT:
 			state = pLM->AbortSwitch.GetState(); 
-			if (state == 0) {
+			if (state == 0) 
+			{
 				pLM->AbortSwitch.SwitchTo(1);
 			}
-			else if (state == 1) {
+			else if (state == 1) 
+			{
 				pLM->AbortSwitch.SwitchTo(0);
 			}
 			break;
 		case LM_BUTTON_ABORT_STAGE:			
-			if (pLM->AbortStageSwitch.GetGuardState()) {
+			if (pLM->AbortStageSwitch.GetGuardState())
+			{
 				state = pLM->AbortStageSwitch.GetState();
-				if (state == 0) {
+				if (state == 0) 
+				{
 					pLM->AbortStageSwitch.SwitchTo(1);
 					pLM->Sclick.play();
 				}
-				else if (state == 1) {
+				else if (state == 1) 
+				{
 					pLM->AbortStageSwitch.SwitchTo(0);
 					pLM->Sclick.play();
 				}
 			}
 			break;
 		case LM_BUTTON_ABORT_STAGE_GRD:
-			if (pLM->AbortStageSwitch.GetGuardState()) {
+			if (pLM->AbortStageSwitch.GetGuardState()) 
+			{
 				pLM->AbortStageSwitch.SetGuardState(false);
 			}
-			else {
+			else 
+			{
 				pLM->AbortStageSwitch.SetGuardState(true);
 			}
 			pLM->ButtonClick(); // guardClick is inaccesible
@@ -281,10 +293,12 @@ void cbLMVesim(int inputID, int eventType, int newValue, void *pdata) {
 			break;
 		case LM_BUTTON_MDCTRL_PGNS:
 			//Mode Control PGNS - cycle between Auto & Att Hold
-			if (pLM->ModeControlPGNSSwitch.GetState() < 2) {
+			if (pLM->ModeControlPGNSSwitch.GetState() < 2) 
+			{
 				pLM->ModeControlPGNSSwitch.SetState(2);
 			}
-			else {
+			else 
+			{
 				pLM->ModeControlPGNSSwitch.SetState(1);
 			}
 			break;
@@ -299,8 +313,10 @@ void cbLMVesim(int inputID, int eventType, int newValue, void *pdata) {
 			break;
 		}
 	}
-	else if (eventType == VESIM_EVTTYPE_BUTTON_OFF) {
-		switch (inputID) {
+	else if (eventType == VESIM_EVTTYPE_BUTTON_OFF) 
+	{
+		switch (inputID) 
+		{
 		case LM_BUTTON_DES_RATE_MINUS:
 			pLM->agc.SetInputChannelBit(016, DescendMinus, 0);
 			pLM->Sclick.play();;
@@ -341,26 +357,35 @@ BOOL CALLBACK EnumAxesCallback( const DIDEVICEOBJECTINSTANCE* pdidoi, VOID* pLEM
 {
 	class LEM * lem = (LEM*)pLEM; // Pointer to us
 
-    if (pdidoi->guidType == GUID_ZAxis) {
-		if (lem->js_current == lem->rhc_id) {
+    if (pdidoi->guidType == GUID_ZAxis) 
+	{
+		if (lem->js_current == lem->rhc_id)
+		{
 			lem->rhc_rzx_id = 1;
-		} else {
+		} else 
+		{
 			lem->thc_rzx_id = 1;
 		}
 	}
 
-    if (pdidoi->guidType == GUID_RzAxis) {
-		if (lem->js_current == lem->rhc_id) {
+    if (pdidoi->guidType == GUID_RzAxis) 
+	{
+		if (lem->js_current == lem->rhc_id) 
+		{
 			lem->rhc_rot_id = 2;
-		} else {
+		} else 
+		{
 			lem->thc_rot_id = 2;
 		}
 	}
 
-    if (pdidoi->guidType == GUID_POV) {
-		if (lem->js_current == lem->rhc_id) {
+    if (pdidoi->guidType == GUID_POV) 
+	{
+		if (lem->js_current == lem->rhc_id) 
+		{
 			lem->rhc_pov_id = 0;
-		} else {
+		} else 
+		{
 			lem->thc_pov_id = 0;
 		}
 	}
@@ -500,9 +525,11 @@ LEM::~LEM()
 #endif
 
 	// DS20060413 release DirectX stuff
-	if (enableVESIM || js_enabled > 0) {
+	if (enableVESIM || js_enabled > 0) 
+	{
 		// Release joysticks
-		while(js_enabled > 0){
+		while(js_enabled > 0)
+		{
 			js_enabled--;
 			dx8_joystick[js_enabled]->Unacquire();
 			dx8_joystick[js_enabled]->Release();
@@ -519,7 +546,6 @@ LEM::~LEM()
 }
 
 void LEM::Init()
-
 {
 	DebugLineClearTimer = 0;
 
@@ -697,12 +723,14 @@ void LEM::Init()
 	RegisterConnector(VIRTUAL_CONNECTOR_PORT, &lm_vhf_to_csm_csm_connector);
 
 	// New keyboard control values
-	for (auto i = 0; i < 6; ++i) {
+	for (auto i = 0; i < 6; ++i)
+	{
 		aca_keyboard_deflection[i] = 0.0;
 	}
 
 	// Do this stuff only once
-	if(!InitLEMCalled){
+	if(!InitLEMCalled)
+	{
 		SystemsInit();
 
 		// Panel items
@@ -739,21 +767,22 @@ void LEM::DoFirstTimestep()
 
 	strcpy(VName10, pMission->GetCDRName().c_str());
 	hLEVA[0] = oapiGetVesselByName(VName10);
-	if (hLEVA[0] == NULL) { //This might be a legacy scenario
+	if (hLEVA[0] == NULL) 
+	{ //This might be a legacy scenario
 		strcpy(VName10, GetName()); strcat(VName10, "-LEVA-CDR");
 		hLEVA[0] = oapiGetVesselByName(VName10);
 	}
 
 	strcpy(VName10, pMission->GetLMPName().c_str());
 	hLEVA[1] = oapiGetVesselByName(VName10);
-	if (hLEVA[1] == NULL) { //This might be a legacy scenario
+	if (hLEVA[1] == NULL) 
+	{ //This might be a legacy scenario
 		strcpy(VName10, GetName()); strcat(VName10, "-LEVA-LMP");
 		hLEVA[1] = oapiGetVesselByName(VName10);
 	}
 }
 
 void LEM::LoadDefaultSounds()
-
 {
     char buffers[80];
 
@@ -804,50 +833,64 @@ int LEM::clbkConsumeDirectKey(char* kstate)
 	VECTOR3 camDir = _V(0, 0, 0);
 	bool setFreeCam = false;
 
-	if (KEYMOD_SHIFT(kstate)) {
+	if (KEYMOD_SHIFT(kstate))
+	{
 		camSlow = true;
 	}
 
-	if (!KEYDOWN(kstate, OAPI_KEY_GRAVE)) {
-		if (KEYDOWN(kstate, OAPI_KEY_LEFT)) {
+	if (!KEYDOWN(kstate, OAPI_KEY_GRAVE))
+	{
+		if (KEYDOWN(kstate, OAPI_KEY_LEFT)) 
+		{
 			camDir.x = -1;
 			setFreeCam = true;
 		}
-		if (KEYDOWN(kstate, OAPI_KEY_RIGHT)) {
+		if (KEYDOWN(kstate, OAPI_KEY_RIGHT)) 
+		{
 			camDir.x = 1;
 			setFreeCam = true;
 		}
-		if (KEYDOWN(kstate, OAPI_KEY_UP)) {
+		if (KEYDOWN(kstate, OAPI_KEY_UP))
+		{
 			camDir.y = 1;
 			setFreeCam = true;
 		}
-		if (KEYDOWN(kstate, OAPI_KEY_DOWN)) {
+		if (KEYDOWN(kstate, OAPI_KEY_DOWN)) 
+		{
 			camDir.y = -1;
 			setFreeCam = true;
 		}
-		if (KEYDOWN(kstate, OAPI_KEY_INSERT)) {
+		if (KEYDOWN(kstate, OAPI_KEY_INSERT)) 
+		{
 			camDir.z = 1;
 			setFreeCam = true;
 		}
-		if (KEYDOWN(kstate, OAPI_KEY_DELETE)) {
+		if (KEYDOWN(kstate, OAPI_KEY_DELETE)) 
+		{
 			camDir.z = -1;
 			setFreeCam = true;
 		}
 	}
-	else {
-		if (KEYDOWN(kstate, OAPI_KEY_UP)) {
+	else 
+	{
+		if (KEYDOWN(kstate, OAPI_KEY_UP))
+		{
 			camDir.z = 1;
 			setFreeCam = true;
 		}
-		if (KEYDOWN(kstate, OAPI_KEY_DOWN)) {
+		if (KEYDOWN(kstate, OAPI_KEY_DOWN))
+		{
 			camDir.z = -1;
 			setFreeCam = true;
 		}
 	}
 
-	if ((!KEYMOD_CONTROL(kstate)) && (!KEYMOD_ALT(kstate))) {
-		if ((oapiCockpitMode() == COCKPIT_VIRTUAL) && (oapiCameraMode() == CAM_COCKPIT)) {
-			if (setFreeCam == true) {
+	if ((!KEYMOD_CONTROL(kstate)) && (!KEYMOD_ALT(kstate))) 
+	{
+		if ((oapiCockpitMode() == COCKPIT_VIRTUAL) && (oapiCameraMode() == CAM_COCKPIT)) 
+		{
+			if (setFreeCam == true) 
+			{
 				VCFreeCam(camDir, camSlow);
 			}
 			//return 1;
@@ -859,7 +902,8 @@ int LEM::clbkConsumeDirectKey(char* kstate)
 	// starts at a non-zero value. So I subtract the first enum from each entry
 	// to get a zero-based index.
 	// Only override these keys if the user is holding no modifier keys, Alt only, or Ctrl + Alt.
-	if (GetAttitudeMode() == ATTITUDEMODE::ATTMODE_ROT && !(KEYMOD_CONTROL(kstate) && !KEYMOD_ALT(kstate)) && !KEYMOD_SHIFT(kstate)) {
+	if (GetAttitudeMode() == ATTITUDEMODE::ATTMODE_ROT && !(KEYMOD_CONTROL(kstate) && !KEYMOD_ALT(kstate)) && !KEYMOD_SHIFT(kstate))
+	{
 		// Possible deflection amounts are:
 		// No key modifiers: 11.5° (max proportional rate, but not hardover)
 		// Alt: 13° (full deflection, triggering hardover switches)
@@ -892,21 +936,27 @@ int LEM::clbkConsumeDirectKey(char* kstate)
 	return 0;
 }
 
-int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
+int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) 
+{
 
 	if (enableVESIM) vesim.clbkConsumeBufferedKey(key, down, keystate);
 
 	// Help key for CueCard Arrows
-	if (KEYMOD_LCONTROL(keystate)) {
-		if (down) {
-			switch (key) {
+	if (KEYMOD_LCONTROL(keystate))
+	{
+		if (down) 
+		{
+			switch (key) 
+			{
 			case OAPI_KEY_H:
 				if (InVC && oapiCameraInternal())
 				{
-					if (ViewCueCardArrows == true) {
+					if (ViewCueCardArrows == true)
+					{
 						ViewCueCardArrows = false;
 					}
-					else {
+					else 
+					{
 						ViewCueCardArrows = true;
 					}
 					return 1;
@@ -916,10 +966,12 @@ int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
 	}
 
 	// DS20060404 Allow keys to control DSKY like in the CM
-	if (KEYMOD_SHIFT(keystate) && !KEYMOD_CONTROL(keystate) && !KEYMOD_ALT(keystate)) {
+	if (KEYMOD_SHIFT(keystate) && !KEYMOD_CONTROL(keystate) && !KEYMOD_ALT(keystate))
+	{
 		// Do DSKY stuff
 		DSKYPushSwitch* dskyKeyChanged = nullptr;
-		switch (key) {
+		switch (key) 
+		{
 			case OAPI_KEY_DECIMAL:
 				dskyKeyChanged = &DskySwitchClear;
 				break;
@@ -980,15 +1032,20 @@ int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
 		}
 
 		// Direction-specific code, handle DSKY key presses if any.
-		if (down) {
+		if (down) 
+		{
 			// KEY DOWN
-			if (dskyKeyChanged != nullptr) {
+			if (dskyKeyChanged != nullptr) 
+			{
 				dskyKeyChanged->SetHeld(true);
 				dskyKeyChanged->SetState(PUSHBUTTON_PUSHED);
 			}
-		} else {
+		} 
+		else 
+		{
 			// KEY UP
-			if (dskyKeyChanged != nullptr) {
+			if (dskyKeyChanged != nullptr)
+			{
 				// Doing SwitchTo instead of SetState prevents a second click on key up.
 				dskyKeyChanged->SetHeld(false);
 				dskyKeyChanged->SwitchTo(PUSHBUTTON_UNPUSHED);
@@ -997,10 +1054,12 @@ int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
 		return 0;
 	}
 
-	if (KEYMOD_CONTROL(keystate) && !KEYMOD_ALT(keystate) && !KEYMOD_SHIFT(keystate)) {
+	if (KEYMOD_CONTROL(keystate) && !KEYMOD_ALT(keystate) && !KEYMOD_SHIFT(keystate)) 
+	{
 		// Do DEDA stuff
 		DEDAPushSwitch* dedaKeyChanged = nullptr;
-		switch (key) {
+		switch (key) 
+		{
 			case OAPI_KEY_DECIMAL:
 				dedaKeyChanged = &DedaSwitchClear;
 				break;
@@ -1056,15 +1115,20 @@ int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
 		}
 
 		// Direction-specific code, handle DEDA key presses if any.
-		if (down) {
+		if (down) 
+		{
 			// KEY DOWN
-			if (dedaKeyChanged != nullptr) {
+			if (dedaKeyChanged != nullptr)
+			{
 				dedaKeyChanged->SetHeld(true);
 				dedaKeyChanged->SetState(PUSHBUTTON_PUSHED);
 			}
-		} else {
+		}
+		else
+		{
 			// KEY UP
-			if (dedaKeyChanged != nullptr) {
+			if (dedaKeyChanged != nullptr) 
+			{
 				// Doing SwitchTo instead of SetState prevents a second click on key up.
 				dedaKeyChanged->SetHeld(false);
 				dedaKeyChanged->SwitchTo(PUSHBUTTON_UNPUSHED);
@@ -1075,8 +1139,10 @@ int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
 
 	if (!KEYMOD_SHIFT(keystate) && KEYMOD_CONTROL(keystate) && KEYMOD_ALT(keystate))
 	{
-		if (down) {
-			switch (key) {
+		if (down)
+		{
+			switch (key) 
+			{
 			case OAPI_KEY_S:
 				QuicksaveScenario();
 				break;
@@ -1087,8 +1153,10 @@ int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
 
 	if (!KEYMOD_SHIFT(keystate) && !KEYMOD_CONTROL(keystate) && KEYMOD_ALT(keystate))
 	{
-		if (down) {
-			switch (key) {
+		if (down) 
+		{
+			switch (key) 
+			{
 			case OAPI_KEY_O:
 				ORDEALSlewSwitch.SwitchTo(THREEPOSSWITCH_UP, true);
 				break;
@@ -1096,8 +1164,11 @@ int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
 				ORDEALSlewSwitch.SwitchTo(THREEPOSSWITCH_DOWN, true);
 				break;
 			}
-		} else {
-			switch (key) {
+		} 
+		else 
+		{
+			switch (key)
+			{
 			case OAPI_KEY_O:
 			case OAPI_KEY_L:
 				ORDEALSlewSwitch.SwitchTo(THREEPOSSWITCH_CENTER, true);
@@ -1106,149 +1177,166 @@ int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
 		}
 	}
 
-	if (down){
-		switch(key){
-			// Valid shaft positions should be:
-			// 000.00  00 (F) 
-			// 057.30  60 (R)
-			// 114.59 120 (Rr)
-			// 171.89 180 (CL)
-			// 229.18 240 (Lr)
-			// 286.48 300 (L)
+	if (down)
+	{
+		switch(key)
+		{
+		// Valid shaft positions should be:
+		// 000.00  00 (F) 
+		// 057.30  60 (R)
+		// 114.59 120 (Rr)
+		// 171.89 180 (CL)
+		// 229.18 240 (Lr)
+		// 286.48 300 (L)
 
-			case OAPI_KEY_A:
-				optics.OpticsShaft--;
-				if (optics.OpticsShaft < 0) {
-					optics.OpticsShaft = 5; // Clobber
-				}
-				//Load panel to trigger change of the default camera direction
-				if (PanelId == LMPANEL_AOTZOOM)
+		case OAPI_KEY_A:
+			optics.OpticsShaft--;
+			if (optics.OpticsShaft < 0)
+			{
+				optics.OpticsShaft = 5; // Clobber
+			}
+			//Load panel to trigger change of the default camera direction
+			if (PanelId == LMPANEL_AOTZOOM)
+			{
+				oapiSetPanel(LMPANEL_AOTZOOM);
+			}
+			break;
+
+		case OAPI_KEY_D:
+			optics.OpticsShaft++;
+			if (optics.OpticsShaft > 5) 
+			{
+				optics.OpticsShaft = 0; // Clobber
+			}
+			//Load panel to trigger change of the default camera direction
+			if (PanelId == LMPANEL_AOTZOOM)
+			{
+				oapiSetPanel(LMPANEL_AOTZOOM);
+			}
+			break;
+
+		case OAPI_KEY_W:
+			if (AOTReticleDetent.GetState() == 0)
+			{
+				optics.ReticleMoved = 0.52;  //Fast Rate (about 30 deg/sec)
+
+				if (KEYMOD_ALT(keystate))
 				{
-					oapiSetPanel(LMPANEL_AOTZOOM);
+					optics.ReticleMoved = 0.01;  //Slow Rate (about 0.5 deg/sec)
 				}
-				break;
+			}
+			break;
 
-			case OAPI_KEY_D:
-				optics.OpticsShaft++;
-				if (optics.OpticsShaft > 5) {
-					optics.OpticsShaft = 0; // Clobber
-				}
-				//Load panel to trigger change of the default camera direction
-				if (PanelId == LMPANEL_AOTZOOM)
+		case OAPI_KEY_S:
+			if (AOTReticleDetent.GetState() == 0)
+			{
+				optics.ReticleMoved = -0.52;  //Fast Rate (about 30 deg/sec)
+
+				if (KEYMOD_ALT(keystate)) 
 				{
-					oapiSetPanel(LMPANEL_AOTZOOM);
+					optics.ReticleMoved = -0.01;  //Slow Rate (about 0.5 deg/sec)
 				}
-				break;
+			}
+			break;
 
-			case OAPI_KEY_W:
-				if (AOTReticleDetent.GetState() == 0)
-				{
-					optics.ReticleMoved = 0.52;  //Fast Rate (about 30 deg/sec)
+		case OAPI_KEY_Q:
+			agc.SetInputChannelBit(016, MarkX, 1);  // Mark X
+			break;
+		case OAPI_KEY_Y:
+			agc.SetInputChannelBit(016, MarkY, 1);  // Mark Y
+			break;
+		case OAPI_KEY_E:
+			agc.SetInputChannelBit(016, MarkReject_LM, 1);  // Mark Reject
+			break;
+		case OAPI_KEY_MINUS:
+			//increase descent rate
+			agc.SetInputChannelBit(016, DescendMinus, 1);
+			break;
+		case OAPI_KEY_EQUALS:
+			//decrease descent rate
+			agc.SetInputChannelBit(016, DescendPlus, 1);
+			break;
 
-					if (KEYMOD_ALT(keystate)) {
-						optics.ReticleMoved = 0.01;  //Slow Rate (about 0.5 deg/sec)
-					}
-				}
-				break;
+		case OAPI_KEY_NUMPAD0:
+			//TTCA Throttle up
+			ttca_throttle_vel = 1;
+			break;
+		case OAPI_KEY_DECIMAL:
+			//TTCA Throttle down
+			ttca_throttle_vel = -1;
+			break;
 
-			case OAPI_KEY_S:
-				if (AOTReticleDetent.GetState() == 0)
-				{
-					optics.ReticleMoved = -0.52;  //Fast Rate (about 30 deg/sec)
+		case OAPI_KEY_K:
+			//Mode Control PGNS - cycle between Auto & Att Hold
+			if (ModeControlPGNSSwitch.GetState() < 2)
+			{
+				ModeControlPGNSSwitch.SetState(2);
+			}
+			else
+			{
+				ModeControlPGNSSwitch.SetState(1);
+			}
+			break;
 
-					if (KEYMOD_ALT(keystate)) {
-						optics.ReticleMoved = -0.01;  //Slow Rate (about 0.5 deg/sec)
-					}
-				}
-				break;
-
-			case OAPI_KEY_Q:
-				agc.SetInputChannelBit(016, MarkX, 1);  // Mark X
-				break;
-			case OAPI_KEY_Y:
-				agc.SetInputChannelBit(016, MarkY, 1);  // Mark Y
-				break;
-			case OAPI_KEY_E:
-				agc.SetInputChannelBit(016, MarkReject_LM, 1);  // Mark Reject
-				break;
-			case OAPI_KEY_MINUS:
-				//increase descent rate
-				agc.SetInputChannelBit(016, DescendMinus, 1);
-				break;
-			case OAPI_KEY_EQUALS:
-				//decrease descent rate
-				agc.SetInputChannelBit(016, DescendPlus, 1);
-				break;
-
-			case OAPI_KEY_NUMPAD0:
-				//TTCA Throttle up
-				ttca_throttle_vel = 1;
-				break;
-			case OAPI_KEY_DECIMAL:
-				//TTCA Throttle down
-				ttca_throttle_vel = -1;
-				break;
-
-			case OAPI_KEY_K:
-				//Mode Control PGNS - cycle between Auto & Att Hold
-				if (ModeControlPGNSSwitch.GetState() < 2) {
-					ModeControlPGNSSwitch.SetState(2);
-				} else {
-					ModeControlPGNSSwitch.SetState(1);
-				}
-				break;
-
-			case OAPI_KEY_M:
-				//Throttle Control - cycle between Auto & Man
-				if (THRContSwitch.GetState() < 1) {
-					THRContSwitch.SetState(1);
-				} else {
-					THRContSwitch.SetState(0);
-				}
-				break;
+		case OAPI_KEY_M:
+			//Throttle Control - cycle between Auto & Man
+			if (THRContSwitch.GetState() < 1) 
+			{
+				THRContSwitch.SetState(1);
+			}
+			else 
+			{
+				THRContSwitch.SetState(0);
+			}
+			break;
 
 		}
-	}else{
-		switch(key){
-			case OAPI_KEY_W:
-			case OAPI_KEY_S:
-				optics.ReticleMoved = 0;
-				break;
-			case OAPI_KEY_Q:
-				agc.SetInputChannelBit(016, MarkX, 0);  // Mark X
-				break;
-			case OAPI_KEY_Y:
-				agc.SetInputChannelBit(016, MarkY, 0);  // Mark Y
-				break;
-			case OAPI_KEY_E:
-				agc.SetInputChannelBit(016, MarkReject_LM, 0);  // Mark Reject
-				break;
-			case OAPI_KEY_MINUS:
-				//increase descent rate
-				agc.SetInputChannelBit(016, DescendMinus, 0);
-				Sclick.play();
-				break;
-			case OAPI_KEY_EQUALS:
-				//decrease descent rate
-				agc.SetInputChannelBit(016, DescendPlus, 0);
-				Sclick.play();
-				break;
+	}
+	else
+	{
+		switch(key)
+		{
+		case OAPI_KEY_W:
+		case OAPI_KEY_S:
+			optics.ReticleMoved = 0;
+			break;
+		case OAPI_KEY_Q:
+			agc.SetInputChannelBit(016, MarkX, 0);  // Mark X
+			break;
+		case OAPI_KEY_Y:
+			agc.SetInputChannelBit(016, MarkY, 0);  // Mark Y
+			break;
+		case OAPI_KEY_E:
+			agc.SetInputChannelBit(016, MarkReject_LM, 0);  // Mark Reject
+			break;
+		case OAPI_KEY_MINUS:
+			//increase descent rate
+			agc.SetInputChannelBit(016, DescendMinus, 0);
+			Sclick.play();
+			break;
+		case OAPI_KEY_EQUALS:
+			//decrease descent rate
+			agc.SetInputChannelBit(016, DescendPlus, 0);
+			Sclick.play();
+			break;
 
-			case OAPI_KEY_NUMPAD0:
-				ttca_throttle_vel = 0;
-				break;
-			case OAPI_KEY_DECIMAL:
-				ttca_throttle_vel = 0;
-				break;
+		case OAPI_KEY_NUMPAD0:
+			ttca_throttle_vel = 0;
+			break;
+		case OAPI_KEY_DECIMAL:
+			ttca_throttle_vel = 0;
+			break;
 		}
 
 	}
 
-	if ((down) && (key == OAPI_KEY_F)) {
+	if ((down) && (key == OAPI_KEY_F)) 
+	{
 		ToggleFlashlight();
 	}
 	//No Shift or Ctrl processing below here
-	if (KEYMOD_SHIFT(keystate) || KEYMOD_CONTROL(keystate)) {
+	if (KEYMOD_SHIFT(keystate) || KEYMOD_CONTROL(keystate))
+	{
 		return 0; 
 	}
 	//Engine Start Button
@@ -1275,8 +1363,10 @@ int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
 	}
 
 	// MCC CAPCOM interface key handling                                                                                                
-	if (down && !KEYMOD_SHIFT(keystate)) {
-		switch (key) {
+	if (down && !KEYMOD_SHIFT(keystate)) 
+	{
+		switch (key)
+		{
 		case OAPI_KEY_TAB:
 		case OAPI_KEY_1:
 		case OAPI_KEY_2:
@@ -1294,7 +1384,8 @@ int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
 		}
 	}
 
-	switch (key) {
+	switch (key) 
+	{
 
 	case OAPI_KEY_E:
 		return 0;
@@ -1358,13 +1449,15 @@ int LEM::clbkConsumeBufferedKey(DWORD key, bool down, char *keystate) {
 
 void LEM::DoMeshAnimation(AnimState &state, UINT &anim, double speed, double simdt)
 {
-	if (state.Moving()) {
+	if (state.Moving()) 
+	{
 		state.Move(simdt / speed);
 		SetAnimation(anim, state.pos);
 	}
 }
 
-void LEM::SetAnimations(double simdt) {
+void LEM::SetAnimations(double simdt) 
+{
 	//
 	//EVA Antenna
 	//
@@ -1379,16 +1472,19 @@ void LEM::SetAnimations(double simdt) {
 // Timestep code.
 //
 
-void LEM::clbkPreStep (double simt, double simdt, double mjd) {
+void LEM::clbkPreStep (double simt, double simdt, double mjd) 
+{
 
 	SetAnimations(simdt);
 
-	if (CheckPanelIdInTimestep) {
+	if (CheckPanelIdInTimestep) 
+	{
 		oapiSetPanel(PanelId);
 		CheckPanelIdInTimestep = false;
 	}
 
-	if (RefreshPanelIdInTimestep && oapiCameraInternal()) {
+	if (RefreshPanelIdInTimestep && oapiCameraInternal()) 
+	{
 		oapiSetPanel(PanelId);
 		RefreshPanelIdInTimestep = false;
 	}
@@ -1409,13 +1505,15 @@ void LEM::clbkPreStep (double simt, double simdt, double mjd) {
 	// Internal/External view check
 	//
 
-	if (!ExtView && !oapiCameraInternal()) {
+	if (!ExtView && !oapiCameraInternal()) 
+	{
 		ExtView = true;
 		SetLMMeshVis();
 		if (!InFOV) oapiCameraSetAperture(SaveFOV);
 	}
 
-	if (ExtView && oapiCameraInternal()) {
+	if (ExtView && oapiCameraInternal()) 
+	{
 		ExtView = false;
 		SetLMMeshVis();
 		SetView();
@@ -1431,7 +1529,8 @@ void LEM::clbkPreStep (double simt, double simdt, double mjd) {
 	// Panel flash counter.
 	//
 
-	if (MissionTime >= NextFlashUpdate) {
+	if (MissionTime >= NextFlashUpdate) 
+	{
 		PanelFlashOn = !PanelFlashOn;
 		NextFlashUpdate = MissionTime + 0.25;
 	}
@@ -1443,8 +1542,10 @@ void LEM::clbkPreStep (double simt, double simdt, double mjd) {
 	// Descent Propellant Tank Prepressurization (supercritical helium)
 	// Descent Propellant Tank Venting
 	// Ascent Propellant Tank Pressurization
-	if (status < 2) {
-		if ((StagingBoltsPyros.Blown() || StagingNutsPyros.Blown()) && CableCuttingPyros.Blown() && eds.GetDeadface()) {
+	if (status < 2) 
+	{
+		if ((StagingBoltsPyros.Blown() || StagingNutsPyros.Blown()) && CableCuttingPyros.Blown() && eds.GetDeadface()) 
+		{
 			AbortFire();
 			// Stage
 			SeparateStage(stage);
@@ -1452,53 +1553,66 @@ void LEM::clbkPreStep (double simt, double simdt, double mjd) {
 	}
 
 	// Delete LM/SLA docking port at LM extraction from SIVB
-	if (docksla && !DockingStatus(1)) {
+	if (docksla && !DockingStatus(1)) 
+	{
 		DelDock(docksla);
 		docksla = NULL;
 	}
 
 	// Debug string for displaying descent flight info from VC view
-	if (VcInfoEnabled && !Landed && GetAltitude(ALTMODE_GROUND) < 10000.0 && EngineArmSwitch.GetState() == 0 && oapiCockpitMode() == COCKPIT_VIRTUAL && viewpos == LMVIEW_LPD) {
+	if (VcInfoEnabled && !Landed && GetAltitude(ALTMODE_GROUND) < 10000.0 && EngineArmSwitch.GetState() == 0 && oapiCockpitMode() == COCKPIT_VIRTUAL && viewpos == LMVIEW_LPD)
+	{
 
 		char pgnssw[32];
 		char thrsw[32];
 		char fwddir[32];
 		char latdir[32];
 
-		if (ModeControlPGNSSwitch.GetState() == 2) {
+		if (ModeControlPGNSSwitch.GetState() == 2) 
+		{
 			sprintf(pgnssw, "AUTO");
 		}
-		else if (ModeControlPGNSSwitch.GetState() == 1) {
+		else if (ModeControlPGNSSwitch.GetState() == 1)
+		{
 			sprintf(pgnssw, "ATT HOLD");
 		}
-		else {
+		else 
+		{
 			sprintf(pgnssw, "OFF");
 		}
 
-		if (THRContSwitch.GetState() == 1) {
+		if (THRContSwitch.GetState() == 1) 
+		{
 			sprintf(thrsw, "AUTO");
 		}
-		else {
+		else 
+		{
 			sprintf(thrsw, "MAN");
 		}
 
-		if (crossPointerLeft.GetFwdVel() > 0) {
+		if (crossPointerLeft.GetFwdVel() > 0)
+		{
 			sprintf(fwddir, "FWD");
 		}
-		else if (crossPointerLeft.GetFwdVel() < 0) {
+		else if (crossPointerLeft.GetFwdVel() < 0)
+		{
 			sprintf(fwddir, "AFT");
 		}
-		else {
+		else 
+		{
 			sprintf(fwddir, "");
 		}
 
-		if (crossPointerLeft.GetLatVel() > 0) {
+		if (crossPointerLeft.GetLatVel() > 0) 
+		{
 			sprintf(latdir, "R");
 		}
-		else if (crossPointerLeft.GetFwdVel() < 0) {
+		else if (crossPointerLeft.GetFwdVel() < 0) 
+		{
 			sprintf(latdir, "L");
 		}
-		else {
+		else 
+		{
 			sprintf(latdir, "");
 		}
 
@@ -1508,23 +1622,29 @@ void LEM::clbkPreStep (double simt, double simdt, double mjd) {
 			pgnssw, thrsw, DPSFuelPercentMeter.QueryValue() * 100);
 		if (!VcInfoActive) VcInfoActive = true;
 
-	} else {
-		if (VcInfoActive) {
+	} 
+	else 
+	{
+		if (VcInfoActive) 
+		{
 			sprintf(oapiDebugString(), "");
 			VcInfoActive = false;
 		}
 	}
 
-	if (oapiGetFocusObject() == GetHandle()) {
+	if (oapiGetFocusObject() == GetHandle()) 
+	{
 		dsky.SendNetworkPacketDSKY();
+		//dsky.MySendNetworkPacketDSKY();
 	}
 
-	if ((oapiGetFocusObject() == GetHandle()) && (oapiCockpitMode() == COCKPIT_VIRTUAL) && (oapiCameraMode() == CAM_COCKPIT)) {
+	if ((oapiGetFocusObject() == GetHandle()) && (oapiCockpitMode() == COCKPIT_VIRTUAL) && (oapiCameraMode() == CAM_COCKPIT))
+	{
 		//We have focus on this vessel, and are in the VC
 		MoveFlashlight();
 	}
 
-	if (spaceeva)UpdateSpaceEVA(); //if lmp eva active (vessel created), enables EVA Timestep
+	if (spaceeva) UpdateSpaceEVA(); //if lmp eva active (vessel created), enables EVA Timestep
 }
 
 
@@ -1537,11 +1657,14 @@ void LEM::clbkPostStep(double simt, double simdt, double mjd)
 	{
 		double dustlvl = min(1.0, max(0.0, GetThrusterLevel(th_hover[0]))*(-(vsAlt - 2.0) / 15.0 + 1.0));
 
-		if (stage < 2 && thg_dust) {
-			if (vsAlt < 15.0) {
+		if (stage < 2 && thg_dust) 
+		{
+			if (vsAlt < 15.0) 
+			{
 				SetThrusterGroupLevel(thg_dust, dustlvl);
 			}
-			else {
+			else 
+			{
 				SetThrusterGroupLevel(thg_dust, 0);
 			}
 		}
@@ -1575,15 +1698,19 @@ void LEM::clbkPostStep(double simt, double simdt, double mjd)
 	// the focus switch a few timesteps to allow it to initialise properly in the background.
 	//
 
-	if (SwitchFocusToLeva > 0 && hLEVA[0]) {
+	if (SwitchFocusToLeva > 0 && hLEVA[0])
+	{
 		SwitchFocusToLeva--;
-		if (!SwitchFocusToLeva) {
+		if (!SwitchFocusToLeva) 
+		{
 			oapiSetFocusObject(hLEVA[0]);
 		}
 	}
-	if (SwitchFocusToLeva < 0 && hLEVA[1]) {
+	if (SwitchFocusToLeva < 0 && hLEVA[1]) 
+	{
 		SwitchFocusToLeva++;
-		if (!SwitchFocusToLeva) {
+		if (!SwitchFocusToLeva) 
+		{
 			oapiSetFocusObject(hLEVA[1]);
 		}
 	}
@@ -1597,32 +1724,42 @@ void LEM::clbkPostStep(double simt, double simdt, double mjd)
 
 	EngineSoundTimestep();
 
-	if (stage == 0 || pMission->LMHasLegs() == false)	{
+	if (stage == 0 || pMission->LMHasLegs() == false)	
+	{
 
 
-	}else if (stage == 1 || stage == 5)	{
+	}
+	else if (stage == 1 || stage == 5)	
+	{
 
-		if (EVA_IP[0]) {
-			if(!hLEVA[0]) {
+		if (EVA_IP[0]) 
+		{
+			if(!hLEVA[0])
+			{
 				ToggleEVA(true);
 			}
 		}
-		if (EVA_IP[1]) {
-			if (!hLEVA[1]) {
+		if (EVA_IP[1]) 
+		{
+			if (!hLEVA[1]) 
+			{
 				ToggleEVA(false);
 			}
 		}
 
-		if (ToggleEva && GroundContact() && CDRinPLSS > 0 && EVA_IP[0] == false){
+		if (ToggleEva && GroundContact() && CDRinPLSS > 0 && EVA_IP[0] == false)
+		{
 			ToggleEVA(true);
 		}
-		if (ToggleEva && GroundContact() && LMPinPLSS > 0 && EVA_IP[1] == false) {
+		if (ToggleEva && GroundContact() && LMPinPLSS > 0 && EVA_IP[1] == false)
+		{
 			ToggleEVA(false);
 		}
 		ToggleEva = false; //Always reset, in case the condition wasn't met
 
 		double vsAlt = GetAltitude(ALTMODE_GROUND);
-		if (!Landed && (GroundContact() || (vsAlt < 1.0))) {
+		if (!Landed && (GroundContact() || (vsAlt < 1.0)))
+		{
 
 #ifdef DIRECTSOUNDENABLED
 			if (!sevent.isValid())
@@ -1688,7 +1825,8 @@ void LEM::clbkLoadStateEx (FILEHANDLE scn, void *vs)
 
 void LEM::SetGenericStageState(int stat)
 {
-	switch (stat) {
+	switch (stat) 
+	{
 	case 0:
 		stage = 0;
 		SetLmVesselDockStage();
@@ -1722,7 +1860,8 @@ void LEM::PostLoadSetup(bool define_anims)
 	checkControl.autoExecuteAllItemsAutomatic(false);
 
 	// Also cause the AC busses to wire up
-	switch (EPSInverterSwitch.GetState()) {
+	switch (EPSInverterSwitch.GetState()) 
+	{
 	case THREEPOSSWITCH_UP:      // INV 2
 		ACBusA.WireTo(&AC_A_INV_2_FEED_CB);
 		ACBusB.WireTo(&AC_B_INV_2_FEED_CB);
@@ -1738,28 +1877,35 @@ void LEM::PostLoadSetup(bool define_anims)
 	HRESULT         hr;
 	// Having read the configuration file, set up DirectX...	
 	hr = DirectInput8Create(dllhandle, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&dx8ppv, NULL); // Give us a DirectInput context
-	if (!FAILED(hr)) {
-		if (enableVESIM) {
+	if (!FAILED(hr)) 
+	{
+		if (enableVESIM) 
+		{
 			for (int i = 0; i<LM_AXIS_INPUT_CNT; i++)
 				vesim.addInput(&vesim_lm_inputs[i]);
 			vesim.setupDevices("LM", dx8ppv);
 		}
-		else {
+		else
+		{
 			int x = 0;
 			// Enumerate attached joysticks until we find 2 or run out.
 			dx8ppv->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumJoysticksCallback, this, DIEDFL_ATTACHEDONLY);
-			if (js_enabled == 0) {   // Did we get anything?			
+			if (js_enabled == 0) 
+			{   // Did we get anything?			
 				dx8ppv->Release(); // No. Close down DirectInput
 				dx8ppv = NULL;     // otherwise it won't get closed later
 				//sprintf(oapiDebugString(), "DX8JS: No joysticks found");
 			}
-			else {
-				while (x < js_enabled) {                                // For each joystick
+			else 
+			{
+				while (x < js_enabled) 
+				{													  // For each joystick
 					dx8_joystick[x]->SetDataFormat(&c_dfDIJoystick2); // Use DIJOYSTATE2 structure to report data
 					dx8_jscaps[x].dwSize = sizeof(dx8_jscaps[x]);     // Initialize size of capabilities data structure
 					dx8_joystick[x]->GetCapabilities(&dx8_jscaps[x]); // Get capabilities
 																	  // Z-axis detection
-					if ((rhc_id == x && rhc_auto) || (thc_id == x && thc_auto)) {
+					if ((rhc_id == x && rhc_auto) || (thc_id == x && thc_auto)) 
+					{
 						js_current = x;
 						dx8_joystick[x]->EnumObjects(EnumAxesCallback, this, DIDFT_AXIS | DIDFT_POV);
 					}
@@ -1768,7 +1914,8 @@ void LEM::PostLoadSetup(bool define_anims)
 			}
 		}
 	}
-	else {
+	else 
+	{
 		// We can't print an error message this early in initialization, so save this reason for later investigation.
 		dx8_failure = hr;
 	}
@@ -1780,34 +1927,43 @@ void LEM::GetScenarioState(FILEHANDLE scn, void *vs)
 	int	SwitchState, i;
 	float ftcp;
 
-	while (oapiReadScenario_nextline(scn, line)) {
-		if (!strnicmp(line, "CONFIGURATION", 13)) {
+	while (oapiReadScenario_nextline(scn, line))
+	{
+		if (!strnicmp(line, "CONFIGURATION", 13))
+		{
 			sscanf(line + 13, "%d", &status);
 		}
-		else if (!strnicmp(line, "EVA_CDR", 7)) {
+		else if (!strnicmp(line, "EVA_CDR", 7))
+		{
 			EVA_IP[0] = true;
 		}
-		else if (!strnicmp(line, "EVA_LMP", 7)) {
+		else if (!strnicmp(line, "EVA_LMP", 7)) 
+		{
 			EVA_IP[1] = true;
 		}
-		else if (!strnicmp(line, "CSWITCH", 7)) {
+		else if (!strnicmp(line, "CSWITCH", 7)) 
+		{
 			SwitchState = 0;
 			sscanf(line + 7, "%d", &SwitchState);
 			SetCSwitchState(SwitchState);
 		}
-		else if (!strnicmp(line, "MISSNTIME", 9)) {
+		else if (!strnicmp(line, "MISSNTIME", 9))
+		{
 			sscanf(line + 9, "%f", &ftcp);
 			MissionTime = ftcp;
 		}
-		else if (!strnicmp(line, "UNMANNED", 8)) {
+		else if (!strnicmp(line, "UNMANNED", 8)) 
+		{
 			int i;
 			sscanf(line + 8, "%d", &i);
 			Crewed = (i == 0);
 		}
-		else if (!strnicmp(line, "LANG", 4)) {
+		else if (!strnicmp(line, "LANG", 4)) 
+		{
 			strncpy(AudioLanguage, line + 5, 64);
 		}
-		else if (!strnicmp(line, "APOLLONO", 8)) {
+		else if (!strnicmp(line, "APOLLONO", 8))
+		{
 			sscanf(line + 8, "%d", &ApolloNo);
 
 			if (sscanf(line + 8, "%d", &ApolloNo) == 1)
@@ -1822,270 +1978,355 @@ void LEM::GetScenarioState(FILEHANDLE scn, void *vs)
 			}
 			CreateMissionSpecificSystems();
 		}
-		else if (!strnicmp(line, "LANDED", 6)) {
+		else if (!strnicmp(line, "LANDED", 6)) 
+		{
 			sscanf(line + 6, "%d", &Landed);
 		}
-		else if (!strnicmp(line, "DSCFUEL", 7)) {
+		else if (!strnicmp(line, "DSCFUEL", 7)) 
+		{
 			sscanf(line + 7, "%f", &ftcp);
 			DescentFuelMassKg = ftcp;
 		}
-		else if (!strnicmp(line, "ASCFUEL", 7)) {
+		else if (!strnicmp(line, "ASCFUEL", 7)) 
+		{
 			sscanf(line + 7, "%f", &ftcp);
 			AscentFuelMassKg = ftcp;
 		}
-		else if (!strnicmp(line, "DSCEMPTYMASS", 12)) {
+		else if (!strnicmp(line, "DSCEMPTYMASS", 12))
+		{
 			sscanf(line + 12, "%f", &ftcp);
 			DescentEmptyMassKg = ftcp;
 		}
-		else if (!strnicmp(line, "ASCEMPTYMASS", 12)) {
+		else if (!strnicmp(line, "ASCEMPTYMASS", 12)) 
+		{
 			sscanf(line + 12, "%f", &ftcp);
 			AscentEmptyMassKg = ftcp;
 		}
-		else if (!strnicmp(line, "FDAIDISABLED", 12)) {
+		else if (!strnicmp(line, "FDAIDISABLED", 12)) 
+		{
 			sscanf(line + 12, "%i", &fdaiDisabled);
 		}
-		else if (!strnicmp(line, "SAVEFOV", 7)) {
+		else if (!strnicmp(line, "SAVEFOV", 7)) 
+		{
 			sscanf(line + 7, "%f", &ftcp);
 			SaveFOV = ftcp;
 		}
-		else if (!strnicmp(line, "INFOV", 5)) {
+		else if (!strnicmp(line, "INFOV", 5)) 
+		{
 			int i;
 			sscanf(line + 5, "%d", &i);
 			InFOV = (i == 1);
 		}
-		else if (!strnicmp(line, "ORDEALENABLED", 13)) {
+		else if (!strnicmp(line, "ORDEALENABLED", 13)) 
+		{
 			sscanf(line + 13, "%i", &ordealEnabled);
 		}
-		else if (!strnicmp(line, "CDRINPLSS", 9)) {
+		else if (!strnicmp(line, "CDRINPLSS", 9)) 
+		{
 			sscanf(line + 9, "%i", &CDRinPLSS);
 		}
-		else if (!strnicmp(line, "LMPINPLSS", 9)) {
+		else if (!strnicmp(line, "LMPINPLSS", 9)) 
+		{
 			sscanf(line + 9, "%i", &LMPinPLSS);
 		}
-		else if (!strnicmp(line, "COAS1ENABLED", 12)) {
+		else if (!strnicmp(line, "COAS1ENABLED", 12)) 
+		{
 			sscanf(line + 12, "%i", &LEMCoas1Enabled);
 		}
-		else if (!strnicmp(line, "COAS2ENABLED", 12)) {
+		else if (!strnicmp(line, "COAS2ENABLED", 12))
+		{
 			sscanf(line + 12, "%i", &LEMCoas2Enabled);
 		}
-		else if (!strnicmp(line, "COASRETICLEVISIBLE", 18)) {
+		else if (!strnicmp(line, "COASRETICLEVISIBLE", 18))
+		{
 			sscanf(line + 18, "%i", &COASreticlevisible);
 		}
-		else if (!strnicmp(line, "WINDOWSHADESENABLED", 19)) {
+		else if (!strnicmp(line, "WINDOWSHADESENABLED", 19)) 
+		{
 			sscanf(line + 19, "%i", &LEMWindowShades);
 		}
-		else if (!strnicmp(line, FAILURES_START_STRING, sizeof(FAILURES_START_STRING))) {
+		else if (!strnicmp(line, FAILURES_START_STRING, sizeof(FAILURES_START_STRING))) 
+		{
 			Failures.LoadState(scn);
 		}
-		else if (!strnicmp(line, INERTIAL_DATA_START_STRING, sizeof(INERTIAL_DATA_START_STRING))) {
+		else if (!strnicmp(line, INERTIAL_DATA_START_STRING, sizeof(INERTIAL_DATA_START_STRING)))
+		{
 			inertialData.LoadState(scn);
 		}
-		else if (!strnicmp(line, DSKY_START_STRING, sizeof(DSKY_START_STRING))) {
+		else if (!strnicmp(line, DSKY_START_STRING, sizeof(DSKY_START_STRING))) 
+		{
 			dsky.LoadState(scn, DSKY_END_STRING);
 		}
-		else if (!strnicmp(line, AGC_START_STRING, sizeof(AGC_START_STRING))) {
+		else if (!strnicmp(line, AGC_START_STRING, sizeof(AGC_START_STRING))) 
+		{
 			agc.LoadState(scn);
 		}
-		else if (!strnicmp(line, IMU_START_STRING, sizeof(IMU_START_STRING))) {
+		else if (!strnicmp(line, IMU_START_STRING, sizeof(IMU_START_STRING)))
+		{
 			imu.LoadState(scn);
 		}
-		else if (!strnicmp(line, "SCDU_START", sizeof("SCDU_START"))) {
+		else if (!strnicmp(line, "SCDU_START", sizeof("SCDU_START"))) 
+		{
 			scdu.LoadState(scn, "CDU_END");
 		}
-		else if (!strnicmp(line, "TCDU_START", sizeof("TCDU_START"))) {
+		else if (!strnicmp(line, "TCDU_START", sizeof("TCDU_START")))
+		{
 			tcdu.LoadState(scn, "CDU_END");
 		}
-		else if (!strnicmp(line, "DEDA_START", sizeof("DEDA_START"))) {
+		else if (!strnicmp(line, "DEDA_START", sizeof("DEDA_START")))
+		{
 			deda.LoadState(scn, "DEDA_END");
 		}
-		else if (!strnicmp(line, "AEA_START", sizeof("AEA_START"))) {
+		else if (!strnicmp(line, "AEA_START", sizeof("AEA_START"))) 
+		{
 			aea.LoadState(scn, "AEA_END");
 		}
-		else if (!strnicmp(line, "ASA_START", sizeof("ASA_START"))) {
+		else if (!strnicmp(line, "ASA_START", sizeof("ASA_START")))
+		{
 			asa.LoadState(scn, "ASA_END");
 		}
+
 		else if (!strnicmp(line, "ECA_1_START", sizeof("ECA_1_START"))) {
 			ECA_1.LoadState(scn, "ECA_1_END");
 		}
-		else if (!strnicmp(line, "ECA_2_START", sizeof("ECA_2_START"))) {
+		else if (!strnicmp(line, "ECA_2_START", sizeof("ECA_2_START"))) 
+		{
 			ECA_2.LoadState(scn, "ECA_2_END");
 		}
-		else if (!strnicmp(line, "ECA_3_START", sizeof("ECA_3_START"))) {
+		else if (!strnicmp(line, "ECA_3_START", sizeof("ECA_3_START")))
+		{
 			ECA_3.LoadState(scn, "ECA_3_END");
 		}
-		else if (!strnicmp(line, "ECA_4_START", sizeof("ECA_4_START"))) {
+		else if (!strnicmp(line, "ECA_4_START", sizeof("ECA_4_START")))
+		{
 			ECA_4.LoadState(scn, "ECA_4_END");
 		}
-		else if (!strnicmp(line, "RELAYJUNCTIONBOX", 16)) {
+		else if (!strnicmp(line, "RELAYJUNCTIONBOX", 16)) 
+		{
 			rjb.LoadState(line);
 		}
-		else if (!strnicmp(line, "DEADFACERELAYBOX", 16)) {
+		else if (!strnicmp(line, "DEADFACERELAYBOX", 16)) 
+		{
 			drb.LoadState(line);
 		}
-		else if (!strnicmp(line, "CMPowerToCDRBusRelayA", 21)) {
+		else if (!strnicmp(line, "CMPowerToCDRBusRelayA", 21)) 
+		{
 			int i;
 			sscanf(line + 21, "%d", &i);
 			CMPowerToCDRBusRelayA = (i == 1);
 		}
-		else if (!strnicmp(line, "CMPowerToCDRBusRelayB", 21)) {
+		else if (!strnicmp(line, "CMPowerToCDRBusRelayB", 21)) 
+		{
 			int i;
 			sscanf(line + 21, "%d", &i);
 			CMPowerToCDRBusRelayB = (i == 1);
 		}
-		else if (!strnicmp(line, "UNIFIEDSBAND", 12)) {
+		else if (!strnicmp(line, "UNIFIEDSBAND", 12)) 
+		{
 			SBand.LoadState(line);
 		}
-		else if (!strnicmp(line, "STEERABLEANTENNA", 16)) {
+		else if (!strnicmp(line, "STEERABLEANTENNA", 16)) 
+		{
 			SBandSteerable.LoadState(line);
 		}
-		else if (!strnicmp(line, "VHFTRANSCEIVER", 14)) {
+		else if (!strnicmp(line, "VHFTRANSCEIVER", 14))
+		{
 			VHF.LoadState(line);
 		}
-		else if (!strnicmp(line, "LCA_START", sizeof("LCA_START"))) {
+		else if (!strnicmp(line, "LCA_START", sizeof("LCA_START")))
+		{
 			lca.LoadState(scn,"LCA_END");
 		}
-		else if (!strnicmp(line, CWEA_START_STRING, sizeof(CWEA_START_STRING))) {
+		else if (!strnicmp(line, CWEA_START_STRING, sizeof(CWEA_START_STRING))) 
+		{
 			CWEA.LoadState(scn, CWEA_END_STRING);
 		}
-		else if (!strnicmp(line, "FORWARDHATCH", 12)) {
+		else if (!strnicmp(line, "FORWARDHATCH", 12)) 
+		{
 			ForwardHatch.LoadState(line);
 		}
-		else if (!strnicmp(line, "OVERHEADHATCH", 13)) {
+		else if (!strnicmp(line, "OVERHEADHATCH", 13))
+		{
 			OverheadHatch.LoadState(line);
 		}
-		else if (!strnicmp(line, "PRIMGLYPUMPCONTROLLER", 21)) {
+		else if (!strnicmp(line, "PRIMGLYPUMPCONTROLLER", 21)) 
+		{
 			PrimGlycolPumpController.LoadState(line);
 		}
-		else if (!strnicmp(line, "SUITFANDPSENSOR", 15)) {
+		else if (!strnicmp(line, "SUITFANDPSENSOR", 15))
+		{
 			SuitFanDPSensor.LoadState(line);
 		}
-		else if (!strnicmp(line, "CABINPRESSURESWITCH", 19)) {
+		else if (!strnicmp(line, "CABINPRESSURESWITCH", 19)) 
+		{
 			CabinPressureSwitch.LoadState(line, 19);
 		}
-		else if (!strnicmp(line, "SUITPRESSURESWITCH", 18)) {
+		else if (!strnicmp(line, "SUITPRESSURESWITCH", 18))
+		{
 			SuitPressureSwitch.LoadState(line, 18);
 		}
-		else if (!strnicmp(line, "CREWSTATUS", 10)) {
+		else if (!strnicmp(line, "CREWSTATUS", 10))
+		{
 			CrewStatus.LoadState(line);
 		}
-		else if (!strnicmp(line, "PANEL_ID", 8)) {
+		else if (!strnicmp(line, "PANEL_ID", 8))
+		{
 			sscanf(line + 8, "%d", &PanelId);
 		}
-		else if (!strnicmp(line, "VIEWPOS", 7)) {
+		else if (!strnicmp(line, "VIEWPOS", 7)) 
+		{
 		    sscanf(line + 7, "%d", &viewpos);
 		}
-		else if (!strnicmp(line, PANELSWITCH_START_STRING, strlen(PANELSWITCH_START_STRING))) {
+		else if (!strnicmp(line, PANELSWITCH_START_STRING, strlen(PANELSWITCH_START_STRING)))
+		{
 			PSH.LoadState(scn);
 		}
-		else if (!strnicmp(line, "LEM_EDS_START", sizeof("LEM_EDS_START"))) {
+		else if (!strnicmp(line, "LEM_EDS_START", sizeof("LEM_EDS_START")))
+		{
 			eds.LoadState(scn, "LEM_EDS_END");
 		}
-		else if (!strnicmp(line, "LEM_RR_START", sizeof("LEM_RR_START"))) {
+		else if (!strnicmp(line, "LEM_RR_START", sizeof("LEM_RR_START")))
+		{
 			RR.LoadState(scn, "LEM_RR_END");
 		}
-		else if (!strnicmp(line, "LEM_LR_START", sizeof("LEM_LR_START"))) {
+		else if (!strnicmp(line, "LEM_LR_START", sizeof("LEM_LR_START"))) 
+		{
 			LR.LoadState(scn, "LEM_LR_END");
 		}
-		else if (!strnicmp(line, "RADARTAPE_START", sizeof("RADARTAPE_START"))) {
+		else if (!strnicmp(line, "RADARTAPE_START", sizeof("RADARTAPE_START"))) 
+		{
 			RadarTape.LoadState(scn, "RADARTAPE_END");
 		}
-		else if (!strnicmp(line, CROSSPOINTER_LEFT_STRING, 17)) {
+		else if (!strnicmp(line, CROSSPOINTER_LEFT_STRING, 17)) 
+		{
 			crossPointerLeft.LoadState(line);
 		}
-		else if (!strnicmp(line, CROSSPOINTER_RIGHT_STRING, 17)) {
+		else if (!strnicmp(line, CROSSPOINTER_RIGHT_STRING, 17)) 
+		{
 			crossPointerRight.LoadState(line);
 		}
-		else if (!strnicmp(line, LMOPTICS_START_STRING, sizeof(LMOPTICS_START_STRING))) {
+		else if (!strnicmp(line, LMOPTICS_START_STRING, sizeof(LMOPTICS_START_STRING))) 
+		{
 			optics.LoadState(scn);
 		}
-		else if (!strnicmp(line, FDAI_START_STRING, sizeof(FDAI_START_STRING))) {
+		else if (!strnicmp(line, FDAI_START_STRING, sizeof(FDAI_START_STRING))) 
+		{
 			fdaiLeft.LoadState(scn, FDAI_END_STRING);
 		}
-		else if (!strnicmp(line, FDAI2_START_STRING, sizeof(FDAI2_START_STRING))) {
+		else if (!strnicmp(line, FDAI2_START_STRING, sizeof(FDAI2_START_STRING))) 
+		{
 			fdaiRight.LoadState(scn, FDAI2_END_STRING);
 		}
-		else if (!strnicmp(line, DPSPROPELLANT_START_STRING, sizeof(DPSPROPELLANT_START_STRING))) {
+		else if (!strnicmp(line, DPSPROPELLANT_START_STRING, sizeof(DPSPROPELLANT_START_STRING)))
+		{
 			DPSPropellant.LoadState(scn);
 		}
-		else if (!strnicmp(line, "DPS_BEGIN", sizeof("DPS_BEGIN"))) {
+		else if (!strnicmp(line, "DPS_BEGIN", sizeof("DPS_BEGIN"))) 
+		{
 			DPS.LoadState(scn, "DPS_END");
 		}
-		else if (!strnicmp(line, "DPSGIMBALACTUATOR_PITCH_BEGIN", sizeof("DPSGIMBALACTUATOR_PITCH_BEGIN"))) {
+		else if (!strnicmp(line, "DPSGIMBALACTUATOR_PITCH_BEGIN", sizeof("DPSGIMBALACTUATOR_PITCH_BEGIN")))
+		{
 			DPS.pitchGimbalActuator.LoadState(scn);
 		}
-		else if (!strnicmp(line, "DPSGIMBALACTUATOR_ROLL_BEGIN", sizeof("DPSGIMBALACTUATOR_ROLL_BEGIN"))) {
+		else if (!strnicmp(line, "DPSGIMBALACTUATOR_ROLL_BEGIN", sizeof("DPSGIMBALACTUATOR_ROLL_BEGIN")))
+		{
 			DPS.rollGimbalActuator.LoadState(scn);
 		}
-		else if (!strnicmp(line, "DECA_BEGIN", sizeof("DECA_BEGIN"))) {
+		else if (!strnicmp(line, "DECA_BEGIN", sizeof("DECA_BEGIN"))) 
+		{
 			deca.LoadState(scn);
 		}
-		else if (!strnicmp(line, "SCCA1_BEGIN", sizeof("SCCA1_BEGIN"))) {
+		else if (!strnicmp(line, "SCCA1_BEGIN", sizeof("SCCA1_BEGIN")))
+		{
 			scca1.LoadState(scn, "SCCA_END");
 		}
-		else if (!strnicmp(line, "SCCA2_BEGIN", sizeof("SCCA2_BEGIN"))) {
+		else if (!strnicmp(line, "SCCA2_BEGIN", sizeof("SCCA2_BEGIN"))) 
+		{
 			scca2.LoadState(scn, "SCCA_END");
 		}
-		else if (!strnicmp(line, "SCCA3_BEGIN", sizeof("SCCA3_BEGIN"))) {
+		else if (!strnicmp(line, "SCCA3_BEGIN", sizeof("SCCA3_BEGIN")))
+		{
 			scca3.LoadState(scn, "SCCA_END");
 		}
-		else if (!strnicmp(line, "AscEngArmAssy", 13)) {
+		else if (!strnicmp(line, "AscEngArmAssy", 13)) 
+		{
 			if (aeaa) aeaa->LoadState(line);
 		}
-		else if (!strnicmp(line, APSPROPELLANT_START_STRING, sizeof(APSPROPELLANT_START_STRING))) {
+		else if (!strnicmp(line, APSPROPELLANT_START_STRING, sizeof(APSPROPELLANT_START_STRING))) 
+		{
 			APSPropellant.LoadState(scn);
 		}
-		else if (!strnicmp(line, "APS_BEGIN", sizeof("APS_BEGIN"))) {
+		else if (!strnicmp(line, "APS_BEGIN", sizeof("APS_BEGIN"))) 
+		{
 			APS.LoadState(scn, "APS_END");
 		}
-		else if (!strnicmp(line, "RCSPROPELLANT_A_BEGIN", sizeof("RCSPROPELLANT_A_BEGIN"))) {
+		else if (!strnicmp(line, "RCSPROPELLANT_A_BEGIN", sizeof("RCSPROPELLANT_A_BEGIN"))) 
+		{
 			RCSA.LoadState(scn, "RCSPROPELLANT_END");
 		}
-		else if (!strnicmp(line, "RCSPROPELLANT_B_BEGIN", sizeof("RCSPROPELLANT_B_BEGIN"))) {
+		else if (!strnicmp(line, "RCSPROPELLANT_B_BEGIN", sizeof("RCSPROPELLANT_B_BEGIN")))
+		{
 			RCSB.LoadState(scn, "RCSPROPELLANT_END");
 		}
-		else if (!strnicmp(line, "RCSTCA_1A_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) {
+		else if (!strnicmp(line, "RCSTCA_1A_BEGIN", sizeof("RCSTCA_1A_BEGIN")))
+		{
 			tca1A.LoadState(scn, "RCSTCA_END");
 		}
-		else if (!strnicmp(line, "RCSTCA_2A_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) {
+		else if (!strnicmp(line, "RCSTCA_2A_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) 
+		{
 			tca2A.LoadState(scn, "RCSTCA_END");
 		}
-		else if (!strnicmp(line, "RCSTCA_3A_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) {
+		else if (!strnicmp(line, "RCSTCA_3A_BEGIN", sizeof("RCSTCA_1A_BEGIN")))
+		{
 			tca3A.LoadState(scn, "RCSTCA_END");
 		}
-		else if (!strnicmp(line, "RCSTCA_4A_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) {
+		else if (!strnicmp(line, "RCSTCA_4A_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) 
+		{
 			tca4A.LoadState(scn, "RCSTCA_END");
 		}
-		else if (!strnicmp(line, "RCSTCA_1B_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) {
+		else if (!strnicmp(line, "RCSTCA_1B_BEGIN", sizeof("RCSTCA_1A_BEGIN")))
+		{
 			tca1B.LoadState(scn, "RCSTCA_END");
 		}
-		else if (!strnicmp(line, "RCSTCA_2B_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) {
+		else if (!strnicmp(line, "RCSTCA_2B_BEGIN", sizeof("RCSTCA_1A_BEGIN")))
+		{
 			tca2B.LoadState(scn, "RCSTCA_END");
 		}
-		else if (!strnicmp(line, "RCSTCA_3B_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) {
+		else if (!strnicmp(line, "RCSTCA_3B_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) 
+		{
 			tca3B.LoadState(scn, "RCSTCA_END");
 		}
-		else if (!strnicmp(line, "RCSTCA_4B_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) {
+		else if (!strnicmp(line, "RCSTCA_4B_BEGIN", sizeof("RCSTCA_1A_BEGIN"))) 
+		{
 			tca4B.LoadState(scn, "RCSTCA_END");
 		}
-		else if (!strnicmp(line, ORDEAL_START_STRING, sizeof(ORDEAL_START_STRING))) {
+		else if (!strnicmp(line, ORDEAL_START_STRING, sizeof(ORDEAL_START_STRING))) 
+		{
 			ordeal.LoadState(scn);
 		}
-		else if (!strnicmp(line, ATCA_START_STRING, sizeof(ATCA_START_STRING))) {
+		else if (!strnicmp(line, ATCA_START_STRING, sizeof(ATCA_START_STRING)))
+		{
 			atca.LoadState(scn);
 		}
-		else if (!strnicmp(line, "MISSIONTIMER_START", sizeof("MISSIONTIMER_START"))) {
+		else if (!strnicmp(line, "MISSIONTIMER_START", sizeof("MISSIONTIMER_START")))
+		{
 			MissionTimerDisplay.LoadState(scn, MISSIONTIMER_END_STRING);
 		}
-		else if (!strnicmp(line, "EVENTTIMER_START", sizeof("EVENTTIMER_START"))) {
+		else if (!strnicmp(line, "EVENTTIMER_START", sizeof("EVENTTIMER_START"))) 
+		{
 			EventTimerDisplay.LoadState(scn, EVENTTIMER_END_STRING);
 		}
-		else if (!strnicmp(line, CUECARDS_START_STRING, sizeof(CUECARDS_START_STRING))) {
+		else if (!strnicmp(line, CUECARDS_START_STRING, sizeof(CUECARDS_START_STRING))) 
+		{
 			CueCards.LoadState(scn);
 		}
-		else if (!strnicmp(line, "<INTERNALS>", 11)) { //INTERNALS signals the PanelSDK part of the scenario
+		else if (!strnicmp(line, "<INTERNALS>", 11)) 
+		{								//INTERNALS signals the PanelSDK part of the scenario
 			Panelsdk.Load(scn);			//send the loading to the Panelsdk
 		}
-		else if (!strnicmp(line, "SPACEEVA", 8)) {
+		else if (!strnicmp(line, "SPACEEVA", 8)) 
+		{
 			//Load EVA State from scn file
 			sscanf(line + 8, "%d", &i);
 			spaceeva = i;
@@ -2101,7 +2342,8 @@ void LEM::GetScenarioState(FILEHANDLE scn, void *vs)
 	}
 }
 
-void LEM::clbkSetClassCaps (FILEHANDLE cfg) {
+void LEM::clbkSetClassCaps (FILEHANDLE cfg)
+{
 
 	//
 	// Scan the launchpad config file.
@@ -2111,7 +2353,8 @@ void LEM::clbkSetClassCaps (FILEHANDLE cfg) {
 	sprintf(buffer, "%s.launchpad.cfg", GetClassName());
 	FILEHANDLE hFile = oapiOpenFile(buffer, FILE_IN, CONFIG);
 
-	while (oapiReadScenario_nextline(hFile, line)) {
+	while (oapiReadScenario_nextline(hFile, line)) 
+	{
 		ProcessConfigFileLine(hFile, line);
 	}
 	oapiCloseFile(hFile, FILE_IN);
@@ -2140,7 +2383,8 @@ void LEM::clbkPostCreation()
 	}
 
 	// Delete LM/SLA docking port if LM extracted from SIVB
-	if (docksla && !DockingStatus(1)) {
+	if (docksla && !DockingStatus(1)) 
+	{
 		DelDock(docksla);
 		docksla = NULL;
 	}
@@ -2159,7 +2403,8 @@ void LEM::clbkPostCreation()
 void LEM::clbkVisualCreated(VISHANDLE vis, int refcount)
 {
 	this->vis = vis;
-	if (ascidx != -1) {
+	if (ascidx != -1)
+	{
 		drogue = GetDevMesh(vis, ascidx);
 		DrogueVis();
 		cdrmesh = GetDevMesh(vis, ascidx);
@@ -2167,7 +2412,8 @@ void LEM::clbkVisualCreated(VISHANDLE vis, int refcount)
 		SetCrewMesh();
 	}
 
-	if (dscidx != -1 && pMission->LMHasLegs()) {
+	if (dscidx != -1 && pMission->LMHasLegs()) 
+	{
 		probes = GetDevMesh(vis, dscidx);
 		deflectors = GetDevMesh(vis, dscidx);
 		cask = GetDevMesh(vis, dscidx);
@@ -2176,7 +2422,8 @@ void LEM::clbkVisualCreated(VISHANDLE vis, int refcount)
 		HideCask();
 	}
 
-	if (vcidx != -1) {
+	if (vcidx != -1) 
+	{
 		vcmesh = GetDevMesh(vis, vcidx);
 		SetCOAS();
 	}
@@ -2187,13 +2434,16 @@ void LEM::clbkVisualCreated(VISHANDLE vis, int refcount)
 	HideMeshGroup(vcidx, VC_GRP_Panel12_16_DC_FEEDER_FAULT_2, true);
 	HideMeshGroup(vcidx, VC_GRP_Panel12_16_DC_BUS_FAULT, true);
 
-	if (pMission->GetLMNumber() < 6) {												// up to Apollo 11
+	if (pMission->GetLMNumber() < 6) 
+	{												// up to Apollo 11
 		HideMeshGroup(vcidx, VC_GRP_Panel12_16_DC_BUS_FAULT, false);
 	}
-	else if (pMission->GetLMNumber() > 5 && (pMission->GetLMNumber() < 9)) {		// Apollo 12 to 14
+	else if (pMission->GetLMNumber() > 5 && (pMission->GetLMNumber() < 9)) 
+	{		// Apollo 12 to 14
 		HideMeshGroup(vcidx, VC_GRP_Panel12_16_DC_FEEDER_FAULT, false);
 	}
-	else {
+	else 
+	{
 		HideMeshGroup(vcidx, VC_GRP_Panel12_16_DC_FEEDER_FAULT_2, false);			// Apollo 15 to 17
 	}
 }
@@ -2231,26 +2481,32 @@ void LEM::clbkFocusChanged(bool getfocus, OBJHANDLE hNewVessel, OBJHANDLE hOldVe
 	if (hNewVessel == hLM) { //LM gains focus
 
 		bool fixCamera = false;
-		if (oapiCameraInternal() == false) {
+		if (oapiCameraInternal() == false) 
+		{
 			fixCamera = true;
 			oapiCameraAttach(hLM, 0);
 		}
 		
-		if (status == 0) { //Dock Stage
+		if (status == 0) 
+		{ //Dock Stage
 			SetSize(6);
 		}
-		else if (status == 1) { //Hover Stage
+		else if (status == 1) 
+		{ //Hover Stage
 			SetSize(7);
 		}
-		else if (status == 2) { //Ascent Hover Stage
+		else if (status == 2) 
+		{ //Ascent Hover Stage
 			SetSize(5);
 		}
 
-		if (fixCamera == true) {
+		if (fixCamera == true)
+		{
 			oapiCameraAttach(hLM, 1);
 		}
 	}
-	else if (hOldVessel == hLM) { //LM loses focus
+	else if (hOldVessel == hLM) 
+	{ //LM loses focus
 		SetSize(visibilitySize);
 	}
 }
@@ -2258,13 +2514,16 @@ void LEM::clbkFocusChanged(bool getfocus, OBJHANDLE hNewVessel, OBJHANDLE hOldVe
 void LEM::clbkGetRadiationForce(const VECTOR3& mflux, VECTOR3& F, VECTOR3& pos)
 {
 	double size = 0;
-	if (status == 0) { //Dock Stage
+	if (status == 0) 
+	{ //Dock Stage
 		size = 6;
 	}
-	else if (status == 1) { //Hover Stage
+	else if (status == 1) 
+	{ //Hover Stage
 		size = 7;
 	}
-	else if (status == 2) { //Ascent Hover Stage
+	else if (status == 2) 
+	{ //Ascent Hover Stage
 		size = 5;
 	}
 
@@ -2296,92 +2555,116 @@ bool LEM::ProcessConfigFileLine(FILEHANDLE scn, char *line)
 {
 	int i;
 
-	if (!strnicmp(line, "FDAIDISABLED", 12)) {
+	if (!strnicmp(line, "FDAIDISABLED", 12)) 
+	{
 		sscanf(line + 12, "%i", &fdaiDisabled);
 	}
-	else if (!strnicmp(line, "FDAISMOOTH", 10)) {
+	else if (!strnicmp(line, "FDAISMOOTH", 10)) 
+	{
 			sscanf(line + 10, "%i", &fdaiSmooth);
 	}
-	else if (!strnicmp (line, "MULTITHREAD", 11)) {
+	else if (!strnicmp (line, "MULTITHREAD", 11))
+	{
 		int value;
 		sscanf (line+11, "%d", &value);
 		isMultiThread=(value>0)?true:false;
 	}
-	else if (!strnicmp (line, "JOYSTICK_RHC", 12)) {
+	else if (!strnicmp (line, "JOYSTICK_RHC", 12)) 
+	{
 		sscanf (line + 12, "%i", &rhc_id);
 		if(rhc_id > 1){ rhc_id = 1; } // Be paranoid
 	}
-	else if (!strnicmp (line, "JOYSTICK_RTTID", 14)) {
+	else if (!strnicmp (line, "JOYSTICK_RTTID", 14)) 
+	{
 		sscanf (line + 14, "%i", &rhc_thctoggle_id);
 		if (rhc_thctoggle_id > 128){ rhc_thctoggle_id = 128; } // Be paranoid
 	}
-	else if (!strnicmp (line, "JOYSTICK_RRT", 12)) {
+	else if (!strnicmp (line, "JOYSTICK_RRT", 12))
+	{
 		sscanf (line + 12, "%i", &rhc_rot_id);
 		if(rhc_rot_id > 2){ rhc_rot_id = 2; } // Be paranoid
 	}
-	else if (!strnicmp (line, "JOYSTICK_RSL", 12)) {
+	else if (!strnicmp (line, "JOYSTICK_RSL", 12)) 
+	{
 		sscanf (line + 12, "%i", &rhc_sld_id);
 		if(rhc_sld_id > 2){ rhc_sld_id = 2; } // Be paranoid
 	}
-	else if (!strnicmp (line, "JOYSTICK_RZX", 12)) {
+	else if (!strnicmp (line, "JOYSTICK_RZX", 12))
+	{
 		sscanf (line + 12, "%i", &rhc_rzx_id);
 	}
-	else if (!strnicmp (line, "JOYSTICK_THC", 12)) {
+	else if (!strnicmp (line, "JOYSTICK_THC", 12)) 
+	{
 		sscanf (line + 12, "%i", &thc_id);
 		if(thc_id > 1){ thc_id = 1; } // Be paranoid
 	}
-	else if (!strnicmp (line, "JOYSTICK_TRT", 12)) {
+	else if (!strnicmp (line, "JOYSTICK_TRT", 12)) 
+	{
 		sscanf (line + 12, "%i", &thc_rot_id);
 		if(thc_rot_id > 2){ thc_rot_id = 2; } // Be paranoid
 	}
-	else if (!strnicmp(line, "JOYSTICK_TSL", 12)) {
+	else if (!strnicmp(line, "JOYSTICK_TSL", 12)) 
+	{
 		sscanf(line + 12, "%i", &thc_tjt_id);
 		if (thc_tjt_id > 2) { thc_tjt_id = 2; } // Be paranoid
 	}
-	else if (!strnicmp (line, "JOYSTICK_TZX", 12)) {
+	else if (!strnicmp (line, "JOYSTICK_TZX", 12))
+	{
 		thc_rzx_id = 1;
 	}
-	else if (!strnicmp (line, "JOYSTICK_RDB", 12)) {
+	else if (!strnicmp (line, "JOYSTICK_RDB", 12)) 
+	{
 		rhc_debug = 1;
 	}
-	else if (!strnicmp (line, "JOYSTICK_TDB", 12)) {
+	else if (!strnicmp (line, "JOYSTICK_TDB", 12)) 
+	{
 		thc_debug = 1;
 	}
-	else if (!strnicmp (line, "JOYSTICK_RAUTO", 14)) {
+	else if (!strnicmp (line, "JOYSTICK_RAUTO", 14)) 
+	{
 		rhc_auto = 1;
 	}
-	else if (!strnicmp (line, "JOYSTICK_TAUTO", 14)) {
+	else if (!strnicmp (line, "JOYSTICK_TAUTO", 14)) 
+	{
 		thc_auto = 1;
 	}
-	else if (!strnicmp (line, "JOYSTICK_RTT", 12)) {
+	else if (!strnicmp (line, "JOYSTICK_RTT", 12)) 
+	{
 		sscanf(line + 12, "%i", &i);
 		rhc_thctoggle = (i != 0);
 	}
-	else if (!strnicmp(line, "JOYSTICK_VESIM", 14)) {
+	else if (!strnicmp(line, "JOYSTICK_VESIM", 14)) 
+	{
 		int tmp;
 		sscanf(line + 14, "%i", &tmp);
 		enableVESIM = (tmp != 0);
 	}
-	else if (!strnicmp(line, "VAGCCHECKLISTAUTOSLOW", 21)) {
+	else if (!strnicmp(line, "VAGCCHECKLISTAUTOSLOW", 21)) 
+	{
 		sscanf(line + 21, "%i", &i);
 		VAGCChecklistAutoSlow = (i != 0);
 	}
-	else if (!strnicmp(line, "VAGCCHECKLISTAUTOENABLED", 24)) {
+	else if (!strnicmp(line, "VAGCCHECKLISTAUTOENABLED", 24))
+	{
 		int i;
 		sscanf(line + 24, "%d", &i);
 		VAGCChecklistAutoEnabled = (i != 0);
 	}
-	else if (!strnicmp(line, "CHKVAR_", 7)) {
-		for (int i = 0; i < 16; i++) {
+	else if (!strnicmp(line, "CHKVAR_", 7))
+	{
+		for (int i = 0; i < 16; i++) 
+		{
 			char name[16];
 			sprintf(name, "CHKVAR_%d", i);
-			if (!strnicmp(line, name, strlen(name))) {
+			if (!strnicmp(line, name, strlen(name))) 
+			{
 				strncpy(Checklist_Variable[i], line + (strlen(name) + 1), 32);
 				break;
 			}
 		}
 	}
-	else if (!strnicmp(line, "VCINFOENABLED", 13)) {
+	else if (!strnicmp(line, "VCINFOENABLED", 13))
+	{
 		int i;
 		sscanf(line + 13, "%d", &i);
 		VcInfoEnabled = (i != 0);
@@ -2408,10 +2691,12 @@ void LEM::clbkSaveState (FILEHANDLE scn)
 	ShiftCG(currentCoG); 
 
 	oapiWriteScenario_int (scn, "CONFIGURATION", status);
-	if (EVA_IP[0]){
+	if (EVA_IP[0])
+	{
 		oapiWriteScenario_int (scn, "EVA_CDR", int(TO_EVA));
 	}
-	if (EVA_IP[1]) {
+	if (EVA_IP[1]) 
+	{
 		oapiWriteScenario_int(scn, "EVA_LMP", int(TO_EVA));
 	}
 
@@ -2442,12 +2727,15 @@ void LEM::clbkSaveState (FILEHANDLE scn)
 
 	oapiWriteScenario_int(scn, "SPACEEVA", spaceeva);
 
-	if (!Crewed) {
+	if (!Crewed) 
+	{
 		oapiWriteScenario_int (scn, "UNMANNED", 1);
 	}
 
-	for (int i = 0; i < 16; i++) {
-		if (Checklist_Variable[i][0] != 0) {
+	for (int i = 0; i < 16; i++) 
+	{
+		if (Checklist_Variable[i][0] != 0)
+		{
 			char name[16];
 			sprintf(name, "CHKVAR_%d", i);
 			oapiWriteScenario_string(scn, name, Checklist_Variable[i]);
@@ -2568,7 +2856,8 @@ void LEM::QuicksaveScenario()
 	VECTOR3 hhhmmss = _V(0, 0, 0);
 	char timeSign = '+';
 
-	if (time < 0) {
+	if (time < 0) 
+	{
 		time = abs(time);
 		timeSign = '-';
 	}
@@ -2595,7 +2884,6 @@ void LEM::QuicksaveScenario()
 }
 
 bool LEM::clbkLoadGenericCockpit ()
-
 {
 	SetCameraRotationRange(0.0, 0.0, 0.0, 0.0);
 	SetCameraDefaultDirection(_V(0.0, 0.0, 1.0));
@@ -2614,7 +2902,6 @@ bool LEM::clbkLoadGenericCockpit ()
 //
 
 bool LEM::SetupPayload(PayloadSettings &ls)
-
 {
 	char CSMName[64];
 
@@ -2658,7 +2945,8 @@ void LEM::AEAPadLoad(unsigned int address, unsigned int value)
 }
 
 // Set level of RCS thruster, using secondary coils
-void LEM::SetRCSJet(int jet, bool fire) {
+void LEM::SetRCSJet(int jet, bool fire) 
+{
 	if (th_rcs[jet] == NULL) return;  // Sanity check
 	SetThrusterLevel(th_rcs[jet], fire);
 }
@@ -2670,12 +2958,14 @@ double LEM::GetRCSThrusterLevel(int jet)
 }
 
 // Set level of RCS thruster, using primary coils
-void LEM::SetRCSJetLevelPrimary(int jet, double level) {
+void LEM::SetRCSJetLevelPrimary(int jet, double level) 
+{
 	if (th_rcs[jet] == NULL) return;  // Sanity check
 	SetThrusterLevel(th_rcs[jet], level);
 }
 
-void LEM::EngineSoundTimestep() {
+void LEM::EngineSoundTimestep() 
+{
 
 	// In case of disabled Orbiter attitude thruster groups OrbiterSound plays no
 	// engine sound, so this needs to be done manually
@@ -2683,21 +2973,27 @@ void LEM::EngineSoundTimestep() {
 	int i;
 	bool on = false;
 	// LM RCS
-	for (i = 0; i < 16; i++) {
-		if (th_rcs[i]) {
+	for (i = 0; i < 16; i++) 
+	{
+		if (th_rcs[i]) 
+		{
 			if (GetThrusterLevel(th_rcs[i])) on = true;
 		}
 	}
 	// Play/stop sounds
-	if (on) {
-		if (RCSFireSound.isPlaying()) {
+	if (on)
+	{
+		if (RCSFireSound.isPlaying()) 
+		{
 			RCSSustainSound.play(LOOP);
 		}
-		else if (!RCSSustainSound.isPlaying()) {
+		else if (!RCSSustainSound.isPlaying())
+		{
 			RCSFireSound.play();
 		}
 	}
-	else {
+	else
+	{
 		RCSSustainSound.stop();
 	}
 
@@ -2726,7 +3022,8 @@ void LEM::UpdateMassAndCoG()
 	// If the weight has changed by more than this value, update things.
 	// The value is to be adjusted such that the updates are not too frequent (impacting framerate)
 	// but are sufficiently fine to keep the LGC happy.
-	if ((LastFuelWeight - CurrentFuelWeight) > 100.0) {
+	if ((LastFuelWeight - CurrentFuelWeight) > 100.0) 
+	{
 		// Update physical parameters
 		VECTOR3 pmi, CoG;
 		CalculatePMIandCOG(pmi, CoG);

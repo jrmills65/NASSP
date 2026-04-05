@@ -148,14 +148,32 @@
 
 #include "nasspdefs.h"
 
+// External DSKY ----------------------
+#include "DSKYSerialClass.h"
+DSKYSerial* DSKY::pDSKYSerial = NULL;
+DSKYTCP* DSKY::pDSKYTCP = NULL;
+// ------------------------------------
+
 static char TwoSpace[] = "  ";
 static char SixSpace[] = "      ";
 
 static int SegmentCount[] = {6, 2, 5, 5, 4, 5, 6, 3, 7, 5 };
 
 DSKY::DSKY(SoundLib &s, ApolloGuidance &computer, int IOChannel) : soundlib(s), agc(computer)
-
 {
+	// External DSKY ----------------------
+	if (pDSKYSerial == NULL)
+	{
+		pDSKYSerial = DSKYSerial::GetPtr();
+	}
+
+	if (pDSKYTCP == NULL)
+	{
+		pDSKYTCP = DSKYTCP::GetPtr();
+	}
+
+	// ------------------------------------
+
 	LtgORideAnunSwitch = NULL;
 	LtgORideIntegralSwitch = NULL;
 	DimmerRotationalSwitch = NULL;
@@ -169,7 +187,6 @@ DSKY::DSKY(SoundLib &s, ApolloGuidance &computer, int IOChannel) : soundlib(s), 
 }
 
 void DSKY::Reset()
-
 {
 	CompActy = false;
 	UplinkLight = false;
@@ -256,7 +273,6 @@ bool DSKY::IsSegmentPowered() {
 }
 
 void DSKY::Timestep(double simt)
-
 {
 	if(FirstTimeStep)
 	{
@@ -336,10 +352,129 @@ void DSKY::Timestep(double simt)
 			//sprintf(oapiDebugString(), buffer);
 		}
 	}
+
+	//
+	// Hardware DSKY. Any message from the external DSKY. ----------------------------------------------------------
+	//
+
+	// Serial ------------------
+	if (KeyCodeIOChannel == 015 && pDSKYSerial && pDSKYSerial->IsConnected())// Only 'main' DSKY (2nd is 016)
+	{
+		//if (g_Serial.Available() >= 4)
+		{
+			char buffer[4];
+			int numRead = pDSKYSerial->ReadData(buffer, 4);
+
+			if (numRead == 4)
+			{
+				switch (buffer[0])
+				{
+				case 'k':
+					switch (buffer[1])
+					{
+					case 25: KeyRel(); break;
+					case 17: VerbPressed(); break;
+					case 31: NounPressed(); break;
+					case 28: EnterPressed(); break;
+					case 30: ClearPressed(); break;
+					case 26: PlusPressed(); break;
+					case 27: MinusPressed(); break;
+					case 18: ResetPressed(); break;
+					case 16: NumberPressed(0); break;
+					case 1:
+					case 2:
+					case 3:
+					case 4:
+					case 5:
+					case 6:
+					case 7:
+					case 8:
+					case 9: NumberPressed(buffer[1]); break;
+					}
+					break;
+
+				case 'b':
+					if (buffer[1] == 032 && buffer[2] == 14)
+					{
+						if (buffer[3])
+						{
+							ProceedPressed();
+						}
+						else
+						{
+							ProceedReleased();
+						}
+					}
+					else
+					{
+						agc.SetInputChannelBit(buffer[1], buffer[2], buffer[3] == 0 ? false : true);
+					}
+					break;
+				}
+			}
+		}
+
+		pDSKYSerial->Transmit();
+	}
+
+	// TCP ------------------
+	char buffer[4];
+	int numRead = pDSKYTCP->ReadData(buffer, 4);
+
+	if (numRead == 4)
+	{
+		switch (buffer[0])
+		{
+		case 'k':
+			switch (buffer[1])
+			{
+			case 25: KeyRel(); break;
+			case 17: VerbPressed(); break;
+			case 31: NounPressed(); break;
+			case 28: EnterPressed(); break;
+			case 30: ClearPressed(); break;
+			case 26: PlusPressed(); break;
+			case 27: MinusPressed(); break;
+			case 18: ResetPressed(); break;
+			case 16: NumberPressed(0); break;
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9: NumberPressed(buffer[1]); break;
+			}
+			break;
+
+		case 'b':
+			if (buffer[1] == 032 && buffer[2] == 14)
+			{
+				if (buffer[3])
+				{
+					ProceedPressed();
+				}
+				else
+				{
+					ProceedReleased();
+				}
+			}
+			else
+			{
+				agc.SetInputChannelBit(buffer[1], buffer[2], buffer[3] == 0 ? false : true);
+			}
+			break;
+		}
+	}
+
+	pDSKYTCP->Transmit();
+
+	// -------------------------------------------------------------------------------------------------------
 }
 
 void DSKY::SystemTimestep(double simdt)
-
 {
 	if (!IsStatusPowered() || !IsSegmentPowered()){ return; }
 	//
@@ -532,14 +667,50 @@ char DSKY::ValueChar(unsigned val)
 	return ' ';
 }
 
-void DSKY::ProcessChannel13(ChannelValue val)
+//
+// Convert from AGC output to character codes. -----------------------------------------------
+//
+unsigned DSKY::CharValue(char val)
+{
+	switch (val)
+	{
+	case '0': return 21;
+	case '1': return 3;
+	case '2': return 25;
+	case '3': return 27;
+	case '4': return 15;
+	case '5': return 30;
+	case '6': return 28;
+	case '7': return 19;
+	case '8': return 29;
+	case '9': return 31;
+	}
 
+	return 0;
+}
+
+unsigned short DSKY::GetChannel11Value()
+{
+	ChannelValue11 val11 = { 0 };
+
+	val11.Bits.LightComputerActivity = CompActy;
+	val11.Bits.LightUplink = UplinkLight;
+	val11.Bits.LightTempCaution = TempLight;
+	val11.Bits.LightKbRel = KbRelLight;
+	val11.Bits.FlashVerbNoun = VerbFlashing || NounFlashing;
+	val11.Bits.LightOprErr = OprErrLight;
+
+	return val11.Value;
+}
+
+// --------------------------------------------------------------------------------------------
+
+void DSKY::ProcessChannel13(ChannelValue val)
 {
 	//Handled by Channel 163 now
 }
 
 void DSKY::DSKYLightBlt(SURFHANDLE surf, SURFHANDLE lights, int dstx, int dsty, bool lit, int xOffset, int yOffset, int TexMul)
-
 {
 	if (lit) {
 		oapiBlt(surf, lights, dstx + xOffset, dsty + yOffset, dstx + 101*TexMul, dsty + 0, 49*TexMul, 23*TexMul);
@@ -550,7 +721,6 @@ void DSKY::DSKYLightBlt(SURFHANDLE surf, SURFHANDLE lights, int dstx, int dsty, 
 }
 
 void DSKY::RenderLights(SURFHANDLE surf, SURFHANDLE lights, int xOffset, int yOffset, bool hasAltVel, bool hasDAPPrioDisp, int TexMul)
-
 {
 	if (!IsStatusPowered())
 	{
@@ -608,7 +778,6 @@ void DSKY::RenderLights(SURFHANDLE surf, SURFHANDLE lights, int xOffset, int yOf
 //
 
 void DSKY::ProcessKeyPress(int mx, int my)
-
 {
 	if (mx > 2 && mx < 39) {
 		if (my > 21 && my < 59) {
@@ -688,7 +857,7 @@ void DSKY::ProcessKeyPress(int mx, int my)
 			ClearPressed();
 		}
 		if (my > 41 && my < 79) {
-			KeyDown_Prog = true;
+			KeyDown_Proceed = true;
 			ProceedPressed();
 		}
 		if (my > 81 && my < 119) {
@@ -746,7 +915,7 @@ void DSKY::ResetKeyDown()
 	KeyDown_8 = false;
 	KeyDown_9 = false;
 	KeyDown_Clear = false;
-	KeyDown_Prog = false;
+	KeyDown_Proceed = false;
 	KeyDown_KeyRel = false;
 	KeyDown_Enter = false;
 	KeyDown_Reset = false;
@@ -912,7 +1081,7 @@ void DSKY::RenderKeys(SURFHANDLE surf, SURFHANDLE keys, int xOffset, int yOffset
 	DSKYKeyBlt(surf, keys, 2 + 41 * 4, 81, 41 * 4, 80, KeyDown_3, xOffset, yOffset);
 
 	DSKYKeyBlt(surf, keys, 2 + 41 * 5, 1,  41 * 5, 0,  KeyDown_Clear, xOffset, yOffset);
-	DSKYKeyBlt(surf, keys, 2 + 41 * 5, 41, 41 * 5, 40, KeyDown_Prog, xOffset, yOffset);
+	DSKYKeyBlt(surf, keys, 2 + 41 * 5, 41, 41 * 5, 40, KeyDown_Proceed, xOffset, yOffset);
 	DSKYKeyBlt(surf, keys, 2 + 41 * 5, 81, 41 * 5, 80, KeyDown_KeyRel, xOffset, yOffset);
 
 	DSKYKeyBlt(surf, keys, 2 + 41 * 6, 21, 41 * 6, 20, KeyDown_Enter, xOffset, yOffset);
@@ -1022,7 +1191,6 @@ void DSKY::SaveState(FILEHANDLE scn, char *start_str, char *end_str)
 
 
 void DSKY::LoadState(FILEHANDLE scn, char *end_str)
-
 {
 	char *line;
 	int end_len = strlen (end_str);
@@ -1079,6 +1247,214 @@ void DSKY::LoadState(FILEHANDLE scn, char *end_str)
 			NoDAPLight = (state.u.NoDAPLight != 0);
 		}
 	}
+
+	// Send data to external DSKY - serial
+
+	if (KeyCodeIOChannel == 015 && pDSKYSerial && pDSKYSerial->IsConnected())// Only 'main' DSKY (2nd is 016)
+	{
+		//
+		// Set initial display data to (external) tinyDSKY
+		//
+		unsigned char buff[3] = { 010, 0, 0 }; // Channel 10 output
+
+#define SND() buff[1] = HIBYTE(v10.Value); \
+	          buff[2] = LOBYTE(v10.Value);  \
+			  pDSKYSerial->WriteData(buff, 3)
+
+		ChannelValue10 v10 = { 0 };
+
+		// Channel 010 - PROG
+		v10.Bits.a = 11;
+		v10.Bits.c = CharValue(Prog[0]);
+		v10.Bits.d = CharValue(Prog[1]);
+		SND();
+
+		// Channel 010 - VERB
+		v10.Bits.a = 10;
+		v10.Bits.c = CharValue(Verb[0]);
+		v10.Bits.d = CharValue(Verb[1]);
+		SND();
+
+		// Channel 010 - NOUN
+		v10.Bits.a = 9;
+		v10.Bits.c = CharValue(Noun[0]);
+		v10.Bits.d = CharValue(Noun[1]);
+		SND();
+
+		// Channel 010 - R1
+		v10.Bits.a = 8;
+		v10.Bits.c = 0;
+		v10.Bits.d = CharValue(R1[1]);
+		SND();
+		v10.Bits.a = 7;
+		v10.Bits.b = (R1[0] == '+');
+		v10.Bits.c = CharValue(R1[2]);
+		v10.Bits.d = CharValue(R1[3]);
+		SND();
+		v10.Bits.a = 6;
+		v10.Bits.b = (R1[0] == '-');
+		v10.Bits.c = CharValue(R1[4]);
+		v10.Bits.d = CharValue(R1[5]);
+		SND();
+
+		// Channel 010 - R2
+		v10.Bits.a = 5;
+		v10.Bits.b = (R2[0] == '+');
+		v10.Bits.c = CharValue(R2[1]);
+		v10.Bits.d = CharValue(R2[2]);
+		SND();
+		v10.Bits.a = 4;
+		v10.Bits.b = (R2[0] == '-');
+		v10.Bits.c = CharValue(R2[3]);
+		v10.Bits.d = CharValue(R2[4]);
+		SND();
+		v10.Bits.a = 3;
+		v10.Bits.b = 0; // ignored, but better safe than sorry
+		v10.Bits.c = CharValue(R2[5]);
+		v10.Bits.d = CharValue(R3[1]); // R3!
+		SND();
+
+		// Channel 010 - R3
+		v10.Bits.a = 2;
+		v10.Bits.b = (R3[0] == '+');
+		v10.Bits.c = CharValue(R3[2]);
+		v10.Bits.d = CharValue(R3[3]);
+		SND();
+		v10.Bits.a = 1;
+		v10.Bits.b = (R3[0] == '-');
+		v10.Bits.c = CharValue(R3[4]);
+		v10.Bits.d = CharValue(R3[5]);
+		SND();
+
+		// Channel 010 - Lights
+		v10.Value = 0;
+		v10.Bits.a = 12;
+		v10.Value |= (VelLight ? 1 : 0 << 2)
+			| (NoAttLight ? 1 : 0 << 3)
+			| (AltLight ? 1 : 0 << 4)
+			| (GimbalLockLight ? 1 : 0 << 5)
+			| (TrackerLight ? 1 : 0 << 7)
+			| (ProgLight ? 1 : 0 << 8);
+		SND();
+
+		// Channel 011
+		// set 'normal' later on
+
+		// Channel 013
+		//ChannelValue v13 = { 0 };
+		//v13.Bits.EnableStandby = StbyLight; // Processed by channel 163
+		//buff[0] = 013;
+		//buff[1] = HIBYTE(v13.Value);
+		//buff[2] = LOBYTE(v13.Value);
+		//pDSKYSerial->WriteData(buff, 3);
+
+		// TODO - Channel 163
+
+	} // end-if (pDSKYSerial && pDSKYSerial->IsConnected()...)
+
+	// Send data to external DSKY - TCP
+
+	if (KeyCodeIOChannel == 015 && pDSKYTCP && pDSKYTCP->IsConnected())// Only 'main' DSKY (2nd is 016)
+	{
+		//
+		// Set initial display data to (external) tinyDSKY
+		//
+		unsigned char buff[3] = { 010, 0, 0 }; // Channel 10 output
+
+#define SND() buff[1] = HIBYTE(v10.Value); \
+	          buff[2] = LOBYTE(v10.Value);  \
+			  pDSKYTCP->WriteData(buff, 3)
+
+		ChannelValue10 v10 = { 0 };
+
+		// Channel 010 - PROG
+		v10.Bits.a = 11;
+		v10.Bits.c = CharValue(Prog[0]);
+		v10.Bits.d = CharValue(Prog[1]);
+		SND();
+
+		// Channel 010 - VERB
+		v10.Bits.a = 10;
+		v10.Bits.c = CharValue(Verb[0]);
+		v10.Bits.d = CharValue(Verb[1]);
+		SND();
+
+		// Channel 010 - NOUN
+		v10.Bits.a = 9;
+		v10.Bits.c = CharValue(Noun[0]);
+		v10.Bits.d = CharValue(Noun[1]);
+		SND();
+
+		// Channel 010 - R1
+		v10.Bits.a = 8;
+		v10.Bits.c = 0;
+		v10.Bits.d = CharValue(R1[1]);
+		SND();
+		v10.Bits.a = 7;
+		v10.Bits.b = (R1[0] == '+');
+		v10.Bits.c = CharValue(R1[2]);
+		v10.Bits.d = CharValue(R1[3]);
+		SND();
+		v10.Bits.a = 6;
+		v10.Bits.b = (R1[0] == '-');
+		v10.Bits.c = CharValue(R1[4]);
+		v10.Bits.d = CharValue(R1[5]);
+		SND();
+
+		// Channel 010 - R2
+		v10.Bits.a = 5;
+		v10.Bits.b = (R2[0] == '+');
+		v10.Bits.c = CharValue(R2[1]);
+		v10.Bits.d = CharValue(R2[2]);
+		SND();
+		v10.Bits.a = 4;
+		v10.Bits.b = (R2[0] == '-');
+		v10.Bits.c = CharValue(R2[3]);
+		v10.Bits.d = CharValue(R2[4]);
+		SND();
+		v10.Bits.a = 3;
+		v10.Bits.b = 0; // ignored, but better safe than sorry
+		v10.Bits.c = CharValue(R2[5]);
+		v10.Bits.d = CharValue(R3[1]); // R3!
+		SND();
+
+		// Channel 010 - R3
+		v10.Bits.a = 2;
+		v10.Bits.b = (R3[0] == '+');
+		v10.Bits.c = CharValue(R3[2]);
+		v10.Bits.d = CharValue(R3[3]);
+		SND();
+		v10.Bits.a = 1;
+		v10.Bits.b = (R3[0] == '-');
+		v10.Bits.c = CharValue(R3[4]);
+		v10.Bits.d = CharValue(R3[5]);
+		SND();
+
+		// Channel 010 - Lights
+		v10.Value = 0;
+		v10.Bits.a = 12;
+		v10.Value |= (VelLight ? 1 : 0 << 2)
+			| (NoAttLight ? 1 : 0 << 3)
+			| (AltLight ? 1 : 0 << 4)
+			| (GimbalLockLight ? 1 : 0 << 5)
+			| (TrackerLight ? 1 : 0 << 7)
+			| (ProgLight ? 1 : 0 << 8);
+		SND();
+
+		// Channel 011
+		// set 'normal' later on
+
+		// Channel 013
+		//ChannelValue v13 = { 0 };
+		//v13.Bits.EnableStandby = StbyLight; // Processed by channel 163
+		//buff[0] = 013;
+		//buff[1] = HIBYTE(v13.Value);
+		//buff[2] = LOBYTE(v13.Value);
+		//pDSKYTCP->WriteData(buff, 3);
+
+		// TODO - Channel 163
+
+	} // end-if (pDSKYTCP && pDSKYTCP->IsConnected()...)
 }
 
 //
@@ -1087,8 +1463,12 @@ void DSKY::LoadState(FILEHANDLE scn, char *end_str)
 
 
 void DSKY::ProcessChannel11(ChannelValue val)
-
 {
+	// Send data to external DSKY
+	SendDataToExternalDSKYSerial(011, val);
+	SendDataToExternalDSKYTCP(011, val);
+
+	// Update internal DSKY
 	ChannelValue val11;
 
 	val11 = val;
@@ -1109,8 +1489,12 @@ void DSKY::ProcessChannel11(ChannelValue val)
 }
 
 void DSKY::ProcessChannel163(ChannelValue val)
-
 {
+	// Send data to external DSKY
+	SendDataToExternalDSKYSerial(0163, val);
+	SendDataToExternalDSKYTCP(0163, val);
+
+	// Update internal DSKY
 	ChannelValue val163;
 
 	val163 = val;
@@ -1139,8 +1523,12 @@ void DSKY::ProcessChannel163(ChannelValue val)
 }
 
 void DSKY::ProcessChannel11Bit(int bit, bool val)
-
 {
+	// Send data to external DSKY
+	SendDataToExternalDSKYSerial(011, GetChannel11Value());
+	SendDataToExternalDSKYTCP(011, GetChannel11Value());
+
+	// Update internal DSKY
 	//
 	// Channel 011 has bits to control the lights on the DSKY.
 	//
@@ -1186,7 +1574,13 @@ void DSKY::ProcessChannel11Bit(int bit, bool val)
 	}
 }
 
-void DSKY::ProcessChannel10(ChannelValue val){
+void DSKY::ProcessChannel10(ChannelValue val)
+{
+	// Send data to external DSKY
+	SendDataToExternalDSKYSerial(010, val);
+	SendDataToExternalDSKYTCP(010, val);
+
+	// Update internal DSKY
 	ChannelValue10 out_val;
 	char	C1, C2;
 
@@ -1300,6 +1694,53 @@ void DSKY::ProcessChannel10(ChannelValue val){
 		break;
 	}
 }
+
+void DSKY::SendDataToExternalDSKYSerial(int channel, ChannelValue val) const
+{
+	if (KeyCodeIOChannel == 015 && pDSKYSerial && pDSKYSerial->IsConnected()) // Only 'main' DSKY (2nd is 016)
+	{
+		std::bitset<8> lowByteBits;
+		for (int i = 0; i < 8; i++)
+		{
+			lowByteBits[i] = val[i];
+		}
+		byte lowByte = byte(long((lowByteBits.to_ulong())));
+
+		std::bitset<8> highByteBits;
+		for (int i = 8; i < 16; i++)
+		{
+			highByteBits[i - 8] = val[i];
+		}
+		byte highByte = byte(long((highByteBits.to_ulong())));
+
+		unsigned char buff[3] = { channel, highByte, lowByte };
+		pDSKYSerial->WriteData(buff, 3);
+	}
+}
+
+void DSKY::SendDataToExternalDSKYTCP(int channel, ChannelValue val) const
+{
+	if (KeyCodeIOChannel == 015 && pDSKYTCP && pDSKYTCP->IsConnected()) // Only 'main' DSKY (2nd is 016)
+	{
+		std::bitset<8> lowByteBits;
+		for (int i = 0; i < 8; i++)
+		{
+			lowByteBits[i] = val[i];
+		}
+		byte lowByte = byte(long((lowByteBits.to_ulong())));
+
+		std::bitset<8> highByteBits;
+		for (int i = 8; i < 16; i++)
+		{
+			highByteBits[i - 8] = val[i];
+		}
+		byte highByte = byte(long((highByteBits.to_ulong())));
+
+		unsigned char buff[3] = { channel, highByte, lowByte };
+		pDSKYTCP->WriteData(buff, 3);
+	}
+}
+
 // Callbacks to handle button presses from the panel.
 // These allow us to set up callbacks on regular panel
 // Switches instead of using special case mouse handlers.
@@ -1370,7 +1811,7 @@ void DSKY::ProceedCallback(PanelSwitchItem* s)
 {
 	if (s->GetState() == 1)
 	{
-		KeyDown_Prog = true;
+		KeyDown_Proceed = true;
 		ProceedPressed();
 	}
 	else

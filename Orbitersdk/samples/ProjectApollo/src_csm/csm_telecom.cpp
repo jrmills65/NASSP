@@ -526,7 +526,7 @@ int USB::PAPowerLogic()
 int USB::SBandAntennaSelectionLogic()
 {
 	bool pwr;
-	if (sat->SBandNormalXPDRSwitch.IsUp() & sat->SBandPWRAmpl2FLTBusCB.IsPowered())
+	if (sat->SBandNormalXPDRSwitch.IsUp() && sat->SBandPWRAmpl2FLTBusCB.IsPowered())
 	{
 		pwr = true;
 	}
@@ -603,7 +603,7 @@ HGA::HGA(){
 	scanlimitwarn = false;
 	DriveToReacqSetPoint = false;
 
-	for (int i = 0;i < 0;i++)
+	for (int i = 0;i < 4;i++)
 	{
 		HornSignalStrength[i] = 0.0;
 	}
@@ -2175,7 +2175,8 @@ unsigned char PCM::scale_data(double data, double low, double high)
 }
 
 // Fetch a telemetry data item from its channel code
-unsigned char PCM::measure(int channel, int type, int ccode){
+unsigned char PCM::measure(int channel, int type, int ccode)
+{
 	SPSStatus spsStatus;
 	FuelCellStatus fcStatus;
 	PyroStatus pyroStatus;
@@ -2183,1121 +2184,1144 @@ unsigned char PCM::measure(int channel, int type, int ccode){
 	RCSStatus rcsStatus;
 
 	unsigned char data = 0;
+	int time = 0;
 
-	switch(type){
-		case TLM_A:  // ANALOG
-			switch(channel){
-				case 10: // S10A
-					switch(ccode){
-						case 1:			// UNKNOWN - HBR ONLY
-							return(0);
-						case 2:			// UNKNOWN - HBR ONLY
-							return(0);
-						case 3:			// CO2 PARTIAL PRESS
-							return(scale_data(sat->CO2PartPressSensor.Voltage(), 0.0, 5.0));
-						case 4:			// GLY EVAP BACK PRESS
-							return(scale_data(sat->GlyEvapBackPressSensor.Voltage(), 0.0, 5.0));
-						case 5:			// UNKNOWN - HBR ONLY
-							return(0);
-						case 6:			// CABIN PRESS
-							return(scale_data(sat->CabinPressSensor.Voltage(), 0.0, 5.0));
-						case 7:			// UNKNOWN - HBR ONLY
-							return(0);
-						case 8:			// SEC EVAP OUT STEAM PRESS
-							return(scale_data(sat->SecEvapOutSteamPressSensor.Voltage(), 0.0, 5.0));
-						case 9:			// WASTE H20 QTY
-							return(scale_data(sat->WasteH2OQtySensor.Voltage(), 0.0, 5.0));
-						case 10:		// SPS VLV ACT PRESS PRI
-							return(scale_data(0,0,5000));
-						case 11:		// SPS VLV ACT PRESS SEC
-							return(scale_data(0,0,5000));
-						case 12:		// GLY EVAP OUT TEMP
-							return(scale_data(sat->GlyEvapOutTempSensor.Voltage(), 0.0, 5.0));
-						case 13:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 14:		// ENG CHAMBER PRESS
-							sat->GetSPSStatus( spsStatus );
-							return(scale_data(spsStatus.chamberPressurePSI, 0, 150));
-						case 15:		// ECS RAD OUT TEMP
-							return(scale_data(sat->ECSRadOutTempSensor.Voltage(), 0.0, 5.0));
-						case 16:		// HE TK TEMP
-							return(scale_data(0,-100,200));
-						case 17:		// SM ENG PKG B TEMP
-							sat->GetRCSStatus( RCS_SM_QUAD_B, rcsStatus );
-							return(scale_data(rcsStatus.PackageTempF, 0, 300));
-						case 18:		// CM HE TK A PRESS
-							sat->GetRCSStatus( RCS_CM_RING_1, rcsStatus );
-							return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
-						case 19:		// SM ENG PKG C TEMP
-							sat->GetRCSStatus( RCS_SM_QUAD_C, rcsStatus );
-							return(scale_data(rcsStatus.PackageTempF, 0, 300));
-						case 20:		// SM ENG PKG D TEMP
-							sat->GetRCSStatus( RCS_SM_QUAD_D, rcsStatus );
-							return(scale_data(rcsStatus.PackageTempF, 0, 300));
-						case 21:		// CM HE TK B PRESS
-							sat->GetRCSStatus( RCS_CM_RING_2, rcsStatus );
-							return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
-						case 22:		// DOCKING PROBE TEMP
-							return(scale_data(sat->DockProbeTempSensor.Voltage(), 0.0, 5.0));
-						case 23:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 24:		// SM HE TK A PRESS
-							sat->GetRCSStatus( RCS_SM_QUAD_A, rcsStatus );
-							return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
-						case 25:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 26:		// OX TK 1 QTY -TOTAL AUX
-							return(scale_data(0,0,50));
-						case 27:		// SM HE TK B PRESS
-							sat->GetRCSStatus( RCS_SM_QUAD_B, rcsStatus );
-							return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
-						case 28:		// OX TK 2 QTY
-							return(scale_data(0,0,60));
-						case 29:		// FU TK 1 QTY -TOTAL AUX
-							return(scale_data(0,0,50));
-						case 30:		// SM HE TK C PRESS
-							sat->GetRCSStatus( RCS_SM_QUAD_C, rcsStatus );
-							return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
-						case 31:		// FU TK 2 QTY
-							return(scale_data(0,0,60));
-						case 32:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 33:		// SM HE TK D PRESS
-							sat->GetRCSStatus( RCS_SM_QUAD_D, rcsStatus );
-							return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
-						case 34:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 35:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 36:		// H2 TK 1 PRESS
-							return(scale_data(sat->H2Tank1PressSensor.Voltage(), 0.0, 5.0));
-						case 37:		// SPS VLV BODY TEMP
-							return(scale_data(sat->SPSEngVlvTempSensor.Voltage(), 0.0, 5.0));
-						case 38:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 39:		// H2 TK 2 PRESS
-							return(scale_data(sat->H2Tank2PressSensor.Voltage(), 0.0, 5.0));
-						case 40:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 41:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 42:		// O2 TK 2 QTY
-							return(scale_data(sat->O2Tank2QuantitySensor.Voltage(), 0.0, 5.0));
-						case 43:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 44:		// OX LINE 1 TEMP
-							return(scale_data(sat->SPSOxidizerLineTempSensor.Voltage(), 0.0, 5.0));
-						case 45:		// SUIT AIR HX OUT TEMP
-							return(scale_data(sat->SuitTempSensor.Voltage(), 0.0, 5.0));
-						case 46:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 47:		// SPS INJECTOR FLANGE TEMP 1
-							return(scale_data(sat->sce.GetVoltage(2, 9), 0.0, 5.0));
-						case 48:		// PRI RAD IN TEMP
-							return(scale_data(sat->PriRadInTempSensor.Voltage(), 0.0, 5.0));
-						case 49:		// SPS INJECTOR FLANGE TEMP 2
-							return(scale_data(sat->sce.GetVoltage(2, 10), 0.0, 5.0));
-						case 50:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 51:		// FC 1 COND EXH TEMP
-							return(scale_data(sat->sce.GetVoltage(2, 3), 0.0, 5.0));
-						case 52:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 53:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 54:		// O2 TK 1 TEMP
-							return(scale_data(sat->O2Tank1TempSensor.Voltage(), 0.0, 5.0));
-						case 55:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 56:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 57:		// O2 TK 2 TEMP
-							return(scale_data(sat->O2Tank2TempSensor.Voltage(), 0.0, 5.0));
-						case 58:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 59:		// FU LINE 1 TEMP
-							return(scale_data(sat->SPSFuelLineTempSensor.Voltage(), 0.0, 5.0));
-						case 60:		// H2 TK 1 TEMP
-							return(scale_data(sat->H2Tank1TempSensor.Voltage(), 0.0, 5.0));
-						case 61:		// NUCLEAR PARTICLE DETECTOR TEMP
-							return(scale_data(0,-109,140));
-						case 62:		// NUCLEAR PARTICLE ANALYZER TEMP
-							return(scale_data(0,-109,140));
-						case 63:		// H2 TK 2 TEMP
-							return(scale_data(sat->H2Tank2TempSensor.Voltage(), 0.0, 5.0));
-						case 64:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 65:		// SIDE HS BOND LOC 1 TEMP
-							return(scale_data(0,-260,600));
-						case 66:		// O2 TK 2 PRESS
-							return(scale_data(sat->O2Tank2PressSensor.Voltage(), 0, 5));
-						case 67:		// FC 3 RAD IN TEMP
-							sat->GetFuelCellStatus(3, fcStatus);
-							return(scale_data(fcStatus.RadiatorTempInF, -50, 300));
-						case 68:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 69:		// FC 3 COND EXH TEMP
-							return(scale_data(sat->sce.GetVoltage(2, 5), 0.0, 5.0));
-						case 70:		// SIDE HS BOND LOC 2 TEMP
-							return(scale_data(0,-260,600));
-						case 71:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 72:		// FC 1 SKIN TEMP
-							return(scale_data(sat->sce.GetVoltage(2, 6), 0.0, 5.0));
-						case 73:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 74:		// SIDE HS BOND LOC 3 TEMP
-							return(scale_data(0,-260,600));
-						case 75:		// FC 2 SKIN TEMP
-							return(scale_data(sat->sce.GetVoltage(2, 7), 0.0, 5.0));
-						case 76:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 77:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 78:		// FC 3 SKIN TEMP
-							return(scale_data(sat->sce.GetVoltage(2, 8), 0.0, 5.0));
-						case 79:		// SIDE HS BOND LOC 4 TEMP
-							return(scale_data(0,-260,600));
-						case 80:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 81:		// POTABLE H20 QTY
-							return(scale_data(sat->PotH2OQtySensor.Voltage(), 0.0, 5.0));
-						case 82:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 83:		// PIPA +120 VDC
-							return(scale_data(0,85,135));
-						case 84:		// CABIN TEMP
-							return(scale_data(sat->CabinTempSensor.Voltage(), 0.0, 5.0));
-						case 85:		// 3.2 KHz 28V SUPPLY
-							return(scale_data(0,0,31.1));
-						case 86:		// INVERTER 1 TEMP
-							return(scale_data(sat->sce.GetVoltage(2, 0), 0.0, 5.0));
-						case 87:		// SEC RAD IN TEMP
-							return(scale_data(sat->SecRadInTempSensor.Voltage(), 0.0, 5.0));
-						case 88:		// INVERTER 2 TEMP
-							return(scale_data(sat->sce.GetVoltage(2, 1), 0.0, 5.0));
-						case 89:		// INVERTER 3 TEMP
-							return(scale_data(sat->sce.GetVoltage(2, 2), 0.0, 5.0));
-						case 90:		// SEC RAD OUT TEMP
-							return(scale_data(sat->SecRadOutTempSensor.Voltage(), 0.0, 5.0));
-						case 91:		// IMU 28 VAC 800Hz
-							return(scale_data(0,0,31.1));
-						case 92:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 93:		// SM HE PRESS/TEMP RATIO A
-							return(scale_data(0,0,100));
-						case 94:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 95:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 96:		// PIPA TEMP
-							return(scale_data(0,120,140));
-						case 97:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 98:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 99:		// SM HE PRESS/TEMP RATIO B
-							return(scale_data(0,0,100));
-						case 100:		// PRI EVAP INLET TEMP
-							return(scale_data(sat->PriEvapInletTempSensor.Voltage(), 0.0, 5.0));
-						case 101:		// H2O TANK - GLY RES PRESS
-							return(scale_data(0,0,50));
-						case 102:		// SM HE PRESS/TEMP RATIO C
-							return(scale_data(0,0,100));
-						case 103:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 104:		// SCI EXP #3
-							return(scale_data(0,0,100));
-						case 105:		// SM HE PRESS/TEMP RATIO D
-							return(scale_data(0,0,100));
-						case 106:		// SCI EXP #4
-							return(scale_data(0,0,100));
-						case 107:		// SCI EXP #5
-							return(scale_data(0,0,100));
-						case 108:		// SCI EXP #1
-							return(scale_data(0,0,100));
-						case 109:		// SCI EXP #6
-							return(scale_data(0,0,100));
-						case 110:		// SCI EXP #7
-							return(scale_data(0,0,100));
-						case 111:		// SCI EXP #2
-							return(scale_data(0,0,100));
-						case 112:		// SCI EXP #8
-							return(scale_data(0,0,100));
-						case 113:		// SCI EXP #9
-							return(scale_data(0,0,100));
-						case 114:		// H2O DUMP TEMP
-							return(scale_data(sat->WasteH2ODumpTempSensor.Voltage(), 0.0, 5.0));
-						case 115:		// SCI EXP #10
-							return(scale_data(0,0,100));
-						case 116:		// SCI EXP #11
-							return(scale_data(0,0,100));
-						case 117:		// SPS FU FEED LINE TEMP
-							return(scale_data(sat->SPSFuelFeedTempSensor.Voltage(), 0.0, 5.0));
-						case 118:		// SCI EXP #12
-							return(scale_data(0,0,100));
-						case 119:		// SCI EXP #13
-							return(scale_data(0,0,100));
-						case 120:		// SPS OX FEED LINE TEMP
-							return(scale_data(sat->SPSOxidizerFeedTempSensor.Voltage(), 0.0, 5.0));
-						case 121:		// SCI EXP #14
-							return(scale_data(0,0,100));
-						case 122:		// SCI EXP #15
-							return(scale_data(0,0,100));
-						case 123:		// FC 2 COND EXH TEMP
-							return(scale_data(sat->sce.GetVoltage(2, 4), 0.0, 5.0));
-						case 124:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 125:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 126:		// FC 1 RAD OUT TEMP
-							sat->GetFuelCellStatus( 1, fcStatus );
-							return(scale_data(fcStatus.RadiatorTempOutF, -50, 300));
-						case 127:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 128:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 129:		// FC 2 RAD OUT TEMP
-							sat->GetFuelCellStatus( 2, fcStatus );
-							return(scale_data(fcStatus.RadiatorTempOutF, -50, 300));
-						case 130:		// FC 1 RAD IN TEMP
-							sat->GetFuelCellStatus( 1, fcStatus );
-							return(scale_data(fcStatus.RadiatorTempInF, -50, 300));
-						case 131:		// FC 2 RAD IN TEMP
-							sat->GetFuelCellStatus( 2, fcStatus );
-							return(scale_data(fcStatus.RadiatorTempInF, -50, 300));
-						case 132:		// FC 3 RAD OUT TEMP
-							sat->GetFuelCellStatus( 3, fcStatus );
-							return(scale_data(fcStatus.RadiatorTempOutF, -50, 300));
-						case 133:		// GLY EVAP OUT STEAM TEMP
-							return(scale_data(sat->GlyEvapOutSteamTempSensor.Voltage(), 0.0, 5.0));
-						case 134:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 135:		// URINE DUMP NOZZLE TEMP
-							return(scale_data(sat->UrineDumpTempSensor.Voltage(), 0.0, 5.0));
-						case 136:		// SM ENG PKG A TEMP
-							sat->GetRCSStatus( RCS_SM_QUAD_A, rcsStatus );
-							return(scale_data(rcsStatus.PackageTempF, 0, 300));
-						case 137:		// BAY 3 OX TK SURFACE TEMP
-							return(scale_data(0,-100,200));
-						case 138:		// TM BIAS 2.5 VDC
-							return(scale_data(0,0,5));
-						case 139:		// BAY 5 FU TK SURFACE TEMP
-							return(scale_data(0,-100,200));
-						case 140:		// BAY 6 FU TK SURFACE TEMP
-							return(scale_data(0,-100,200));
-						case 141:		// H2 TK 1 QTY
-							return(scale_data(sat->H2Tank1QuantitySensor.Voltage(), 0.0, 5.0));
-						case 142:		// BAY 2 OX TK SURFACE TEMP
-							return(scale_data(0,-100,200));
-						case 143:		// OX LINE ENTRY SUMP TK TEMP
-							return(scale_data(0,-100,200));
-						case 144:		// H2 TK 2 QTY
-							return(scale_data(sat->H2Tank2QuantitySensor.Voltage(), 0.0, 5.0));
-						case 145:		// FU LINE ENTRY SUMP TK TEMP
-							return(scale_data(0,-100,200));
-						case 146:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 147:		// O2 TK 1 QTY
-							return(scale_data(sat->O2Tank1QuantitySensor.Voltage(), 0.0, 5.0));
-						case 148:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 149:		// DOSIMETER RATE
-							return(scale_data(0,0,5));
-						case 150:		// O2 TK 1 PRESS
-							return(scale_data(sat->O2Tank1PressSensor.Voltage(), 0, 5));
-						default:
-							sprintf(sat->debugString(),"MEASURE: UNKNOWN 10-A-%d",ccode);
-							break;
-					}
-					break;
-				case 11: // S11A
-					switch(ccode){
-						case 1:			// SUIT MANF ABS PRESS
-							return(scale_data(sat->SuitPressSensor.Voltage(), 0.0, 5.0));
-						case 2:			// SUIT COMP DELTA P
-							return(scale_data(sat->SuitComprDeltaPMeter.Voltage(), 0.0, 5.0));
-						case 3:			// GLY PUMP OUT PRESS
-							return(scale_data(sat->GlycolPumpOutPressSensor.Voltage(), 0.0, 5.0));
-						case 4:			// ECS SURGE TANK PRESS
-							return(scale_data(sat->O2SurgeTankPressSensor.Voltage(), 0.0, 5.0));
-						case 5:			// PYRO BUS B VOLTS
-							sat->GetPyroStatus( pyroStatus );
-							return(scale_data(pyroStatus.BusBVoltage, 0, 40 ));
-						case 6:			// LES LOGIC BUS B VOLTS
-							sat->GetSECSStatus( secsStatus );
-							return(scale_data( secsStatus.BusBVoltage, 0, 40 ));
-						case 7:			// UNKNOWN - HBR ONLY
-							return(0);
-						case 8:			// LES LOGIC BUS A VOLTS
-							sat->GetSECSStatus( secsStatus );
-							return(scale_data( secsStatus.BusAVoltage, 0, 40 ));
-						case 9:			// PYRO BUS A VOLTS
-							sat->GetPyroStatus(pyroStatus);
-							return(scale_data(pyroStatus.BusAVoltage, 0, 40 ));
-						case 10:		// SPS HE TK PRESS
-							return(scale_data(sat->GetSPSPropellant()->GetHeliumPressurePSI(), 0, 5000));
-						case 11:		// SPS OX TK PRESS
-							return(scale_data(sat->GetSPSPropellant()->GetPropellantPressurePSI(), 0, 250));
-						case 12:		// SPS FU TK PRESS
-							return(scale_data(sat->GetSPSPropellant()->GetPropellantPressurePSI(), 0, 250));
-						case 13:		// GLY ACCUM QTY
-							return(scale_data(sat->GlycolAccumQtySensor.Voltage(), 0.0, 5.0));
-						case 14:		// ECS O2 FLOW O2 SUPPLY MANF
-							return(scale_data(sat->ECSO2FlowO2SupplyManifoldSensor.Voltage(), 0.0, 5.0));
-						case 15:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 16:		// DOSIMETER 2 RADIATION
-							return(scale_data(0,0,1000));
-						case 17:		// PROTON CT RATE CHAN 1
-							return(scale_data(0,1,100000));
-						case 18:		// PROTON CT RATE CHAN 2
-							return(scale_data(0,0.1,10000));
-						case 19:		// PROTON CT RATE CHAN 3
-							return(scale_data(0,0.1,10000));
-						case 20:		// PROTON CT RATE CHAN 4
-							return(scale_data(0,0.1,10000));
-						case 21:		// CM HE MANIF 1 PRESS
-							return(scale_data(0,0,400));
-						case 22:		// CM HE MANIF 2 PRESS
-							return(scale_data(0,0,400));
-						case 23:		// SM OX MANF A PRESS
-							sat->GetRCSStatus( RCS_SM_QUAD_A, rcsStatus );
-							return(scale_data(rcsStatus.PropellantPressurePSI, 0, 300));
-						case 24:		// SM OX MANF B PRESS
-							sat->GetRCSStatus( RCS_SM_QUAD_B, rcsStatus );
-							return(scale_data(rcsStatus.PropellantPressurePSI, 0, 300));
-						case 25:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 26:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 27:		// SM OX MANF C PRESS
-							sat->GetRCSStatus( RCS_SM_QUAD_C, rcsStatus );
-							return(scale_data(rcsStatus.PropellantPressurePSI,0,300));
-						case 28:		// SM OX MANF D PRESS
-							sat->GetRCSStatus( RCS_SM_QUAD_D, rcsStatus );
-							return(scale_data(rcsStatus.PropellantPressurePSI, 0, 300));
-						case 29:		// FC 1 N2 PRESS
-							return(scale_data(sat->FCN2PressureSensor1.Voltage(), 0.0, 5.0));
-						case 30:		// FC 2 N2 PRESS
-							return(scale_data(sat->FCN2PressureSensor2.Voltage(), 0.0, 5.0));
-						case 31:		// FU/OX VLV 1 POS
-							return(scale_data(sat->SPSEngine.GetInjectorValvePosition(1), 0.0, 90.0));
-						case 32:		// FU/OX VLV 2 POS
-							return(scale_data(sat->SPSEngine.GetInjectorValvePosition(2), 0.0, 90.0));
-						case 33:		// FU/OX VLV 3 POS
-							return(scale_data(sat->SPSEngine.GetInjectorValvePosition(3), 0.0, 90.0));
-						case 34:		// FU/OX VLV 4 POS
-							return(scale_data(sat->SPSEngine.GetInjectorValvePosition(4), 0.0, 90.0));
-						case 35:		// FC 3 N2 PRESS
-							return(scale_data(sat->FCN2PressureSensor3.Voltage(), 0.0, 5.0));
-						case 36:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 37:		// SUIT-CABIN DELTA PRESS
-							return(scale_data(sat->SuitCabinDeltaPressSensor.Voltage(), 0.0, 5.0));
-						case 38:		// ALPHA CT RATE CHAN 1
-							return(scale_data(0,0.1,10000));
-						case 39:		// SM HE MANF A PRESS
-							return(scale_data(0,0,400));
-						case 40:		// SM HE MANF B PRESS
-							return(scale_data(0,0,400));
-						case 41:		// ALPHA CT RATE CHAN 2
-							return(scale_data(0,0.1,10000));
-						case 42:		// ALPHA CT RATE CHAN 3
-							return(scale_data(0,0.1,10000));
-						case 43:		// PROTON INTEG CT RATE
-							return(scale_data(0,1,100000));
-						case 44:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 45:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 46:		// SM HE MANF C PRESS
-							return(scale_data(0,0,400));
-						case 47:		// LM HEATER CURRENT
-							return(scale_data(sat->sce.GetVoltage(1, 7), 0.0, 5.0));
-						case 48:		// PCM HI LEVEL 85 PCT REF
-							return(scale_data(0,0,5));
-						case 49:		// PCM LO LEVEL 15 PCT REF
-							return(scale_data(0,0,1));
-						case 50:		// USB RCVR PHASE ERR
-							return(scale_data(0,-90000,90000));
-						case 51:		// ANGLE OF ATTACK
-							return(scale_data(DEG * fabs(sat->GetAOA()), 0, 5));
-						case 52:		// SHAFT CDU DAC OUT
-							return(scale_data(0,-10,10));
-						case 53:		// TRUNNION CDU DAC OUT
-							return(scale_data(0,-10,10));
-						case 54:		// IG 1X RSVR OUT SIN
-							return(scale_data(sat->imu.getResolverSineGimbal().y, 0.0, 5.0));
-						case 55:		// O2 SUPPLY MANF PRESS
-							return(scale_data(sat->O2SupplyManifPressSensor.Voltage(), 0.0, 5.0));
-						case 56:		// AC BUS 2 PH A VOLTS
-							return(scale_data(sat->sce.GetVoltage(3, 1), 0.0, 5.0));
-						case 57:		// MAIN BUS A VOLTS
-							return scale_data(sat->sce.GetVoltage(0, 0), 0.0, 5.0);
-						case 58:		// MAIN BUS B VOLTS
-							return scale_data(sat->sce.GetVoltage(0, 1), 0.0, 5.0);
-						case 59:		// IG 1X RSVR OUT COS
-							return(scale_data(sat->imu.getResolverCosineGimbal().y, 0.0, 5.0));
-						case 60:		// MG 1X RSVR OUT SIN
-							return(scale_data(sat->imu.getResolverSineGimbal().z, 0.0, 5.0));
-						case 61:		// MG 1X RSVR OUT COS
-							return(scale_data(sat->imu.getResolverCosineGimbal().z, 0.0, 5.0));
-						case 62:		// OG 1X RSVR OUT SIN
-							return(scale_data(sat->imu.getResolverSineGimbal().x, 0.0, 5.0));
-						case 63:		// OG 1X RSVR OUT COS
-							return(scale_data(sat->imu.getResolverCosineGimbal().x, 0.0, 5.0));
-						case 64:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 65:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 66:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 67:		// FC 1 O2 PRESS
-							return scale_data(sat->FCO2PressureSensor1.Voltage(), 0.0, 5.0);
-						case 68:		// FC 2 O2 PRESS
-							return scale_data(sat->FCO2PressureSensor2.Voltage(), 0.0, 5.0);
-						case 69:		// FC 3 O2 PRESS
-							return scale_data(sat->FCO2PressureSensor3.Voltage(), 0.0, 5.0);
-						case 70:		// FC 1 H2 PRESS
-							return scale_data(sat->FCH2PressureSensor1.Voltage(), 0.0, 5.0);
-						case 71:		// FC 2 H2 PRESS
-							return scale_data(sat->FCH2PressureSensor2.Voltage(), 0.0, 5.0);
-						case 72:		// FC 3 H2 PRESS
-							return scale_data(sat->FCH2PressureSensor3.Voltage(), 0.0, 5.0);
-						case 73:		// BAT CHARGER AMPS
-							return scale_data(sat->sce.GetVoltage(1, 0), 0.0, 5.0);
-						case 74:		// BAT A CUR
-							return scale_data(sat->sce.GetVoltage(1, 1), 0.0, 5.0);
-						case 75:		// BAT RELAY BUS VOLTS
-							return scale_data(sat->sce.GetVoltage(0, 4), 0.0, 5.0);
-						case 76:		// FC 1 CUR
-							return scale_data(sat->sce.GetVoltage(1, 4), 0.0, 5.0);
-						case 77:		// FC 1 H2 FLOW
-							return scale_data(sat->FCH2FlowSensor1.Voltage(), 0, 5.0);
-						case 78:		// FC 2 H2 FLOW
-							return scale_data(sat->FCH2FlowSensor2.Voltage(), 0, 5.0);
-						case 79:		// FC 3 H2 FLOW
-							return scale_data(sat->FCH2FlowSensor3.Voltage(), 0, 5.0);
-						case 80:		// FC 1 O2 FLOW
-							return scale_data(sat->FCO2FlowSensor1.Voltage(), 0, 5.0);
-						case 81:		// FC 2 O2 FLOW
-							return scale_data(sat->FCO2FlowSensor2.Voltage(), 0, 5.0);
-						case 82:		// FC 3 O2 FLOW
-							return scale_data(sat->FCO2FlowSensor3.Voltage(), 0, 5.0);
-						case 83:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 84:		// FC 2 CUR
-							return scale_data(sat->sce.GetVoltage(1, 5), 0.0, 5.0);
-						case 85:		// FC 3 CUR
-							return scale_data(sat->sce.GetVoltage(1, 6), 0.0, 5.0);
-						case 86:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 87:		// PRI GLY FLOW RATE
-							return(scale_data(0,150,300));
-						case 88:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 89:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 90:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 91:		// BAT BUS A VOLTS
-							return scale_data(sat->sce.GetVoltage(0, 2), 0.0, 5.0);
-						case 92:		// SM FU MANF A PRESS
-							return(scale_data(0,0,400));
-						case 93:		// BAT BUS B VOLTS
-							return scale_data(sat->sce.GetVoltage(0, 3), 0.0, 5.0);
-						case 94:		// SM FU MANF B PRESS
-							return(scale_data(0,0,400));
-						case 95:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 96:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 97:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 98:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 99:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 100:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 101:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 102:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 103:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 104:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 105:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 106:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 107:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 108:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 109:		// BAT B CUR
-							return scale_data(sat->sce.GetVoltage(1, 2), 0.0, 5.0);
-						case 110:		// BAT C CUR
-							return scale_data(sat->sce.GetVoltage(1, 3), 0.0, 5.0);
-						case 111:		// SM FU MANF C PRESS
-							return(scale_data(0,0,400));
-						case 112:		// SM FU MANF D PRESS
-							return(scale_data(0,0,400));
-						case 113:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 114:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 115:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 116:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 117:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 118:		// SEC EVAP OUT LIQ TEMP
-							return(scale_data(sat->SecEvapOutLiqTempSensor.Voltage(), 0.0, 5.0));
-						case 119:		// SENSOR EXCITATION 5V
-							return(scale_data(0,0,9));
-						case 120:		// SENSOR EXCITATION 10V
-							return(scale_data(0,0,15));
-						case 121:		// USB RCVR AGC VOLTAGE
-							return(scale_data(sat->usb.rcvr_agc_voltage, 0, 100)); //this should be changed to a 0-5V range not %
-						case 122:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 123:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 124:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 125:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 126:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 127:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 128:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 129:		// SEC GLY ACCUM QTY
-							return(scale_data(sat->SecGlycolAccumQtySensor.Voltage(), 0.0, 5.0));
-						case 130:		// SM HE MANF D PRESS
-							return(scale_data(0,0,400));
-						case 131:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 132:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 133:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 134:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 135:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 136:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 137:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 138:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 139:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 140:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 141:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 142:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 143:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 144:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 145:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 146:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 147:		// AC BUS 1 PH A VOLTS
-							return(scale_data(sat->sce.GetVoltage(3, 0), 0.0, 5.0));
-						case 148:		// SCE POS SUPPLY VOLTS
-							return(scale_data(0,0,30));
-						case 149:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 150:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 151:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 152:		// FUEL SM/ENG INTERFACE P
-							return(scale_data(0,0,300));
-						case 153:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 154:		// SCE NEG SUPPLY VOLTS
-							return(scale_data(0, -30, 0));
-						case 155:		// CM HE TK A TEMP
-							sat->GetRCSStatus( RCS_CM_RING_1, rcsStatus );
-							return(scale_data(rcsStatus.HeliumTempF, 0, 300));
-						case 156:		// CM HE TK B TEMP
-							sat->GetRCSStatus( RCS_CM_RING_2, rcsStatus );
-							return(scale_data(rcsStatus.HeliumTempF, 0, 300));
-						case 157:		// SEC GLY PUMP OUT PRESS
-							return(scale_data(sat->SecGlyPumpOutPressSensor.Voltage(), 0.0, 5.0));
-						case 158:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 159:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 160:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 161:		// OX SM/ENG INTERFACE P
-							return(scale_data(0,0,300));
-						case 162:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 163:		// SM HE TK A TEMP
-							sat->GetRCSStatus( RCS_SM_QUAD_A, rcsStatus );
-							return(scale_data(rcsStatus.HeliumTempF, 0, 100));
-						case 164:		// SM HE TK B TEMP
-							sat->GetRCSStatus( RCS_SM_QUAD_B, rcsStatus );
-							return(scale_data(rcsStatus.HeliumTempF, 0, 100));
-						case 165:		// SM HE TK C TEMP
-							sat->GetRCSStatus( RCS_SM_QUAD_C, rcsStatus );
-							return(scale_data(rcsStatus.HeliumTempF, 0, 100));
-						case 166:		// SM HE TK D TEMP
-							sat->GetRCSStatus( RCS_SM_QUAD_D, rcsStatus );
-							return(scale_data(rcsStatus.HeliumTempF, 0, 100));
-						case 167:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 168:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 169:		// DOSIMETER 1 RADIATION
-							return(scale_data(0,0,1000));
-						case 170:		// UNKNOWN - HBR ONLY
-						case 171:		// UNKNOWN - HBR ONLY
-						case 172:		// UNKNOWN - HBR ONLY
-						case 173:		// UNKNOWN - HBR ONLY
-						case 174:		// UNKNOWN - HBR ONLY
-						case 175:		// UNKNOWN - HBR ONLY
-						case 176:		// UNKNOWN - HBR ONLY
-						case 177:		// UNKNOWN - HBR ONLY
-						case 178:		// UNKNOWN - HBR ONLY
-						case 179:		// UNKNOWN - HBR ONLY
-						case 180:		// UNKNOWN - HBR ONLY
-							return(0);
-
-						default:
-							sprintf(sat->debugString(),"MEASURE: UNKNOWN 11-A-%d",ccode);
-							break;
-					}
-					break;
-				case 12: // S12A
-					switch(ccode){
-						case 1:			// MGA SERVO ERR IN PHASE
-							return(scale_data(sat->imu.getResolverPhaseError().x,-2.5,2.5));
-						case 2:			// IGA SERVO ERR IN PHASE
-							return(scale_data(sat->imu.getResolverPhaseError().y,-2.5,2.5));
-						case 3:			// OGA SERVO ERR IN PHASE
-							return(scale_data(sat->imu.getResolverPhaseError().z,-2.5,2.5));
-						case 4:			// ROLL ATT ERR
-							return(scale_data(sat->eda.GetConditionedRollAttErr(), 0.0, 5.0));
-						case 5:			// SCS PITCH BODY RATE
-							return(scale_data(sat->eda.GetInstPitchAttRate(), 0.0, 5.0));
-						case 6:			// SCS YAW BODY RATE
-							return(scale_data(sat->eda.GetInstYawAttRate(), 0.0, 5.0));
-						case 7:			// SCS ROLL BODY RATE
-							return(scale_data(sat->eda.GetInstRollAttRate(), 0.0, 5.0));
-						case 8:			// PITCH GIMBL POS 1 OR 2
-							return(scale_data(0,-5,5));
-						case 9:			// CM X-AXIS ACCEL
-							return(scale_data(0,-2,10));
-						case 10:		// YAW GIMBL POS 1 OR 2
-							return(scale_data(0,-5,5));
-						case 11:		// CM Y-AXIS ACCEL
-							return(scale_data(0,-2,2));
-						case 12:		// CM Z-AXIS ACCEL
-							return(scale_data(0,-2,2));
-						case 13:		// SCS TVC YAW AUTO CMD
-							return(scale_data(0,-10,10));
-						case 14:        // UNKNOWN - HBR ONLY
-							return(0);
-						case 15:		// SCS TVC PITCH AUTO CMD
-							return(scale_data(0,-10,10));
-						case 16:		// YAW DIFF CLUTCH CURRENT
-							return(scale_data(0,-0.807,0.807));
-
-						default:
-							sprintf(sat->debugString(),"MEASURE: UNKNOWN 12-A-%d",ccode);
-							break;
-					}
-					break;
-				case 22: // S22A
-					switch(ccode){
-						case 1:			// ASTRO 1 EKG AXIS 2
-							return(scale_data(0,0.1,0.5));
-						case 2:			// ASTRO 1 EKG AXIS 3
-							return(scale_data(0,0.1,0.5));
-						case 3:			// ASTRO 1 EKG AXIS 1
-							return(scale_data(0,0.1,0.5));
-						case 4:			// PITCH DIFF CLUTCH CURRENT
-							return(scale_data(0,-0.807,0.807));
-						default:
-							sprintf(sat->debugString(),"MEASURE: UNKNOWN 22-A-%d",ccode);
-							break;
-					}
-					break;
-				case 51: // S51A
-					switch(ccode){
-						case 1:			// UNKNOWN - HBR ONLY
-						case 2:			// UNKNOWN - HBR ONLY
-						case 3:			// UNKNOWN - HBR ONLY
-						case 4:			// UNKNOWN - HBR ONLY
-							return(0);
-						case 5:			// PITCH ATT ERR
-							return(scale_data(sat->eda.GetConditionedPitchAttErr(), 0.0, 5.0));
-						case 6:			// YAW ATT ERR
-							return(scale_data(sat->eda.GetConditionedYawAttErr(), 0.0, 5.0));
-						case 7:			// ASTRO 1 RESPIR
-							return(scale_data(0,-5,5));
-						case 8:			// ASTRO 2 RESPIR
-							return(scale_data(0,-5,5));
-						case 9:			// ASTRO 3 RESPIR
-							return(scale_data(0,-5,5));
-						case 10:		// UNKNOWN - HBR ONLY
-							return(0);
-						case 11:		// MTVC PITCH CMD
-							return(scale_data(0,-11.5,11.5));
-						case 12:		// MTVC YAW CMD
-							return(scale_data(0,-11.5,11.5));
-						case 13:		// ROT ROLL CMD
-							return(scale_data(0,-11.5,11.5));
-						case 14:		// UNKNOWN - HBR ONLY
-						case 15:
-							return(0);
-						default:
-							sprintf(sat->debugString(),"MEASURE: UNKNOWN 51-A-%d",ccode);
-							break;
-					}
-					break;
-				default:
-					sprintf(sat->debugString(),"MEASURE: UNKNOWN %d-A-%d",channel,ccode);
-					break;
+	switch(type)
+	{
+	case TLM_A:  // ANALOG
+		switch(channel)
+		{
+		case 10: // S10A
+			switch(ccode)
+			{
+			case 1:			// UNKNOWN - HBR ONLY
+				return(0);
+			case 2:			// UNKNOWN - HBR ONLY
+				return(0);
+			case 3:			// CO2 PARTIAL PRESS
+				return(scale_data(sat->CO2PartPressSensor.Voltage(), 0.0, 5.0));
+			case 4:			// GLY EVAP BACK PRESS
+				return(scale_data(sat->GlyEvapBackPressSensor.Voltage(), 0.0, 5.0));
+			case 5:			// UNKNOWN - HBR ONLY
+				return(0);
+			case 6:			// CABIN PRESS
+				return(scale_data(sat->CabinPressSensor.Voltage(), 0.0, 5.0));
+			case 7:			// UNKNOWN - HBR ONLY
+				return(0);
+			case 8:			// SEC EVAP OUT STEAM PRESS
+				return(scale_data(sat->SecEvapOutSteamPressSensor.Voltage(), 0.0, 5.0));
+			case 9:			// WASTE H20 QTY
+				return(scale_data(sat->WasteH2OQtySensor.Voltage(), 0.0, 5.0));
+			case 10:		// SPS VLV ACT PRESS PRI
+				return(scale_data(0,0,5000));
+			case 11:		// SPS VLV ACT PRESS SEC
+				return(scale_data(0,0,5000));
+			case 12:		// GLY EVAP OUT TEMP
+				return(scale_data(sat->GlyEvapOutTempSensor.Voltage(), 0.0, 5.0));
+			case 13:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 14:		// ENG CHAMBER PRESS
+				sat->GetSPSStatus( spsStatus );
+				return(scale_data(spsStatus.chamberPressurePSI, 0, 150));
+			case 15:		// ECS RAD OUT TEMP
+				return(scale_data(sat->ECSRadOutTempSensor.Voltage(), 0.0, 5.0));
+			case 16:		// HE TK TEMP
+				return(scale_data(0,-100,200));
+			case 17:		// SM ENG PKG B TEMP
+				sat->GetRCSStatus( RCS_SM_QUAD_B, rcsStatus );
+				return(scale_data(rcsStatus.PackageTempF, 0, 300));
+			case 18:		// CM HE TK A PRESS
+				sat->GetRCSStatus( RCS_CM_RING_1, rcsStatus );
+				return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
+			case 19:		// SM ENG PKG C TEMP
+				sat->GetRCSStatus( RCS_SM_QUAD_C, rcsStatus );
+				return(scale_data(rcsStatus.PackageTempF, 0, 300));
+			case 20:		// SM ENG PKG D TEMP
+				sat->GetRCSStatus( RCS_SM_QUAD_D, rcsStatus );
+				return(scale_data(rcsStatus.PackageTempF, 0, 300));
+			case 21:		// CM HE TK B PRESS
+				sat->GetRCSStatus( RCS_CM_RING_2, rcsStatus );
+				return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
+			case 22:		// DOCKING PROBE TEMP
+				return(scale_data(sat->DockProbeTempSensor.Voltage(), 0.0, 5.0));
+			case 23:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 24:		// SM HE TK A PRESS
+				sat->GetRCSStatus( RCS_SM_QUAD_A, rcsStatus );
+				return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
+			case 25:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 26:		// OX TK 1 QTY -TOTAL AUX
+				return(scale_data(sat->O2Tank1QuantitySensor.Voltage(), 0, 50));
+			case 27:		// SM HE TK B PRESS
+				sat->GetRCSStatus(RCS_SM_QUAD_B, rcsStatus);
+				return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
+			case 28:		// OX TK 2 QTY
+				return(scale_data(sat->O2Tank2QuantitySensor.Voltage(), 0, 60));
+			case 29:		// FU TK 1 QTY -TOTAL AUX
+				return(scale_data(sat->H2Tank1QuantitySensor.Voltage(), 0, 50));
+			case 30:		// SM HE TK C PRESS
+				sat->GetRCSStatus(RCS_SM_QUAD_C, rcsStatus);
+				return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
+			case 31:		// FU TK 2 QTY
+				return(scale_data(sat->H2Tank2QuantitySensor.Voltage(), 0, 60));
+			case 32:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 33:		// SM HE TK D PRESS
+				sat->GetRCSStatus( RCS_SM_QUAD_D, rcsStatus );
+				return(scale_data(rcsStatus.HeliumPressurePSI, 0, 5000));
+			case 34:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 35:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 36:		// H2 TK 1 PRESS
+				return(scale_data(sat->H2Tank1PressSensor.Voltage(), 0.0, 5.0));
+			case 37:		// SPS VLV BODY TEMP
+				return(scale_data(sat->SPSEngVlvTempSensor.Voltage(), 0.0, 5.0));
+			case 38:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 39:		// H2 TK 2 PRESS
+				return(scale_data(sat->H2Tank2PressSensor.Voltage(), 0.0, 5.0));
+			case 40:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 41:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 42:		// O2 TK 2 QTY
+				return(scale_data(sat->O2Tank2QuantitySensor.Voltage(), 0.0, 5.0));
+			case 43:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 44:		// OX LINE 1 TEMP
+				return(scale_data(sat->SPSOxidizerLineTempSensor.Voltage(), 0.0, 5.0));
+			case 45:		// SUIT AIR HX OUT TEMP
+				return(scale_data(sat->SuitTempSensor.Voltage(), 0.0, 5.0));
+			case 46:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 47:		// SPS INJECTOR FLANGE TEMP 1
+				return(scale_data(sat->sce.GetVoltage(2, 9), 0.0, 5.0));
+			case 48:		// PRI RAD IN TEMP
+				return(scale_data(sat->PriRadInTempSensor.Voltage(), 0.0, 5.0));
+			case 49:		// SPS INJECTOR FLANGE TEMP 2
+				return(scale_data(sat->sce.GetVoltage(2, 10), 0.0, 5.0));
+			case 50:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 51:		// FC 1 COND EXH TEMP
+				return(scale_data(sat->sce.GetVoltage(2, 3), 0.0, 5.0));
+			case 52:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 53:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 54:		// O2 TK 1 TEMP
+				return(scale_data(sat->O2Tank1TempSensor.Voltage(), 0.0, 5.0));
+			case 55:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 56:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 57:		// O2 TK 2 TEMP
+				return(scale_data(sat->O2Tank2TempSensor.Voltage(), 0.0, 5.0));
+			case 58:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 59:		// FU LINE 1 TEMP
+				return(scale_data(sat->SPSFuelLineTempSensor.Voltage(), 0.0, 5.0));
+			case 60:		// H2 TK 1 TEMP
+				return(scale_data(sat->H2Tank1TempSensor.Voltage(), 0.0, 5.0));
+			case 61:		// NUCLEAR PARTICLE DETECTOR TEMP
+				return(scale_data(0,-109,140));
+			case 62:		// NUCLEAR PARTICLE ANALYZER TEMP
+				return(scale_data(0,-109,140));
+			case 63:		// H2 TK 2 TEMP
+				return(scale_data(sat->H2Tank2TempSensor.Voltage(), 0.0, 5.0));
+			case 64:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 65:		// SIDE HS BOND LOC 1 TEMP
+				return(scale_data(0,-260,600));
+			case 66:		// O2 TK 2 PRESS
+				return(scale_data(sat->O2Tank2PressSensor.Voltage(), 0, 5));
+			case 67:		// FC 3 RAD IN TEMP
+				sat->GetFuelCellStatus(3, fcStatus);
+				return(scale_data(fcStatus.RadiatorTempInF, -50, 300));
+			case 68:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 69:		// FC 3 COND EXH TEMP
+				return(scale_data(sat->sce.GetVoltage(2, 5), 0.0, 5.0));
+			case 70:		// SIDE HS BOND LOC 2 TEMP
+				return(scale_data(0,-260,600));
+			case 71:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 72:		// FC 1 SKIN TEMP
+				return(scale_data(sat->sce.GetVoltage(2, 6), 0.0, 5.0));
+			case 73:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 74:		// SIDE HS BOND LOC 3 TEMP
+				return(scale_data(0,-260,600));
+			case 75:		// FC 2 SKIN TEMP
+				return(scale_data(sat->sce.GetVoltage(2, 7), 0.0, 5.0));
+			case 76:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 77:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 78:		// FC 3 SKIN TEMP
+				return(scale_data(sat->sce.GetVoltage(2, 8), 0.0, 5.0));
+			case 79:		// SIDE HS BOND LOC 4 TEMP
+				return(scale_data(0,-260,600));
+			case 80:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 81:		// POTABLE H20 QTY
+				return(scale_data(sat->PotH2OQtySensor.Voltage(), 0.0, 5.0));
+			case 82:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 83:		// PIPA +120 VDC
+				return(scale_data(0,85,135));
+			case 84:		// CABIN TEMP
+				return(scale_data(sat->CabinTempSensor.Voltage(), 0.0, 5.0));
+			case 85:		// 3.2 KHz 28V SUPPLY
+				return(scale_data(0,0,31.1));
+			case 86:		// INVERTER 1 TEMP
+				return(scale_data(sat->sce.GetVoltage(2, 0), 0.0, 5.0));
+			case 87:		// SEC RAD IN TEMP
+				return(scale_data(sat->SecRadInTempSensor.Voltage(), 0.0, 5.0));
+			case 88:		// INVERTER 2 TEMP
+				return(scale_data(sat->sce.GetVoltage(2, 1), 0.0, 5.0));
+			case 89:		// INVERTER 3 TEMP
+				return(scale_data(sat->sce.GetVoltage(2, 2), 0.0, 5.0));
+			case 90:		// SEC RAD OUT TEMP
+				return(scale_data(sat->SecRadOutTempSensor.Voltage(), 0.0, 5.0));
+			case 91:		// IMU 28 VAC 800Hz
+				return(scale_data(0,0,31.1));
+			case 92:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 93:		// SM HE PRESS/TEMP RATIO A
+				return(scale_data(0,0,100));
+			case 94:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 95:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 96:		// PIPA TEMP
+				return(scale_data(0,120,140));
+			case 97:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 98:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 99:		// SM HE PRESS/TEMP RATIO B
+				return(scale_data(0,0,100));
+			case 100:		// PRI EVAP INLET TEMP
+				return(scale_data(sat->PriEvapInletTempSensor.Voltage(), 0.0, 5.0));
+			case 101:		// H2O TANK - GLY RES PRESS
+				return(scale_data(0,0,50));
+			case 102:		// SM HE PRESS/TEMP RATIO C
+				return(scale_data(0,0,100));
+			case 103:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 104:		// SCI EXP #3
+				return(scale_data(0,0,100));
+			case 105:		// SM HE PRESS/TEMP RATIO D
+				return(scale_data(0,0,100));
+			case 106:		// SCI EXP #4
+				return(scale_data(0,0,100));
+			case 107:		// SCI EXP #5
+				return(scale_data(0,0,100));
+			case 108:		// SCI EXP #1
+				return(scale_data(0,0,100));
+			case 109:		// SCI EXP #6
+				return(scale_data(0,0,100));
+			case 110:		// SCI EXP #7
+				return(scale_data(0,0,100));
+			case 111:		// SCI EXP #2
+				return(scale_data(0,0,100));
+			case 112:		// SCI EXP #8
+				return(scale_data(0,0,100));
+			case 113:		// SCI EXP #9
+				return(scale_data(0,0,100));
+			case 114:		// H2O DUMP TEMP
+				return(scale_data(sat->WasteH2ODumpTempSensor.Voltage(), 0.0, 5.0));
+			case 115:		// SCI EXP #10
+				return(scale_data(0,0,100));
+			case 116:		// SCI EXP #11
+				return(scale_data(0,0,100));
+			case 117:		// SPS FU FEED LINE TEMP
+				return(scale_data(sat->SPSFuelFeedTempSensor.Voltage(), 0.0, 5.0));
+			case 118:		// SCI EXP #12
+				return(scale_data(0,0,100));
+			case 119:		// SCI EXP #13
+				return(scale_data(0,0,100));
+			case 120:		// SPS OX FEED LINE TEMP
+				return(scale_data(sat->SPSOxidizerFeedTempSensor.Voltage(), 0.0, 5.0));
+			case 121:		// SCI EXP #14
+				return(scale_data(0,0,100));
+			case 122:		// SCI EXP #15
+				return(scale_data(0,0,100));
+			case 123:		// FC 2 COND EXH TEMP
+				return(scale_data(sat->sce.GetVoltage(2, 4), 0.0, 5.0));
+			case 124:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 125:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 126:		// FC 1 RAD OUT TEMP
+				sat->GetFuelCellStatus( 1, fcStatus );
+				return(scale_data(fcStatus.RadiatorTempOutF, -50, 300));
+			case 127:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 128:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 129:		// FC 2 RAD OUT TEMP
+				sat->GetFuelCellStatus( 2, fcStatus );
+				return(scale_data(fcStatus.RadiatorTempOutF, -50, 300));
+			case 130:		// FC 1 RAD IN TEMP
+				sat->GetFuelCellStatus( 1, fcStatus );
+				return(scale_data(fcStatus.RadiatorTempInF, -50, 300));
+			case 131:		// FC 2 RAD IN TEMP
+				sat->GetFuelCellStatus( 2, fcStatus );
+				return(scale_data(fcStatus.RadiatorTempInF, -50, 300));
+			case 132:		// FC 3 RAD OUT TEMP
+				sat->GetFuelCellStatus( 3, fcStatus );
+				return(scale_data(fcStatus.RadiatorTempOutF, -50, 300));
+			case 133:		// GLY EVAP OUT STEAM TEMP
+				return(scale_data(sat->GlyEvapOutSteamTempSensor.Voltage(), 0.0, 5.0));
+			case 134:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 135:		// URINE DUMP NOZZLE TEMP
+				return(scale_data(sat->UrineDumpTempSensor.Voltage(), 0.0, 5.0));
+			case 136:		// SM ENG PKG A TEMP
+				sat->GetRCSStatus( RCS_SM_QUAD_A, rcsStatus );
+				return(scale_data(rcsStatus.PackageTempF, 0, 300));
+			case 137:		// BAY 3 OX TK SURFACE TEMP
+				return(scale_data(0,-100,200));
+			case 138:		// TM BIAS 2.5 VDC
+				return(scale_data(0,0,5));
+			case 139:		// BAY 5 FU TK SURFACE TEMP
+				return(scale_data(0,-100,200));
+			case 140:		// BAY 6 FU TK SURFACE TEMP
+				return(scale_data(0,-100,200));
+			case 141:		// H2 TK 1 QTY
+				return(scale_data(sat->H2Tank1QuantitySensor.Voltage(), 0.0, 5.0));
+			case 142:		// BAY 2 OX TK SURFACE TEMP
+				return(scale_data(0,-100,200));
+			case 143:		// OX LINE ENTRY SUMP TK TEMP
+				return(scale_data(0,-100,200));
+			case 144:		// H2 TK 2 QTY
+				return(scale_data(sat->H2Tank2QuantitySensor.Voltage(), 0.0, 5.0));
+			case 145:		// FU LINE ENTRY SUMP TK TEMP
+				return(scale_data(0,-100,200));
+			case 146:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 147:		// O2 TK 1 QTY
+				return(scale_data(sat->O2Tank1QuantitySensor.Voltage(), 0.0, 5.0));
+			case 148:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 149:		// DOSIMETER RATE
+				return(scale_data(0,0,5));
+			case 150:		// O2 TK 1 PRESS
+				return(scale_data(sat->O2Tank1PressSensor.Voltage(), 0, 5));
+			default:
+				sprintf(sat->debugString(),"MEASURE: UNKNOWN 10-A-%d",ccode);
+				break;
 			}
 			break;
-		case TLM_DS: // DIGITAL SERIAL
-			/* NOT CALLED - ONLY USED AS 51DS1 FOR CMC DOWNTELEMETRY */
-			sprintf(sat->debugString(),"MEASURE: UNKNOWN %d-DS-%d",channel,ccode);
-			break;
-		case TLM_DP: // DIGITAL PARALLEL (SAME THING AS EVENT BITS)
-		case TLM_E:  // EVENT BITS
-			switch(channel){
-				case 10: // S10E
-					switch(ccode){
-						case 1: // S10DP1 - PCM BIT RATE CHANGE (?)
-							return(0);
-						default:
-							sprintf(sat->debugString(),"MEASURE: UNKNOWN 10-E-%d",ccode);
-							break;
-					}
-					break;
-				case 11: // S11E
-					switch(ccode){
-						case 2:	        // S11DP2 CTE TIME (4 WORDS, HBR ONLY)
-							return(0);
-						case 3:			// SCI EXP #17
-							return(0);
-						case 4:
-							/* 3 = SM EDS ABORT REQUEST B
-							   4 = SPS SOL DRIVER 1
-							   5 = SM EDS ABORT REQUEST A
-							   6 = MASTER CAUTION WARNING ON
-							   8 = RAD FLOW CONT SYS 1 OR 2
-								*/
-							data |= ((sat->sce.GetVoltage(0, 13) > 2.5) << 2);
-							data |= ((sat->sce.GetVoltage(0, 12) > 2.5) << 4);
-							data |= ((sat->sce.GetVoltage(0, 14) > 2.5) << 5);
-							data |= ((sat->sce.GetVoltage(0, 5) > 2.5) << 7);
+		case 11: // S11A
+			switch(ccode)
+			{
+			case 1:			// SUIT MANF ABS PRESS
+				return(scale_data(sat->SuitPressSensor.Voltage(), 0.0, 5.0));
+			case 2:			// SUIT COMP DELTA P
+				return(scale_data(sat->SuitComprDeltaPMeter.Voltage(), 0.0, 5.0));
+			case 3:			// GLY PUMP OUT PRESS
+				return(scale_data(sat->GlycolPumpOutPressSensor.Voltage(), 0.0, 5.0));
+			case 4:			// ECS SURGE TANK PRESS
+				return(scale_data(sat->O2SurgeTankPressSensor.Voltage(), 0.0, 5.0));
+			case 5:			// PYRO BUS B VOLTS
+				sat->GetPyroStatus( pyroStatus );
+				return(scale_data(pyroStatus.BusBVoltage, 0, 40 ));
+			case 6:			// LES LOGIC BUS B VOLTS
+				sat->GetSECSStatus( secsStatus );
+				return(scale_data( secsStatus.BusBVoltage, 0, 40 ));
+			case 7:			// UNKNOWN - HBR ONLY
+				return(0);
+			case 8:			// LES LOGIC BUS A VOLTS
+				sat->GetSECSStatus( secsStatus );
+				return(scale_data( secsStatus.BusAVoltage, 0, 40 ));
+			case 9:			// PYRO BUS A VOLTS
+				sat->GetPyroStatus(pyroStatus);
+				return(scale_data(pyroStatus.BusAVoltage, 0, 40 ));
+			case 10:		// SPS HE TK PRESS
+				return(scale_data(sat->GetSPSPropellant()->GetHeliumPressurePSI(), 0, 5000));
+			case 11:		// SPS OX TK PRESS
+				return(scale_data(sat->GetSPSPropellant()->GetPropellantPressurePSI(), 0, 250));
+			case 12:		// SPS FU TK PRESS
+				return(scale_data(sat->GetSPSPropellant()->GetPropellantPressurePSI(), 0, 250));
+			case 13:		// GLY ACCUM QTY
+				return(scale_data(sat->GlycolAccumQtySensor.Voltage(), 0.0, 5.0));
+			case 14:		// ECS O2 FLOW O2 SUPPLY MANF
+				return(scale_data(sat->ECSO2FlowO2SupplyManifoldSensor.Voltage(), 0.0, 5.0));
+			case 15:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 16:		// DOSIMETER 2 RADIATION
+				return(scale_data(0,0,1000));
+			case 17:		// PROTON CT RATE CHAN 1
+				return(scale_data(0,1,100000));
+			case 18:		// PROTON CT RATE CHAN 2
+				return(scale_data(0,0.1,10000));
+			case 19:		// PROTON CT RATE CHAN 3
+				return(scale_data(0,0.1,10000));
+			case 20:		// PROTON CT RATE CHAN 4
+				return(scale_data(0,0.1,10000));
+			case 21:		// CM HE MANIF 1 PRESS
+				return(scale_data(0,0,400));
+			case 22:		// CM HE MANIF 2 PRESS
+				return(scale_data(0,0,400));
+			case 23:		// SM OX MANF A PRESS
+				sat->GetRCSStatus( RCS_SM_QUAD_A, rcsStatus );
+				return(scale_data(rcsStatus.PropellantPressurePSI, 0, 300));
+			case 24:		// SM OX MANF B PRESS
+				sat->GetRCSStatus( RCS_SM_QUAD_B, rcsStatus );
+				return(scale_data(rcsStatus.PropellantPressurePSI, 0, 300));
+			case 25:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 26:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 27:		// SM OX MANF C PRESS
+				sat->GetRCSStatus( RCS_SM_QUAD_C, rcsStatus );
+				return(scale_data(rcsStatus.PropellantPressurePSI,0,300));
+			case 28:		// SM OX MANF D PRESS
+				sat->GetRCSStatus( RCS_SM_QUAD_D, rcsStatus );
+				return(scale_data(rcsStatus.PropellantPressurePSI, 0, 300));
+			case 29:		// FC 1 N2 PRESS
+				return(scale_data(sat->FCN2PressureSensor1.Voltage(), 0.0, 5.0));
+			case 30:		// FC 2 N2 PRESS
+				return(scale_data(sat->FCN2PressureSensor2.Voltage(), 0.0, 5.0));
+			case 31:		// FU/OX VLV 1 POS
+				return(scale_data(sat->SPSEngine.GetInjectorValvePosition(1), 0.0, 90.0));
+			case 32:		// FU/OX VLV 2 POS
+				return(scale_data(sat->SPSEngine.GetInjectorValvePosition(2), 0.0, 90.0));
+			case 33:		// FU/OX VLV 3 POS
+				return(scale_data(sat->SPSEngine.GetInjectorValvePosition(3), 0.0, 90.0));
+			case 34:		// FU/OX VLV 4 POS
+				return(scale_data(sat->SPSEngine.GetInjectorValvePosition(4), 0.0, 90.0));
+			case 35:		// FC 3 N2 PRESS
+				return(scale_data(sat->FCN2PressureSensor3.Voltage(), 0.0, 5.0));
+			case 36:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 37:		// SUIT-CABIN DELTA PRESS
+				return(scale_data(sat->SuitCabinDeltaPressSensor.Voltage(), 0.0, 5.0));
+			case 38:		// ALPHA CT RATE CHAN 1
+				return(scale_data(0,0.1,10000));
+			case 39:		// SM HE MANF A PRESS
+				return(scale_data(0,0,400));
+			case 40:		// SM HE MANF B PRESS
+				return(scale_data(0,0,400));
+			case 41:		// ALPHA CT RATE CHAN 2
+				return(scale_data(0,0.1,10000));
+			case 42:		// ALPHA CT RATE CHAN 3
+				return(scale_data(0,0.1,10000));
+			case 43:		// PROTON INTEG CT RATE
+				return(scale_data(0,1,100000));
+			case 44:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 45:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 46:		// SM HE MANF C PRESS
+				return(scale_data(0,0,400));
+			case 47:		// LM HEATER CURRENT
+				return(scale_data(sat->sce.GetVoltage(1, 7), 0.0, 5.0));
+			case 48:		// PCM HI LEVEL 85 PCT REF
+				return(scale_data(0,0,5));
+			case 49:		// PCM LO LEVEL 15 PCT REF
+				return(scale_data(0,0,1));
+			case 50:		// USB RCVR PHASE ERR
+				return(scale_data(0,-90000,90000));
+			case 51:		// ANGLE OF ATTACK
+				return(scale_data(DEG * fabs(sat->GetAOA()), 0, 5));
+			case 52:		// SHAFT CDU DAC OUT
+				return(scale_data(0,-10,10));
+			case 53:		// TRUNNION CDU DAC OUT
+				return(scale_data(0,-10,10));
+			case 54:		// IG 1X RSVR OUT SIN
+				return(scale_data(sat->imu.getResolverSineGimbal().y, 0.0, 5.0));
+			case 55:		// O2 SUPPLY MANF PRESS
+				return(scale_data(sat->O2SupplyManifPressSensor.Voltage(), 0.0, 5.0));
+			case 56:		// AC BUS 2 PH A VOLTS
+				return(scale_data(sat->sce.GetVoltage(3, 1), 0.0, 5.0));
+			case 57:		// MAIN BUS A VOLTS
+				return scale_data(sat->sce.GetVoltage(0, 0), 0.0, 5.0);
+			case 58:		// MAIN BUS B VOLTS
+				return scale_data(sat->sce.GetVoltage(0, 1), 0.0, 5.0);
+			case 59:		// IG 1X RSVR OUT COS
+				return(scale_data(sat->imu.getResolverCosineGimbal().y, 0.0, 5.0));
+			case 60:		// MG 1X RSVR OUT SIN
+				return(scale_data(sat->imu.getResolverSineGimbal().z, 0.0, 5.0));
+			case 61:		// MG 1X RSVR OUT COS
+				return(scale_data(sat->imu.getResolverCosineGimbal().z, 0.0, 5.0));
+			case 62:		// OG 1X RSVR OUT SIN
+				return(scale_data(sat->imu.getResolverSineGimbal().x, 0.0, 5.0));
+			case 63:		// OG 1X RSVR OUT COS
+				return(scale_data(sat->imu.getResolverCosineGimbal().x, 0.0, 5.0));
+			case 64:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 65:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 66:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 67:		// FC 1 O2 PRESS
+				return scale_data(sat->FCO2PressureSensor1.Voltage(), 0.0, 5.0);
+			case 68:		// FC 2 O2 PRESS
+				return scale_data(sat->FCO2PressureSensor2.Voltage(), 0.0, 5.0);
+			case 69:		// FC 3 O2 PRESS
+				return scale_data(sat->FCO2PressureSensor3.Voltage(), 0.0, 5.0);
+			case 70:		// FC 1 H2 PRESS
+				return scale_data(sat->FCH2PressureSensor1.Voltage(), 0.0, 5.0);
+			case 71:		// FC 2 H2 PRESS
+				return scale_data(sat->FCH2PressureSensor2.Voltage(), 0.0, 5.0);
+			case 72:		// FC 3 H2 PRESS
+				return scale_data(sat->FCH2PressureSensor3.Voltage(), 0.0, 5.0);
+			case 73:		// BAT CHARGER AMPS
+				return scale_data(sat->sce.GetVoltage(1, 0), 0.0, 5.0);
+			case 74:		// BAT A CUR
+				return scale_data(sat->sce.GetVoltage(1, 1), 0.0, 5.0);
+			case 75:		// BAT RELAY BUS VOLTS
+				return scale_data(sat->sce.GetVoltage(0, 4), 0.0, 5.0);
+			case 76:		// FC 1 CUR
+				return scale_data(sat->sce.GetVoltage(1, 4), 0.0, 5.0);
+			case 77:		// FC 1 H2 FLOW
+				return scale_data(sat->FCH2FlowSensor1.Voltage(), 0, 5.0);
+			case 78:		// FC 2 H2 FLOW
+				return scale_data(sat->FCH2FlowSensor2.Voltage(), 0, 5.0);
+			case 79:		// FC 3 H2 FLOW
+				return scale_data(sat->FCH2FlowSensor3.Voltage(), 0, 5.0);
+			case 80:		// FC 1 O2 FLOW
+				return scale_data(sat->FCO2FlowSensor1.Voltage(), 0, 5.0);
+			case 81:		// FC 2 O2 FLOW
+				return scale_data(sat->FCO2FlowSensor2.Voltage(), 0, 5.0);
+			case 82:		// FC 3 O2 FLOW
+				return scale_data(sat->FCO2FlowSensor3.Voltage(), 0, 5.0);
+			case 83:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 84:		// FC 2 CUR
+				return scale_data(sat->sce.GetVoltage(1, 5), 0.0, 5.0);
+			case 85:		// FC 3 CUR
+				return scale_data(sat->sce.GetVoltage(1, 6), 0.0, 5.0);
+			case 86:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 87:		// PRI GLY FLOW RATE
+				return(scale_data(0,150,300));
+			case 88:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 89:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 90:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 91:		// BAT BUS A VOLTS
+				return scale_data(sat->sce.GetVoltage(0, 2), 0.0, 5.0);
+			case 92:		// SM FU MANF A PRESS
+				return(scale_data(0,0,400));
+			case 93:		// BAT BUS B VOLTS
+				return scale_data(sat->sce.GetVoltage(0, 3), 0.0, 5.0);
+			case 94:		// SM FU MANF B PRESS
+				return(scale_data(0,0,400));
+			case 95:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 96:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 97:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 98:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 99:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 100:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 101:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 102:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 103:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 104:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 105:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 106:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 107:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 108:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 109:		// BAT B CUR
+				return scale_data(sat->sce.GetVoltage(1, 2), 0.0, 5.0);
+			case 110:		// BAT C CUR
+				return scale_data(sat->sce.GetVoltage(1, 3), 0.0, 5.0);
+			case 111:		// SM FU MANF C PRESS
+				return(scale_data(0,0,400));
+			case 112:		// SM FU MANF D PRESS
+				return(scale_data(0,0,400));
+			case 113:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 114:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 115:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 116:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 117:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 118:		// SEC EVAP OUT LIQ TEMP
+				return(scale_data(sat->SecEvapOutLiqTempSensor.Voltage(), 0.0, 5.0));
+			case 119:		// SENSOR EXCITATION 5V
+				return(scale_data(0,0,9));
+			case 120:		// SENSOR EXCITATION 10V
+				return(scale_data(0,0,15));
+			case 121:		// USB RCVR AGC VOLTAGE
+				return(scale_data(sat->usb.rcvr_agc_voltage, 0, 100)); //this should be changed to a 0-5V range not %
+			case 122:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 123:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 124:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 125:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 126:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 127:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 128:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 129:		// SEC GLY ACCUM QTY
+				return(scale_data(sat->SecGlycolAccumQtySensor.Voltage(), 0.0, 5.0));
+			case 130:		// SM HE MANF D PRESS
+				return(scale_data(0,0,400));
+			case 131:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 132:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 133:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 134:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 135:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 136:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 137:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 138:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 139:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 140:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 141:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 142:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 143:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 144:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 145:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 146:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 147:		// AC BUS 1 PH A VOLTS
+				return(scale_data(sat->sce.GetVoltage(3, 0), 0.0, 5.0));
+			case 148:		// SCE POS SUPPLY VOLTS
+				return(scale_data(0,0,30));
+			case 149:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 150:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 151:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 152:		// FUEL SM/ENG INTERFACE P
+				return(scale_data(0,0,300));
+			case 153:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 154:		// SCE NEG SUPPLY VOLTS
+				return(scale_data(0, -30, 0));
+			case 155:		// CM HE TK A TEMP
+				sat->GetRCSStatus( RCS_CM_RING_1, rcsStatus );
+				return(scale_data(rcsStatus.HeliumTempF, 0, 300));
+			case 156:		// CM HE TK B TEMP
+				sat->GetRCSStatus( RCS_CM_RING_2, rcsStatus );
+				return(scale_data(rcsStatus.HeliumTempF, 0, 300));
+			case 157:		// SEC GLY PUMP OUT PRESS
+				return(scale_data(sat->SecGlyPumpOutPressSensor.Voltage(), 0.0, 5.0));
+			case 158:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 159:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 160:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 161:		// OX SM/ENG INTERFACE P
+				return(scale_data(0,0,300));
+			case 162:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 163:		// SM HE TK A TEMP
+				sat->GetRCSStatus( RCS_SM_QUAD_A, rcsStatus );
+				return(scale_data(rcsStatus.HeliumTempF, 0, 100));
+			case 164:		// SM HE TK B TEMP
+				sat->GetRCSStatus( RCS_SM_QUAD_B, rcsStatus );
+				return(scale_data(rcsStatus.HeliumTempF, 0, 100));
+			case 165:		// SM HE TK C TEMP
+				sat->GetRCSStatus( RCS_SM_QUAD_C, rcsStatus );
+				return(scale_data(rcsStatus.HeliumTempF, 0, 100));
+			case 166:		// SM HE TK D TEMP
+				sat->GetRCSStatus( RCS_SM_QUAD_D, rcsStatus );
+				return(scale_data(rcsStatus.HeliumTempF, 0, 100));
+			case 167:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 168:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 169:		// DOSIMETER 1 RADIATION
+				return(scale_data(0,0,1000));
+			case 170:		// UNKNOWN - HBR ONLY
+			case 171:		// UNKNOWN - HBR ONLY
+			case 172:		// UNKNOWN - HBR ONLY
+			case 173:		// UNKNOWN - HBR ONLY
+			case 174:		// UNKNOWN - HBR ONLY
+			case 175:		// UNKNOWN - HBR ONLY
+			case 176:		// UNKNOWN - HBR ONLY
+			case 177:		// UNKNOWN - HBR ONLY
+			case 178:		// UNKNOWN - HBR ONLY
+			case 179:		// UNKNOWN - HBR ONLY
+			case 180:		// UNKNOWN - HBR ONLY
+				return(0);
 
-							return data;
-						case 5:			// SCI EXP #18
-							return(0);
-						case 6:			// SCI EXP #19
-							return(0);
-						case 7:			// SCI EXP #20
-							return(0);
-						case 8:
-							/* 2 = ATT DEADBAND MIN
-							   4 = HI RATE LIMIT
-							   5 = FDAI ERR 5 RATE 5
-							   6 = FDAI SCALE ERR 50/15
-							   7 = GYRO 1 COMB SMRD
-							   8 = GYRO 2 COMB SMRD
-								*/
-							return(0);
-						case 9:
-							/* 3 = DV CG LM/CSM
-							   4 = SPS SOL DRIVER 2
-							   5 = S/C CONT SCS
-								*/
-							return(0);
-						case 10:		// SCI EXP #21
-							return(0);
-						case 11:		// SCI EXP #22
-							return(0);
-						case 12:		// SCI EXP #23
-							return(0);
-						case 13:
-							/* 3 = CREW ABORT A
-							   4 = EDS ABORT B
-							   6 = CREW ABORT B
-							   7 = EDS ABORT A
-								*/
-							sat->GetSECSStatus(secsStatus);
-
-							data |= (secsStatus.CrewAbortA << 2);
-							data |= (secsStatus.EDSAbortLogicOutputB << 3);
-							data |= (secsStatus.CrewAbortB << 5);
-							data |= (secsStatus.EDSAbortLogicOutputA << 6);
-							return data;
-						case 14:
-							/* 1 = EDS ABORT VOTE 1
-							   2 = EDS ABORT VOTE 2
-							   4 = EDS ABORT VOTE 3
-							   5 = DSE TAPE MOTION
-								*/
-							sat->GetSECSStatus(secsStatus);
-
-							data |= (secsStatus.EDSAbortLogicInput1 << 0);
-							data |= (secsStatus.EDSAbortLogicInput2 << 1);
-							data |= (secsStatus.EDSAbortLogicInput3 << 3);
-							return data;
-						case 15:
-							/*	2 = IMU HTR +28 VDC
-							    3 = CMC OPERATE +28 VDC
-								4 = OPTX OPERATE 28 VAC
-							    6 = CSM-LM LOCK RING SEP RELAY A
-								7 = CSM-LM LOCK RING SEP RELAY B
-								*/
-							sat->GetSECSStatus(secsStatus);
-
-							data |= (secsStatus.CSMLEMLockRingSepRelaySignalA << 5);
-							data |= (secsStatus.CSMLEMLockRingSepRelaySignalB << 6);
-							return data;
-						case 16:		// SCI EXP #16
-							return(0);
-						case 17:		// SCI EXP #24
-							return(0);
-						case 18:		// SCI EXP #25
-							return(0);
-						case 19:
-							/* 1 = CMC WARNING
-								*/
-							return(0);
-						case 20: // ZEROES
-						case 21: // ZEROES
-							return(0);
-						case 22:
-							/* 1 = CM-SM SEP RELAY A 
-							   3 = SCS CHANNEL ENABLE RCS A
-							   4 = TRANS CTL +X CMD
-							   5 = SLA SEP RELAY A
-							   6 = TRANS CTL -X CMD
-							   7 = CM RCS PRESS SIG A
-							   8 = TRANS CTL +Y CMD
-								*/
-							sat->GetSECSStatus(secsStatus);
-
-							data |= (secsStatus.CMSMSepRelayCloseA << 0);
-							data |= (secsStatus.RCSActivateSignalA << 2);
-							data |= (secsStatus.SLASepRelayA << 4);
-							data |= (secsStatus.CMRCSPressureSignalA << 6);
-							return data;
-						case 23:
-							/* 1 = CM-SM SEP RELAY B
-							   3 = SCS CHANNEL ENABLE RCS B
-							   5 = CM RCS PRESS SIG B
-							   6 = TRANS CTL -Y CMD
-							   7 = SLA SEP RELAY B
-							   8 = TRANS CTL +Z CMD
-								*/;
-							sat->GetSECSStatus(secsStatus);
-
-							data |= (secsStatus.CMSMSepRelayCloseB << 0);
-							data |= (secsStatus.RCSActivateSignalB << 2);
-							data |= (secsStatus.CMRCSPressureSignalB << 4);
-							data |= (secsStatus.SLASepRelayB << 6);
-							return data;
-						case 24:
-							/* 1 = FWD HS JET A
-							   2 = TRANS CTL -Z CMD
-							   3 = DIRECT RCS #1
-							   4 = DIRECT RCS #2
-								*/
-							sat->GetSECSStatus(secsStatus);
-
-							data |= (secsStatus.FwdHeatshieldJettA << 0);
-							return data;
-						case 25:
-							/* 1 = LIMIT CYCLE
-							   3 = MANUAL ATT PITCH ACCEL CMD
-							   4 = MANUAL ATT PITCH MIN IMP
-							   5 = MANUAL ATT YAW ACCEL CMD
-							   6 = MANUAL ATT YAW MIN IMP
-							   7 = MANUAL ATT ROLL ACCEL CMD
-							   8 = MANUAL ATT ROLL MIN IMP
-								*/
-							return(0);
-						case 26:
-							/* 5 = FWD HS JET B
-								*/
-							sat->GetSECSStatus(secsStatus);
-
-							data |= (secsStatus.FwdHeatshieldJettB << 4);
-							return data;
-						case 27: // ZEROES
-							return(0);
-						case 28:
-							/* 1 = FC 1 PH
-							   2 = FC 2 PH
-							   3 = FC 3 PH
-							   */							   
-							return(0);
-						case 29:
-							/* 1 = DROGUE SEP RELAY A
-							   5 = MAIN CHUTE DISC RELAY A
-							   8 = MAIN DEPLOY RELAY A
-								*/
-							sat->GetSECSStatus(secsStatus);
-
-							data |= (secsStatus.DrogueSepRelayA << 0);
-							data |= (secsStatus.MainChuteDiscRelayA << 4);
-							data |= (secsStatus.MainDeployRelayA << 7);
-							return data;
-						case 30:
-							/* 3 = MAIN DEPLOY RELAY B
-							   6 = DROGUE SEP RELAY B
-							   8 = MAIN CHUTE DISC RELAY B
-								*/
-							sat->GetSECSStatus(secsStatus);
-
-							data |= (secsStatus.MainDeployRelayB << 2);
-							data |= (secsStatus.DrogueSepRelayB << 5);
-							data |= (secsStatus.MainChuteDiscRelayB << 7);
-							return data;
-						case 31: // ZEROES
-							return(0);
-						case 32:
-							/* 8 = PCM SYNC SRC INT OR EXT
-								*/
-							return(0);
-						case 33:
-							/* 1 = BMAG MODE SW-ROLL ATT 1 RT 2
-							   2 = BMAG MODE SW-ROLL RATE 2
-							   3 = BMAG MODE SW-PITCH ATT 1 RT 2
-							   4 = BMAG MODE SW-PITCH RATE 2
-							   5 = BMAG MODE SW-YAW ATT 1 RT 2
-							   6 = BMAG MODE SW-YAW RATE 2
-								*/
-							data |= ((sat->sce.GetVoltage(0, 6) > 2.5) << 0);
-							data |= ((sat->sce.GetVoltage(0, 7) > 2.5) << 1);
-							data |= ((sat->sce.GetVoltage(0, 8) > 2.5) << 2);
-							data |= ((sat->sce.GetVoltage(0, 9) > 2.5) << 3);
-							data |= ((sat->sce.GetVoltage(0, 10) > 2.5) << 4);
-							data |= ((sat->sce.GetVoltage(0, 11) > 2.5) << 5);
-							return data;
-						default:
-							sprintf(sat->debugString(),"MEASURE: UNKNOWN 11-E-%d",ccode);
-							break;
-					}
-					break;
-				case 22: // S22E
-					switch(ccode){
-						case 1:
-							/* 1 = +PITCH/+X
-								*/
-							return(0);
-						case 2:
-							/* 2 = -PITCH/+X
-								*/
-							return(0);
-						case 3:
-							/* 3 = +PITCH/-X
-								*/
-							return(0);
-						case 4:
-							/* 1 = -PITCH/-X
-								*/
-							return(0);
-						case 5:
-							/* 5 = +YAW/+X
-								*/
-							return(0);
-						case 6:
-							/* 6 = -YAW/+X
-								*/
-							return(0);
-						case 7:
-							/* 7 = +YAW/-X
-								*/
-							return(0);
-						case 8:
-							/* 8 = -YAW/-X
-								*/
-							return(0);
-						case 9:
-							/* 1 = +ROLL/+Z
-								*/
-							return(0);
-						case 10:
-							/* 2 = -ROLL/-Z
-								*/
-							return(0);
-						case 11:
-							/* 3 = -ROLL/+Y
-								*/
-							return(0);
-						case 12:
-							/* 4 = +ROLL/-Y
-								*/
-							return(0);
-						case 13:
-							/* 5 = -ROLL/+Z
-								*/
-							return(0);
-						case 14:
-							/* 6 = +ROLL/-Z
-								*/
-							return(0);
-						case 15:
-							/* 7 = +ROLL/+Y
-								*/
-							return(0);
-						case 16:
-							/* 8 = -ROLL/-Y
-								*/
-							return(0);
-						default:
-							sprintf(sat->debugString(),"MEASURE: UNKNOWN 22-E-%d",ccode);
-							break;
-					}
-					break;
-				case 51: // S51E
-					switch(ccode){
-						case 2: // UDL VALIDITY BITS
-							return(0);
-						default:
-							sprintf(sat->debugString(),"MEASURE: UNKNOWN 51-E-%d",ccode);
-							break;
-					}
-					break;
-				default:
-					sprintf(sat->debugString(),"MEASURE: UNKNOWN %d-E-%d",channel,ccode);
-					break;
+			default:
+				sprintf(sat->debugString(),"MEASURE: UNKNOWN 11-A-%d",ccode);
+				break;
 			}
 			break;
-		case TLM_SRC:  // "SRC" (channel is always 0)
+		case 12: // S12A
+			switch(ccode)
+			{
+			case 1:			// MGA SERVO ERR IN PHASE
+				return(scale_data(sat->imu.getResolverPhaseError().x,-2.5,2.5));
+			case 2:			// IGA SERVO ERR IN PHASE
+				return(scale_data(sat->imu.getResolverPhaseError().y,-2.5,2.5));
+			case 3:			// OGA SERVO ERR IN PHASE
+				return(scale_data(sat->imu.getResolverPhaseError().z,-2.5,2.5));
+			case 4:			// ROLL ATT ERR
+				return(scale_data(sat->eda.GetConditionedRollAttErr(), 0.0, 5.0));
+			case 5:			// SCS PITCH BODY RATE
+				return(scale_data(sat->eda.GetInstPitchAttRate(), 0.0, 5.0));
+			case 6:			// SCS YAW BODY RATE
+				return(scale_data(sat->eda.GetInstYawAttRate(), 0.0, 5.0));
+			case 7:			// SCS ROLL BODY RATE
+				return(scale_data(sat->eda.GetInstRollAttRate(), 0.0, 5.0));
+			case 8:			// PITCH GIMBL POS 1 OR 2
+				return(scale_data(0,-5,5));
+			case 9:			// CM X-AXIS ACCEL
+				return(scale_data(0,-2,10));
+			case 10:		// YAW GIMBL POS 1 OR 2
+				return(scale_data(0,-5,5));
+			case 11:		// CM Y-AXIS ACCEL
+				return(scale_data(0,-2,2));
+			case 12:		// CM Z-AXIS ACCEL
+				return(scale_data(0,-2,2));
+			case 13:		// SCS TVC YAW AUTO CMD
+				return(scale_data(0,-10,10));
+			case 14:        // UNKNOWN - HBR ONLY
+				return(0);
+			case 15:		// SCS TVC PITCH AUTO CMD
+				return(scale_data(0,-10,10));
+			case 16:		// YAW DIFF CLUTCH CURRENT
+				return(scale_data(0,-0.807,0.807));
+
+			default:
+				sprintf(sat->debugString(),"MEASURE: UNKNOWN 12-A-%d",ccode);
+				break;
+			}
+			break;
+		case 22: // S22A
+			switch(ccode)
+			{
+			case 1:			// ASTRO 1 EKG AXIS 2
+				return(scale_data(0,0.1,0.5));
+			case 2:			// ASTRO 1 EKG AXIS 3
+				return(scale_data(0,0.1,0.5));
+			case 3:			// ASTRO 1 EKG AXIS 1
+				return(scale_data(0,0.1,0.5));
+			case 4:			// PITCH DIFF CLUTCH CURRENT
+				return(scale_data(0,-0.807,0.807));
+			default:
+				sprintf(sat->debugString(),"MEASURE: UNKNOWN 22-A-%d",ccode);
+				break;
+			}
+			break;
+		case 51: // S51A
+			switch(ccode)
+			{
+			case 1:			// UNKNOWN - HBR ONLY
+			case 2:			// UNKNOWN - HBR ONLY
+			case 3:			// UNKNOWN - HBR ONLY
+			case 4:			// UNKNOWN - HBR ONLY
+				return(0);
+			case 5:			// PITCH ATT ERR
+				return(scale_data(sat->eda.GetConditionedPitchAttErr(), 0.0, 5.0));
+			case 6:			// YAW ATT ERR
+				return(scale_data(sat->eda.GetConditionedYawAttErr(), 0.0, 5.0));
+			case 7:			// ASTRO 1 RESPIR
+				return(scale_data(0,-5,5));
+			case 8:			// ASTRO 2 RESPIR
+				return(scale_data(0,-5,5));
+			case 9:			// ASTRO 3 RESPIR
+				return(scale_data(0,-5,5));
+			case 10:		// UNKNOWN - HBR ONLY
+				return(0);
+			case 11:		// MTVC PITCH CMD
+				return(scale_data(0,-11.5,11.5));
+			case 12:		// MTVC YAW CMD
+				return(scale_data(0,-11.5,11.5));
+			case 13:		// ROT ROLL CMD
+				return(scale_data(0,-11.5,11.5));
+			case 14:		// UNKNOWN - HBR ONLY
+			case 15:
+				return(0);
+			default:
+				sprintf(sat->debugString(),"MEASURE: UNKNOWN 51-A-%d",ccode);
+				break;
+			}
+			break;
+		default:
+			sprintf(sat->debugString(),"MEASURE: UNKNOWN %d-A-%d",channel,ccode);
+			break;
+		}
+		break;
+	case TLM_DS: // DIGITAL SERIAL
+		/* NOT CALLED - ONLY USED AS 51DS1 FOR CMC DOWNTELEMETRY */
+		sprintf(sat->debugString(),"MEASURE: UNKNOWN %d-DS-%d",channel,ccode);
+		break;
+	case TLM_DP: // DIGITAL PARALLEL (SAME THING AS EVENT BITS)
+	case TLM_E:  // EVENT BITS
+		switch(channel)
+		{
+		case 10: // S10E
+			switch(ccode)
+			{
+			case 1: // S10DP1 - PCM BIT RATE CHANGE (?)
+				return(0);
+			default:
+				sprintf(sat->debugString(),"MEASURE: UNKNOWN 10-E-%d",ccode);
+				break;
+			}
+			break;
+		case 11: // S11E
 			switch(ccode){
-				case 0: // SOURCE OF ZEROES
-					return(0);
-				case 1: // SOURCE OF ONES
-					return(0xFF);
-				default:
-					sprintf(sat->debugString(),"MEASURE: UNKNOWN SRC-%d",ccode);
-					break;
+				// S11DP2 CTE TIME (4 WORDS, HBR ONLY)
+			case 210:	        // S11DP2A - 1st Word - Seconds
+				time = sat->GetMissionTime();
+				return(time % 60);
+			case 211:	        // S11DP2B - 2nd Word - Minutes
+				time = sat->GetMissionTime();
+				return(((time % 3600) - (time % 60)) / 60);
+			case 212:	        // S11DP2C - 3rd Word - Hours
+				time = sat->GetMissionTime();
+				return(((time % 86400) - (time % 3600)) / 3600);
+			case 213:	        // S11DP2D - 4th Word - Days
+				time = sat->GetMissionTime();
+				return((time - (time % 86400)) / 86400);
+			case 3:			// SCI EXP #17
+				return(0);
+			case 4:
+				/* 3 = SM EDS ABORT REQUEST B
+					4 = SPS SOL DRIVER 1
+					5 = SM EDS ABORT REQUEST A
+					6 = MASTER CAUTION WARNING ON
+					8 = RAD FLOW CONT SYS 1 OR 2
+					*/
+				data |= ((sat->sce.GetVoltage(0, 13) > 2.5) << 2);
+				data |= ((sat->sce.GetVoltage(0, 12) > 2.5) << 4);
+				data |= ((sat->sce.GetVoltage(0, 14) > 2.5) << 5);
+				data |= ((sat->sce.GetVoltage(0, 5) > 2.5) << 7);
+
+				return data;
+			case 5:			// SCI EXP #18
+				return(0);
+			case 6:			// SCI EXP #19
+				return(0);
+			case 7:			// SCI EXP #20
+				return(0);
+			case 8:
+				/* 2 = ATT DEADBAND MIN
+					4 = HI RATE LIMIT
+					5 = FDAI ERR 5 RATE 5
+					6 = FDAI SCALE ERR 50/15
+					7 = GYRO 1 COMB SMRD
+					8 = GYRO 2 COMB SMRD
+					*/
+				return(0);
+			case 9:
+				/* 3 = DV CG LM/CSM
+					4 = SPS SOL DRIVER 2
+					5 = S/C CONT SCS
+					*/
+				return(0);
+			case 10:		// SCI EXP #21
+				return(0);
+			case 11:		// SCI EXP #22
+				return(0);
+			case 12:		// SCI EXP #23
+				return(0);
+			case 13:
+				/* 3 = CREW ABORT A
+					4 = EDS ABORT B
+					6 = CREW ABORT B
+					7 = EDS ABORT A
+					*/
+				sat->GetSECSStatus(secsStatus);
+
+				data |= (secsStatus.CrewAbortA << 2);
+				data |= (secsStatus.EDSAbortLogicOutputB << 3);
+				data |= (secsStatus.CrewAbortB << 5);
+				data |= (secsStatus.EDSAbortLogicOutputA << 6);
+				return data;
+			case 14:
+				/* 1 = EDS ABORT VOTE 1
+					2 = EDS ABORT VOTE 2
+					4 = EDS ABORT VOTE 3
+					5 = DSE TAPE MOTION
+					*/
+				sat->GetSECSStatus(secsStatus);
+
+				data |= (secsStatus.EDSAbortLogicInput1 << 0);
+				data |= (secsStatus.EDSAbortLogicInput2 << 1);
+				data |= (secsStatus.EDSAbortLogicInput3 << 3);
+				return data;
+			case 15:
+				/*	2 = IMU HTR +28 VDC
+					3 = CMC OPERATE +28 VDC
+					4 = OPTX OPERATE 28 VAC
+					6 = CSM-LM LOCK RING SEP RELAY A
+					7 = CSM-LM LOCK RING SEP RELAY B
+					*/
+				sat->GetSECSStatus(secsStatus);
+
+				data |= (secsStatus.CSMLEMLockRingSepRelaySignalA << 5);
+				data |= (secsStatus.CSMLEMLockRingSepRelaySignalB << 6);
+				return data;
+			case 16:		// SCI EXP #16
+				return(0);
+			case 17:		// SCI EXP #24
+				return(0);
+			case 18:		// SCI EXP #25
+				return(0);
+			case 19:
+				/* 1 = CMC WARNING
+					*/
+				return(0);
+			case 20: // ZEROES
+			case 21: // ZEROES
+				return(0);
+			case 22:
+				/* 1 = CM-SM SEP RELAY A 
+					3 = SCS CHANNEL ENABLE RCS A
+					4 = TRANS CTL +X CMD
+					5 = SLA SEP RELAY A
+					6 = TRANS CTL -X CMD
+					7 = CM RCS PRESS SIG A
+					8 = TRANS CTL +Y CMD
+					*/
+				sat->GetSECSStatus(secsStatus);
+
+				data |= (secsStatus.CMSMSepRelayCloseA << 0);
+				data |= (secsStatus.RCSActivateSignalA << 2);
+				data |= (secsStatus.SLASepRelayA << 4);
+				data |= (secsStatus.CMRCSPressureSignalA << 6);
+				return data;
+			case 23:
+				/* 1 = CM-SM SEP RELAY B
+					3 = SCS CHANNEL ENABLE RCS B
+					5 = CM RCS PRESS SIG B
+					6 = TRANS CTL -Y CMD
+					7 = SLA SEP RELAY B
+					8 = TRANS CTL +Z CMD
+					*/;
+				sat->GetSECSStatus(secsStatus);
+
+				data |= (secsStatus.CMSMSepRelayCloseB << 0);
+				data |= (secsStatus.RCSActivateSignalB << 2);
+				data |= (secsStatus.CMRCSPressureSignalB << 4);
+				data |= (secsStatus.SLASepRelayB << 6);
+				return data;
+			case 24:
+				/* 1 = FWD HS JET A
+					2 = TRANS CTL -Z CMD
+					3 = DIRECT RCS #1
+					4 = DIRECT RCS #2
+					*/
+				sat->GetSECSStatus(secsStatus);
+
+				data |= (secsStatus.FwdHeatshieldJettA << 0);
+				return data;
+			case 25:
+				/* 1 = LIMIT CYCLE
+					3 = MANUAL ATT PITCH ACCEL CMD
+					4 = MANUAL ATT PITCH MIN IMP
+					5 = MANUAL ATT YAW ACCEL CMD
+					6 = MANUAL ATT YAW MIN IMP
+					7 = MANUAL ATT ROLL ACCEL CMD
+					8 = MANUAL ATT ROLL MIN IMP
+					*/
+				return(0);
+			case 26:
+				/* 5 = FWD HS JET B
+					*/
+				sat->GetSECSStatus(secsStatus);
+
+				data |= (secsStatus.FwdHeatshieldJettB << 4);
+				return data;
+			case 27: // ZEROES
+				return(0);
+			case 28:
+				/* 1 = FC 1 PH
+					2 = FC 2 PH
+					3 = FC 3 PH
+					*/							   
+				return(0);
+			case 29:
+				/* 1 = DROGUE SEP RELAY A
+					5 = MAIN CHUTE DISC RELAY A
+					8 = MAIN DEPLOY RELAY A
+					*/
+				sat->GetSECSStatus(secsStatus);
+
+				data |= (secsStatus.DrogueSepRelayA << 0);
+				data |= (secsStatus.MainChuteDiscRelayA << 4);
+				data |= (secsStatus.MainDeployRelayA << 7);
+				return data;
+			case 30:
+				/* 3 = MAIN DEPLOY RELAY B
+					6 = DROGUE SEP RELAY B
+					8 = MAIN CHUTE DISC RELAY B
+					*/
+				sat->GetSECSStatus(secsStatus);
+
+				data |= (secsStatus.MainDeployRelayB << 2);
+				data |= (secsStatus.DrogueSepRelayB << 5);
+				data |= (secsStatus.MainChuteDiscRelayB << 7);
+				return data;
+			case 31: // ZEROES
+				return(0);
+			case 32:
+				/* 8 = PCM SYNC SRC INT OR EXT
+					*/
+				return(0);
+			case 33:
+				/* 1 = BMAG MODE SW-ROLL ATT 1 RT 2
+					2 = BMAG MODE SW-ROLL RATE 2
+					3 = BMAG MODE SW-PITCH ATT 1 RT 2
+					4 = BMAG MODE SW-PITCH RATE 2
+					5 = BMAG MODE SW-YAW ATT 1 RT 2
+					6 = BMAG MODE SW-YAW RATE 2
+					*/
+				data |= ((sat->sce.GetVoltage(0, 6) > 2.5) << 0);
+				data |= ((sat->sce.GetVoltage(0, 7) > 2.5) << 1);
+				data |= ((sat->sce.GetVoltage(0, 8) > 2.5) << 2);
+				data |= ((sat->sce.GetVoltage(0, 9) > 2.5) << 3);
+				data |= ((sat->sce.GetVoltage(0, 10) > 2.5) << 4);
+				data |= ((sat->sce.GetVoltage(0, 11) > 2.5) << 5);
+				return data;
+			default:
+				sprintf(sat->debugString(),"MEASURE: UNKNOWN 11-E-%d",ccode);
+				break;
 			}
 			break;
+		case 22: // S22E
+			switch(ccode)
+			{
+			case 1:
+				/* 1 = +PITCH/+X
+					*/
+				return(0);
+			case 2:
+				/* 2 = -PITCH/+X
+					*/
+				return(0);
+			case 3:
+				/* 3 = +PITCH/-X
+					*/
+				return(0);
+			case 4:
+				/* 1 = -PITCH/-X
+					*/
+				return(0);
+			case 5:
+				/* 5 = +YAW/+X
+					*/
+				return(0);
+			case 6:
+				/* 6 = -YAW/+X
+					*/
+				return(0);
+			case 7:
+				/* 7 = +YAW/-X
+					*/
+				return(0);
+			case 8:
+				/* 8 = -YAW/-X
+					*/
+				return(0);
+			case 9:
+				/* 1 = +ROLL/+Z
+					*/
+				return(0);
+			case 10:
+				/* 2 = -ROLL/-Z
+					*/
+				return(0);
+			case 11:
+				/* 3 = -ROLL/+Y
+					*/
+				return(0);
+			case 12:
+				/* 4 = +ROLL/-Y
+					*/
+				return(0);
+			case 13:
+				/* 5 = -ROLL/+Z
+					*/
+				return(0);
+			case 14:
+				/* 6 = +ROLL/-Z
+					*/
+				return(0);
+			case 15:
+				/* 7 = +ROLL/+Y
+					*/
+				return(0);
+			case 16:
+				/* 8 = -ROLL/-Y
+					*/
+				return(0);
+			default:
+				sprintf(sat->debugString(),"MEASURE: UNKNOWN 22-E-%d",ccode);
+				break;
+			}
+			break;
+		case 51: // S51E
+			switch(ccode)
+			{
+			case 2: // UDL VALIDITY BITS
+				return(0);
+			default:
+				sprintf(sat->debugString(),"MEASURE: UNKNOWN 51-E-%d",ccode);
+				break;
+			}
+			break;
+		default:
+			sprintf(sat->debugString(),"MEASURE: UNKNOWN %d-E-%d",channel,ccode);
+			break;
+		}
+		break;
+	case TLM_SRC:  // "SRC" (channel is always 0)
+		switch(ccode){
+			case 0: // SOURCE OF ZEROES
+				return(0);
+			case 1: // SOURCE OF ONES
+				return(0xFF);
+			default:
+				sprintf(sat->debugString(),"MEASURE: UNKNOWN SRC-%d",ccode);
+				break;
+		}
+		break;
 	}
 	return (0);
 }
@@ -4384,7 +4408,7 @@ void PCM::generate_stream_hbr(){
 		case 64:
 			switch(frame_count){
 				case 0: // 11DP2A
-					tx_data[tx_offset] = measure(11,TLM_DP,2); 
+					tx_data[tx_offset] = measure(11,TLM_DP,210); 
 					break;
 				case 1: // 11DP6
 					tx_data[tx_offset] = measure(11,TLM_DP,6); 
@@ -4403,7 +4427,7 @@ void PCM::generate_stream_hbr(){
 		case 65:
 			switch(frame_count){
 				case 0: // 11DP2B
-					tx_data[tx_offset] = measure(11,TLM_DP,2); 
+					tx_data[tx_offset] = measure(11,TLM_DP,211); 
 					break;
 				case 1: // 11DP7
 					tx_data[tx_offset] = measure(11,TLM_DP,7); 
@@ -4422,7 +4446,7 @@ void PCM::generate_stream_hbr(){
 		case 66:
 			switch(frame_count){
 				case 0: // 11DP2C
-					tx_data[tx_offset] = measure(11,TLM_DP,2); 
+					tx_data[tx_offset] = measure(11,TLM_DP,212); 
 					break;
 				case 1: // 11DP8
 					tx_data[tx_offset] = measure(11,TLM_DP,8); 
@@ -4441,7 +4465,7 @@ void PCM::generate_stream_hbr(){
 		case 67:
 			switch(frame_count){
 				case 0: // 11DP2D
-					tx_data[tx_offset] = measure(11,TLM_DP,2); 
+					tx_data[tx_offset] = measure(11,TLM_DP,213); 
 					break;
 				case 1: // 11DP9
 					tx_data[tx_offset] = measure(11,TLM_DP,9); 

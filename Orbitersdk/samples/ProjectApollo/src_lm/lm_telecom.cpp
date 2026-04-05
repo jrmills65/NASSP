@@ -805,582 +805,625 @@ void LM_PCM::handle_uplink()
 	}
 }
 
-void LM_PCM::generate_stream_hbr(){
+void LM_PCM::generate_stream_hbr()
+{
 	unsigned char data=0;
 	// 128 words per frame, 50 frames pre second
-	switch(word_addr){
-		case 0: tx_data[tx_offset] = 0375;										// SYNC 1
-			lem->agc.RaiseInterrupt(ApolloGuidance::Interrupt::DOWNRUPT);	// And generate DOWNRUPT (We read the data out at 120)
-			break;
-		case 1: tx_data[tx_offset] = 0312; break;         // SYNC 2
-		case 2: tx_data[tx_offset] = 0150; break;         // SYNC 3
-		case 3: tx_data[tx_offset] = frame_addr+1; break; // SYNC 4 & FRAME COUNT
-		case 4: // ** MAGIC WORD 0 **
-		  switch(frame_addr){
-		    case 0: tx_data[tx_offset] = measure(01,LTLM_D,0x001); break;
-		    case 1: tx_data[tx_offset] = measure(01,LTLM_A,4); break;
-		    case 2: tx_data[tx_offset] = measure(01,LTLM_A,8); break;
-		    case 3: tx_data[tx_offset] = measure(01,LTLM_A,12); break;
-		    case 4: tx_data[tx_offset] = measure(01,LTLM_A,16); break;
-		    case 5: tx_data[tx_offset] = measure(01,LTLM_D,0x003); break;
-		    case 6: tx_data[tx_offset] = measure(01,LTLM_A,23); break;
-		    case 7: tx_data[tx_offset] = measure(01,LTLM_A,27); break;
-		    case 8: tx_data[tx_offset] = measure(01,LTLM_A,31); break;
-		    case 9: tx_data[tx_offset] = measure(01,LTLM_A,35); break;
-		    case 10: tx_data[tx_offset] = measure(01,LTLM_D,0x005); break;
-		    case 11: tx_data[tx_offset] = measure(01,LTLM_A,42); break;
-		    case 12: tx_data[tx_offset] = measure(01,LTLM_A,46); break;
-		    case 13: tx_data[tx_offset] = measure(01,LTLM_A,50); break;
-		    case 14: tx_data[tx_offset] = measure(01,LTLM_A,54); break;
-		    case 15: tx_data[tx_offset] = measure(01,LTLM_D,0x007); break;
-		    case 16: tx_data[tx_offset] = measure(01,LTLM_A,61); break;
-		    case 17: tx_data[tx_offset] = measure(01,LTLM_A,65); break;
-		    case 18: tx_data[tx_offset] = measure(01,LTLM_A,69); break;
-		    case 19: tx_data[tx_offset] = measure(01,LTLM_A,73); break;
-		    case 20: tx_data[tx_offset] = measure(01,LTLM_D,0x009); break;
-		    case 21: tx_data[tx_offset] = measure(01,LTLM_A,80); break;
-		    case 22: tx_data[tx_offset] = measure(01,LTLM_A,84); break;
-		    case 23: tx_data[tx_offset] = measure(01,LTLM_A,88); break;
-		    case 24: tx_data[tx_offset] = measure(01,LTLM_A,92); break;
-		    case 25: tx_data[tx_offset] = measure(01,LTLM_A,96); break;
-		    case 26: tx_data[tx_offset] = measure(01,LTLM_A,100); break;
-		    case 27: tx_data[tx_offset] = measure(01,LTLM_A,104); break;
-		    case 28: tx_data[tx_offset] = measure(01,LTLM_A,108); break;
-		    case 29: tx_data[tx_offset] = measure(01,LTLM_A,112); break;
-		    case 30: tx_data[tx_offset] = measure(01,LTLM_A,116); break;
-		    case 31: tx_data[tx_offset] = measure(01,LTLM_A,120); break;
-		    case 32: tx_data[tx_offset] = measure(01,LTLM_A,124); break;
-		    case 33: tx_data[tx_offset] = measure(01,LTLM_A,128); break;
-		    case 34: tx_data[tx_offset] = measure(01,LTLM_A,132); break;
-		    case 35: tx_data[tx_offset] = measure(01,LTLM_A,136); break;
-		    case 36: tx_data[tx_offset] = measure(01,LTLM_A,140); break;
-		    case 37: tx_data[tx_offset] = measure(01,LTLM_A,144); break;
-		    case 38: tx_data[tx_offset] = measure(01,LTLM_A,148); break;
-		    case 39: tx_data[tx_offset] = measure(01,LTLM_A,152); break;
-		    case 40: tx_data[tx_offset] = measure(01,LTLM_A,156); break;
-		    case 41: tx_data[tx_offset] = measure(01,LTLM_A,160); break;
-		    case 42: tx_data[tx_offset] = measure(01,LTLM_A,164); break;
-		    case 43: tx_data[tx_offset] = measure(01,LTLM_A,168); break;
-		    case 44: tx_data[tx_offset] = measure(01,LTLM_A,172); break;
-		    case 45: tx_data[tx_offset] = measure(01,LTLM_A,176); break;
-		    case 46: tx_data[tx_offset] = measure(01,LTLM_A,180); break;
-		    case 47: tx_data[tx_offset] = measure(01,LTLM_A,184); break;
-		    case 48: tx_data[tx_offset] = measure(01,LTLM_A,188); break;
-		    case 49: tx_data[tx_offset] = measure(01,LTLM_A,192); break;
-		  }
+	switch(word_addr)
+	{
+	case 0: tx_data[tx_offset] = 0375;										// SYNC 1
+		lem->agc.RaiseInterrupt(ApolloGuidance::Interrupt::DOWNRUPT);	// And generate DOWNRUPT (We read the data out at 120)
 		break;
-        case 5: tx_data[tx_offset] = measure(200,LTLM_E,0x1A); break;
-        case 6: tx_data[tx_offset] = measure(200,LTLM_E,0x1B); break;
-        case 7: tx_data[tx_offset] = measure(100,LTLM_E,0x01); break;
-        case 8: tx_data[tx_offset] = measure(200,LTLM_A,1); break;
-        case 9: tx_data[tx_offset] = measure(200,LTLM_A,2); break;
-        case 10: tx_data[tx_offset] = measure(200,LTLM_A,3); break;
-        case 11: tx_data[tx_offset] = measure(200,LTLM_A,4); break;
-        case 12: tx_data[tx_offset] = measure(200,LTLM_A,5); break;
-        case 13: tx_data[tx_offset] = measure(200,LTLM_A,6); break;
-        case 14: tx_data[tx_offset] = measure(200,LTLM_A,7); break;
-        case 15: tx_data[tx_offset] = measure(100,LTLM_E,0x002); break;
-        case 16: tx_data[tx_offset] = measure(100,LTLM_A,1); break;
-        case 17: tx_data[tx_offset] = measure(100,LTLM_A,2); break;
-        case 18: tx_data[tx_offset] = measure(100,LTLM_A,3); break;
-        case 19: tx_data[tx_offset] = measure(100,LTLM_A,4); break;
-        case 20: tx_data[tx_offset] = measure(100,LTLM_A,5); break;
-        case 21: tx_data[tx_offset] = measure(100,LTLM_A,6); break;
-        case 22: tx_data[tx_offset] = measure(100,LTLM_A,7); break;
-        case 23: tx_data[tx_offset] = measure(50,LTLM_E,0x001); break;
-        case 24: tx_data[tx_offset] = measure(100,LTLM_A,8); break;
-        case 25: tx_data[tx_offset] = measure(100,LTLM_A,9); break;
-        case 26: tx_data[tx_offset] = measure(100,LTLM_A,10); break;
-        case 27: tx_data[tx_offset] = measure(100,LTLM_A,11); break;
-        case 28: tx_data[tx_offset] = measure(100,LTLM_A,12); break;
-        case 29: tx_data[tx_offset] = measure(100,LTLM_A,13); break;
-        case 30: tx_data[tx_offset] = measure(100,LTLM_A,14); break;
-        case 31: tx_data[tx_offset] = measure(50,LTLM_E,0x002); break;
-		case 32:
-		  switch(frame_count){
-                    case 0: tx_data[tx_offset] = measure(10,LTLM_D,0x01A); break;
-                    case 1: tx_data[tx_offset] = measure(10,LTLM_A,8); break;
-                    case 2: tx_data[tx_offset] = measure(10,LTLM_A,18); break;
-                    case 3: tx_data[tx_offset] = measure(10,LTLM_A,28); break;
-                    case 4: tx_data[tx_offset] = measure(10,LTLM_A,37); break;
-		  }
-		  break;
-		case 33:
-		  switch(frame_count){
-                    case 0: tx_data[tx_offset] = measure(10,LTLM_D,0x01B); break;
-                    case 1: tx_data[tx_offset] = measure(10,LTLM_A,9); break;
-                    case 2: tx_data[tx_offset] = measure(10,LTLM_A,19); break;
-                    case 3: tx_data[tx_offset] = measure(10,LTLM_A,29); break;
-                    case 4: tx_data[tx_offset] = measure(10,LTLM_A,38); break;
-		  }
-		  break;
-		case 34:
-		  switch(frame_count){
-                    case 0: tx_data[tx_offset] = measure(10,LTLM_D,0x01C); break;
-                    case 1: tx_data[tx_offset] = measure(10,LTLM_A,10); break;
-                    case 2: tx_data[tx_offset] = measure(10,LTLM_A,20); break;
-                    case 3: tx_data[tx_offset] = measure(10,LTLM_A,30); break;
-                    case 4: tx_data[tx_offset] = measure(10,LTLM_A,39); break;
-		  }
-		  break;
-		case 35:
-		  switch(frame_count){
-                    case 0: tx_data[tx_offset] = measure(10,LTLM_D,0x01D); break;
-                    case 1: tx_data[tx_offset] = measure(10,LTLM_A,11); break;
-                    case 2: tx_data[tx_offset] = measure(10,LTLM_A,21); break;
-                    case 3: tx_data[tx_offset] = measure(10,LTLM_A,31); break;
-                    case 4: tx_data[tx_offset] = measure(10,LTLM_A,40); break;
-		  }
-		  break;
-		case 36: // ** MAGIC WORD 1 **
-		  switch(frame_addr){
-		    case 0: tx_data[tx_offset] = measure(01,LTLM_A,1); break;
-		    case 1: tx_data[tx_offset] = measure(01,LTLM_A,5); break;
-		    case 2: tx_data[tx_offset] = measure(01,LTLM_A,9); break;
-		    case 3: tx_data[tx_offset] = measure(01,LTLM_A,13); break;
-		    case 4: tx_data[tx_offset] = measure(01,LTLM_A,17); break;
-		    case 5: tx_data[tx_offset] = measure(01,LTLM_A,20); break;
-		    case 6: tx_data[tx_offset] = measure(01,LTLM_A,24); break;
-		    case 7: tx_data[tx_offset] = measure(01,LTLM_A,28); break;
-		    case 8: tx_data[tx_offset] = measure(01,LTLM_A,33); break;
-		    case 9: tx_data[tx_offset] = measure(01,LTLM_A,36); break;
-		    case 10: tx_data[tx_offset] = measure(01,LTLM_A,39); break;
-		    case 11: tx_data[tx_offset] = measure(01,LTLM_A,43); break;
-		    case 12: tx_data[tx_offset] = measure(01,LTLM_A,47); break;
-		    case 13: tx_data[tx_offset] = measure(01,LTLM_A,51); break;
-		    case 14: tx_data[tx_offset] = measure(01,LTLM_A,55); break;
-		    case 15: tx_data[tx_offset] = measure(01,LTLM_A,58); break;
-		    case 16: tx_data[tx_offset] = measure(01,LTLM_A,62); break;
-		    case 17: tx_data[tx_offset] = measure(01,LTLM_A,66); break;
-		    case 18: tx_data[tx_offset] = measure(01,LTLM_A,70); break;
-		    case 19: tx_data[tx_offset] = measure(01,LTLM_A,74); break;
-		    case 20: tx_data[tx_offset] = measure(01,LTLM_A,77); break;
-		    case 21: tx_data[tx_offset] = measure(01,LTLM_A,81); break;
-		    case 22: tx_data[tx_offset] = measure(01,LTLM_A,85); break;
-		    case 23: tx_data[tx_offset] = measure(01,LTLM_A,89); break;
-		    case 24: tx_data[tx_offset] = measure(01,LTLM_A,93); break;
-		    case 25: tx_data[tx_offset] = measure(01,LTLM_A,97); break;
-		    case 26: tx_data[tx_offset] = measure(01,LTLM_A,101); break;
-		    case 27: tx_data[tx_offset] = measure(01,LTLM_A,105); break;
-		    case 28: tx_data[tx_offset] = measure(01,LTLM_A,109); break;
-		    case 29: tx_data[tx_offset] = measure(01,LTLM_A,113); break;
-		    case 30: tx_data[tx_offset] = measure(01,LTLM_A,117); break;
-		    case 31: tx_data[tx_offset] = measure(01,LTLM_A,121); break;
-		    case 32: tx_data[tx_offset] = measure(01,LTLM_A,125); break;
-		    case 33: tx_data[tx_offset] = measure(01,LTLM_A,129); break;
-		    case 34: tx_data[tx_offset] = measure(01,LTLM_A,133); break;
-		    case 35: tx_data[tx_offset] = measure(01,LTLM_A,137); break;
-		    case 36: tx_data[tx_offset] = measure(01,LTLM_A,141); break;
-		    case 37: tx_data[tx_offset] = measure(01,LTLM_A,145); break;
-		    case 38: tx_data[tx_offset] = measure(01,LTLM_A,149); break;
-		    case 39: tx_data[tx_offset] = measure(01,LTLM_A,153); break;
-		    case 40: tx_data[tx_offset] = measure(01,LTLM_A,157); break;
-		    case 41: tx_data[tx_offset] = measure(01,LTLM_A,161); break;
-		    case 42: tx_data[tx_offset] = measure(01,LTLM_A,165); break;
-		    case 43: tx_data[tx_offset] = measure(01,LTLM_A,169); break;
-		    case 44: tx_data[tx_offset] = measure(01,LTLM_A,173); break;
-		    case 45: tx_data[tx_offset] = measure(01,LTLM_A,177); break;
-		    case 46: tx_data[tx_offset] = measure(01,LTLM_A,181); break;
-		    case 47: tx_data[tx_offset] = measure(01,LTLM_A,185); break;
-		    case 48: tx_data[tx_offset] = measure(01,LTLM_A,189); break;
-		    case 49: tx_data[tx_offset] = measure(01,LTLM_A,193); break;
-		  }
-		break;
-        case 37: tx_data[tx_offset] = measure(200,LTLM_E,0x1A); break;
-        case 38: tx_data[tx_offset] = measure(200,LTLM_E,0x1B); break;
-        case 39: tx_data[tx_offset] = measure(100,LTLM_E,0x03); break;
-        case 40: tx_data[tx_offset] = measure(200,LTLM_A,1); break;
-        case 41: tx_data[tx_offset] = measure(200,LTLM_A,2); break;
-        case 42: tx_data[tx_offset] = measure(200,LTLM_A,3); break;
-        case 43: tx_data[tx_offset] = measure(200,LTLM_A,4); break;
-        case 44: tx_data[tx_offset] = measure(200,LTLM_A,5); break;
-        case 45: tx_data[tx_offset] = measure(200,LTLM_A,6); break;
-        case 46: tx_data[tx_offset] = measure(200,LTLM_A,7); break;
-        case 47: tx_data[tx_offset] = measure(100,LTLM_E,0x04); break;
-        case 48: tx_data[tx_offset] = measure(100,LTLM_A,15); break;
-        case 49: tx_data[tx_offset] = measure(100,LTLM_A,16); break;
-        case 50: tx_data[tx_offset] = measure(100,LTLM_A,17); break;
-        case 51: tx_data[tx_offset] = measure(100,LTLM_A,18); break;
-        case 52: tx_data[tx_offset] = measure(100,LTLM_A,19); break;
-        case 53: tx_data[tx_offset] = measure(100,LTLM_A,20); break;
-        case 54: tx_data[tx_offset] = measure(100,LTLM_A,21); break;
-        case 55: tx_data[tx_offset] = measure(100,LTLM_A,22); break;
-        case 56: tx_data[tx_offset] = measure(50,LTLM_A,1); break;
-        case 57: tx_data[tx_offset] = measure(50,LTLM_A,2); break;
-        case 58: tx_data[tx_offset] = measure(50,LTLM_A,3); break;
-        case 59: tx_data[tx_offset] = measure(50,LTLM_A,4); break;
-        case 60: tx_data[tx_offset] = measure(50,LTLM_A,5); break;
-        case 61: tx_data[tx_offset] = measure(50,LTLM_A,6); break;
-        case 62: tx_data[tx_offset] = measure(50,LTLM_A,7); break;
-        case 63: tx_data[tx_offset] = measure(50,LTLM_A,8); break;
-		case 64:
-		  switch(frame_count){
-                    case 0: tx_data[tx_offset] = measure(10,LTLM_A,1); break;
-                    case 1: tx_data[tx_offset] = measure(10,LTLM_A,12); break;
-                    case 2: tx_data[tx_offset] = measure(10,LTLM_A,22); break;
-                    case 3: tx_data[tx_offset] = measure(10,LTLM_A,32); break;
-                    case 4: tx_data[tx_offset] = measure(10,LTLM_A,41); break;
-		  }
-		  break;
-		case 65:
-		  switch(frame_count){
-                    case 0: tx_data[tx_offset] = measure(10,LTLM_A,2); break;
-                    case 1: tx_data[tx_offset] = measure(10,LTLM_A,13); break;
-                    case 2: tx_data[tx_offset] = measure(10,LTLM_A,23); break;
-                    case 3: tx_data[tx_offset] = measure(10,LTLM_A,33); break;
-                    case 4: tx_data[tx_offset] = measure(10,LTLM_A,42); break;
-		  }
-		  break;
-		case 66:
-		  switch(frame_count){
-                    case 0: tx_data[tx_offset] = measure(10,LTLM_A,3); break;
-                    case 1: tx_data[tx_offset] = measure(10,LTLM_A,14); break;
-                    case 2: tx_data[tx_offset] = measure(10,LTLM_A,24); break;
-                    case 3: tx_data[tx_offset] = measure(10,LTLM_A,34); break;
-                    case 4: tx_data[tx_offset] = measure(10,LTLM_A,43); break;
-		  }
-		  break;
-		case 67:
-		  switch(frame_count){
-                    case 0: tx_data[tx_offset] = measure(10,LTLM_A,4); break;
-                    case 1: tx_data[tx_offset] = measure(10,LTLM_A,15); break;
-                    case 2: tx_data[tx_offset] = measure(10,LTLM_A,25); break;
-                    case 3: tx_data[tx_offset] = measure(10,LTLM_A,35); break;
-                    case 4: tx_data[tx_offset] = measure(10,LTLM_A,44); break;
-		  }
-		  break;
-		case 68: // ** MAGIC WORD 2 **
-		  switch(frame_addr){
-		    case 0: tx_data[tx_offset] = measure(01,LTLM_A,2); break;
-		    case 1: tx_data[tx_offset] = measure(01,LTLM_A,6); break;
-		    case 2: tx_data[tx_offset] = measure(01,LTLM_A,10); break;
-		    case 3: tx_data[tx_offset] = measure(01,LTLM_A,14); break;
-		    case 4: tx_data[tx_offset] = measure(01,LTLM_A,18); break;
-		    case 5: tx_data[tx_offset] = measure(01,LTLM_A,21); break;
-		    case 6: tx_data[tx_offset] = measure(01,LTLM_A,25); break;
-		    case 7: tx_data[tx_offset] = measure(01,LTLM_A,29); break;
-		    case 8: tx_data[tx_offset] = measure(01,LTLM_A,33); break;
-		    case 9: tx_data[tx_offset] = measure(01,LTLM_A,37); break;
-		    case 10: tx_data[tx_offset] = measure(01,LTLM_A,40); break;
-		    case 11: tx_data[tx_offset] = measure(01,LTLM_A,44); break;
-		    case 12: tx_data[tx_offset] = measure(01,LTLM_A,48); break;
-		    case 13: tx_data[tx_offset] = measure(01,LTLM_A,52); break;
-		    case 14: tx_data[tx_offset] = measure(01,LTLM_A,56); break;
-		    case 15: tx_data[tx_offset] = measure(01,LTLM_A,59); break;
-		    case 16: tx_data[tx_offset] = measure(01,LTLM_A,63); break;
-		    case 17: tx_data[tx_offset] = measure(01,LTLM_A,67); break;
-		    case 18: tx_data[tx_offset] = measure(01,LTLM_A,71); break;
-		    case 19: tx_data[tx_offset] = measure(01,LTLM_A,75); break;
-		    case 20: tx_data[tx_offset] = measure(01,LTLM_A,78); break;
-		    case 21: tx_data[tx_offset] = measure(01,LTLM_A,82); break;
-		    case 22: tx_data[tx_offset] = measure(01,LTLM_A,86); break;
-		    case 23: tx_data[tx_offset] = measure(01,LTLM_A,90); break;
-		    case 24: tx_data[tx_offset] = measure(01,LTLM_A,94); break;
-		    case 25: tx_data[tx_offset] = measure(01,LTLM_A,98); break;
-		    case 26: tx_data[tx_offset] = measure(01,LTLM_A,102); break;
-		    case 27: tx_data[tx_offset] = measure(01,LTLM_A,106); break;
-		    case 28: tx_data[tx_offset] = measure(01,LTLM_A,110); break;
-		    case 29: tx_data[tx_offset] = measure(01,LTLM_A,114); break;
-		    case 30: tx_data[tx_offset] = measure(01,LTLM_A,118); break;
-		    case 31: tx_data[tx_offset] = measure(01,LTLM_A,122); break;
-		    case 32: tx_data[tx_offset] = measure(01,LTLM_A,126); break;
-		    case 33: tx_data[tx_offset] = measure(01,LTLM_A,130); break;
-		    case 34: tx_data[tx_offset] = measure(01,LTLM_A,134); break;
-		    case 35: tx_data[tx_offset] = measure(01,LTLM_A,138); break;
-		    case 36: tx_data[tx_offset] = measure(01,LTLM_A,142); break;
-		    case 37: tx_data[tx_offset] = measure(01,LTLM_A,146); break;
-		    case 38: tx_data[tx_offset] = measure(01,LTLM_A,150); break;
-		    case 39: tx_data[tx_offset] = measure(01,LTLM_A,154); break;
-		    case 40: tx_data[tx_offset] = measure(01,LTLM_A,158); break;
-		    case 41: tx_data[tx_offset] = measure(01,LTLM_A,162); break;
-		    case 42: tx_data[tx_offset] = measure(01,LTLM_A,166); break;
-		    case 43: tx_data[tx_offset] = measure(01,LTLM_A,170); break;
-		    case 44: tx_data[tx_offset] = measure(01,LTLM_A,174); break;
-		    case 45: tx_data[tx_offset] = measure(01,LTLM_A,178); break;
-		    case 46: tx_data[tx_offset] = measure(01,LTLM_A,182); break;
-		    case 47: tx_data[tx_offset] = measure(01,LTLM_A,186); break;
-		    case 48: tx_data[tx_offset] = measure(01,LTLM_A,190); break;
-		    case 49: tx_data[tx_offset] = measure(01,LTLM_A,194); break;
-		  }
-		break;
-        case 69: tx_data[tx_offset] = measure(200,LTLM_E,0x1A); break;
-        case 70: tx_data[tx_offset] = measure(200,LTLM_E,0x1B); break;
-        case 71: tx_data[tx_offset] = measure(100,LTLM_E,0x01); break;
-        case 72: tx_data[tx_offset] = measure(200,LTLM_A,1); break;
-        case 73: tx_data[tx_offset] = measure(200,LTLM_A,2); break;
-        case 74: tx_data[tx_offset] = measure(200,LTLM_A,3); break;
-        case 75: tx_data[tx_offset] = measure(200,LTLM_A,4); break;
-        case 76: tx_data[tx_offset] = measure(200,LTLM_A,5); break;
-        case 77: tx_data[tx_offset] = measure(200,LTLM_A,6); break;
-        case 78: tx_data[tx_offset] = measure(200,LTLM_A,7); break;
-        case 79: tx_data[tx_offset] = measure(100,LTLM_E,0x02); break;
-        case 80: tx_data[tx_offset] = measure(100,LTLM_A,1); break;
-        case 81: tx_data[tx_offset] = measure(100,LTLM_A,2); break;
-        case 82: tx_data[tx_offset] = measure(100,LTLM_A,3); break;
-        case 83: tx_data[tx_offset] = measure(100,LTLM_A,4); break;
-        case 84: tx_data[tx_offset] = measure(100,LTLM_A,5); break;
-        case 85: tx_data[tx_offset] = measure(100,LTLM_A,6); break;
-        case 86: tx_data[tx_offset] = measure(100,LTLM_A,7); break;
-        case 87: tx_data[tx_offset] = measure(50,LTLM_E,0x03); break;
-        case 88: tx_data[tx_offset] = measure(100,LTLM_A,8); break;
-        case 89: tx_data[tx_offset] = measure(100,LTLM_A,9); break;
-        case 90: tx_data[tx_offset] = measure(100,LTLM_A,10); break;
-        case 91: tx_data[tx_offset] = measure(100,LTLM_A,11); break;
-        case 92: tx_data[tx_offset] = measure(100,LTLM_A,12); break;
-        case 93: tx_data[tx_offset] = measure(100,LTLM_A,13); break;
-        case 94: tx_data[tx_offset] = measure(100,LTLM_A,14); break;
-        case 95: tx_data[tx_offset] = measure(50,LTLM_E,0x04); break;
-        case 96: tx_data[tx_offset] = measure(50,LTLM_D,0x002); break;
-		case 97: // ** MAGIC WORD 3 **
-		  switch(frame_addr){
-		    case 0: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
-		    case 1: tx_data[tx_offset] = measure(01,LTLM_E,0x001); break;
-		    case 2: tx_data[tx_offset] = measure(01,LTLM_E,0x002); break;
-		    case 3: tx_data[tx_offset] = measure(01,LTLM_E,0x003); break;
-		    case 4: tx_data[tx_offset] = measure(01,LTLM_E,0x004); break;
-		    case 5: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
-		    case 6: tx_data[tx_offset] = measure(01,LTLM_E,0x005); break;
-		    case 7: tx_data[tx_offset] = measure(01,LTLM_E,0x006); break;
-		    case 8: tx_data[tx_offset] = measure(01,LTLM_E,0x007); break;
-		    case 9: tx_data[tx_offset] = measure(01,LTLM_E,0x008); break;
-		    case 10: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
-		    case 11: tx_data[tx_offset] = measure(01,LTLM_E,0x009); break;
-		    case 12: tx_data[tx_offset] = measure(01,LTLM_E,0x010); break;
-		    case 13: tx_data[tx_offset] = measure(01,LTLM_E,0x011); break;
-		    case 14: tx_data[tx_offset] = measure(01,LTLM_E,0x012); break;
-		    case 15: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
-		    case 16: tx_data[tx_offset] = measure(01,LTLM_E,0x013); break;
-		    case 17: tx_data[tx_offset] = measure(01,LTLM_E,0x014); break;
-		    case 18: tx_data[tx_offset] = measure(01,LTLM_E,0x015); break;
-		    case 19: tx_data[tx_offset] = measure(01,LTLM_E,0x016); break;
-		    case 20: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
-		    case 21: tx_data[tx_offset] = measure(01,LTLM_E,0x17); break;
-		    case 22: tx_data[tx_offset] = measure(01,LTLM_E,0x18); break;
-		    case 23: tx_data[tx_offset] = measure(01,LTLM_E,0x19); break;
-		    case 24: tx_data[tx_offset] = measure(01,LTLM_E,0x20); break;
-		    case 25: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
-		    case 26: tx_data[tx_offset] = measure(01,LTLM_E,0x21); break;
-		    case 27: tx_data[tx_offset] = measure(01,LTLM_E,0x22); break;
-		    case 28: tx_data[tx_offset] = measure(01,LTLM_E,0x23); break;
-		    case 29: tx_data[tx_offset] = measure(01,LTLM_E,0x25); break;
-		    case 30: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
-		    case 31: tx_data[tx_offset] = measure(01,LTLM_E,0x26); break;
-		    case 32: tx_data[tx_offset] = measure(01,LTLM_E,0x27); break;
-		    case 33: tx_data[tx_offset] = measure(01,LTLM_E,0x28); break;
-		    case 34: tx_data[tx_offset] = measure(01,LTLM_E,0x30); break;
-		    case 35: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
-		    case 36: tx_data[tx_offset] = measure(01,LTLM_E,0x31); break;
-		    case 37: tx_data[tx_offset] = measure(01,LTLM_E,0x32); break;
-		    case 38: tx_data[tx_offset] = measure(01,LTLM_E,0x33); break;
-		    case 39: tx_data[tx_offset] = measure(01,LTLM_E,0x35); break;
-		    case 40: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
-		    case 41: tx_data[tx_offset] = measure(01,LTLM_E,0x36); break;
-		    case 42: tx_data[tx_offset] = measure(01,LTLM_E,0x37); break;
-		    case 43: tx_data[tx_offset] = measure(01,LTLM_E,0x38); break;
-		    case 44: tx_data[tx_offset] = measure(01,LTLM_E,0x40); break;
-		    case 45: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
-		    case 46: tx_data[tx_offset] = measure(01,LTLM_E,0x41); break;
-		    case 47: tx_data[tx_offset] = measure(01,LTLM_E,0x42); break;
-		    case 48: tx_data[tx_offset] = measure(01,LTLM_E,0x43); break;
-		    case 49: tx_data[tx_offset] = measure(01,LTLM_E,0x45); break;
-		  }
-		break;
-		case 98:
-		  switch(frame_count){
-                    case 0: tx_data[tx_offset] = measure(10,LTLM_A,6); break;
-                    case 1: tx_data[tx_offset] = measure(10,LTLM_A,16); break;
-                    case 2: tx_data[tx_offset] = measure(10,LTLM_A,26); break;
-                    case 3: tx_data[tx_offset] = measure(10,LTLM_A,36); break;
-                    case 4: tx_data[tx_offset] = measure(10,LTLM_A,45); break;
-		  }
-		  break;
-		case 99: // ** MAGIC WORD 4 **
-		  switch(frame_addr){
-		    case 0: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
-		    case 1: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
-		    case 2: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
-		    case 3: tx_data[tx_offset] = measure(01,LTLM_D,0x002); break;
-		    case 4: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
-		    case 5: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
-		    case 6: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
-		    case 7: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
-		    case 8: tx_data[tx_offset] = measure(01,LTLM_D,0x004); break;
-		    case 9: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
-		    case 10: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
-		    case 11: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
-		    case 12: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
-		    case 13: tx_data[tx_offset] = measure(01,LTLM_D,0x006); break;
-		    case 14: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
-		    case 15: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
-		    case 16: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
-		    case 17: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
-		    case 18: tx_data[tx_offset] = measure(01,LTLM_D,0x008); break;
-		    case 19: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
-		    case 20: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
-		    case 21: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
-		    case 22: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
-		    case 23: tx_data[tx_offset] = measure(01,LTLM_D,0x10); break;
-		    case 24: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
-		    case 25: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
-		    case 26: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
-		    case 27: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
-		    case 28: tx_data[tx_offset] = measure(01,LTLM_E,0x24); break;
-		    case 29: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
-		    case 30: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
-		    case 31: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
-		    case 32: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
-		    case 33: tx_data[tx_offset] = measure(01,LTLM_E,0x29); break;
-		    case 34: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
-		    case 35: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
-		    case 36: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
-		    case 37: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
-		    case 38: tx_data[tx_offset] = measure(01,LTLM_E,0x34); break;
-		    case 39: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
-		    case 40: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
-		    case 41: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
-		    case 42: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
-		    case 43: tx_data[tx_offset] = measure(01,LTLM_E,0x39); break;
-		    case 44: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
-		    case 45: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
-		    case 46: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
-		    case 47: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
-		    case 48: tx_data[tx_offset] = measure(01,LTLM_E,0x44); break;
-		    case 49: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
-		  }
-		break;
-		case 100: // ** MAGIC WORD 5 **
-		  switch(frame_addr){
-		    case 0: tx_data[tx_offset] = measure(01,LTLM_A,3); break;
-		    case 1: tx_data[tx_offset] = measure(01,LTLM_A,7); break;
-		    case 2: tx_data[tx_offset] = measure(01,LTLM_A,11); break;
-		    case 3: tx_data[tx_offset] = measure(01,LTLM_A,15); break;
-		    case 4: tx_data[tx_offset] = measure(01,LTLM_A,19); break;
-		    case 5: tx_data[tx_offset] = measure(01,LTLM_A,22); break;
-		    case 6: tx_data[tx_offset] = measure(01,LTLM_A,26); break;
-		    case 7: tx_data[tx_offset] = measure(01,LTLM_A,30); break;
-		    case 8: tx_data[tx_offset] = measure(01,LTLM_A,34); break;
-		    case 9: tx_data[tx_offset] = measure(01,LTLM_A,38); break;
-		    case 10: tx_data[tx_offset] = measure(01,LTLM_A,41); break;
-		    case 11: tx_data[tx_offset] = measure(01,LTLM_A,45); break;
-		    case 12: tx_data[tx_offset] = measure(01,LTLM_A,49); break;
-		    case 13: tx_data[tx_offset] = measure(01,LTLM_A,53); break;
-		    case 14: tx_data[tx_offset] = measure(01,LTLM_A,57); break;
-		    case 15: tx_data[tx_offset] = measure(01,LTLM_A,60); break;
-		    case 16: tx_data[tx_offset] = measure(01,LTLM_A,64); break;
-		    case 17: tx_data[tx_offset] = measure(01,LTLM_A,68); break;
-		    case 18: tx_data[tx_offset] = measure(01,LTLM_A,72); break;
-		    case 19: tx_data[tx_offset] = measure(01,LTLM_A,76); break;
-		    case 20: tx_data[tx_offset] = measure(01,LTLM_A,79); break;
-		    case 21: tx_data[tx_offset] = measure(01,LTLM_A,83); break;
-		    case 22: tx_data[tx_offset] = measure(01,LTLM_A,87); break;
-		    case 23: tx_data[tx_offset] = measure(01,LTLM_A,91); break;
-		    case 24: tx_data[tx_offset] = measure(01,LTLM_A,95); break;
-		    case 25: tx_data[tx_offset] = measure(01,LTLM_A,99); break;
-		    case 26: tx_data[tx_offset] = measure(01,LTLM_A,103); break;
-		    case 27: tx_data[tx_offset] = measure(01,LTLM_A,107); break;
-		    case 28: tx_data[tx_offset] = measure(01,LTLM_A,111); break;
-		    case 29: tx_data[tx_offset] = measure(01,LTLM_A,115); break;
-		    case 30: tx_data[tx_offset] = measure(01,LTLM_A,119); break;
-		    case 31: tx_data[tx_offset] = measure(01,LTLM_A,123); break;
-		    case 32: tx_data[tx_offset] = measure(01,LTLM_A,127); break;
-		    case 33: tx_data[tx_offset] = measure(01,LTLM_A,131); break;
-		    case 34: tx_data[tx_offset] = measure(01,LTLM_A,135); break;
-		    case 35: tx_data[tx_offset] = measure(01,LTLM_A,139); break;
-		    case 36: tx_data[tx_offset] = measure(01,LTLM_A,143); break;
-		    case 37: tx_data[tx_offset] = measure(01,LTLM_A,147); break;
-		    case 38: tx_data[tx_offset] = measure(01,LTLM_A,151); break;
-		    case 39: tx_data[tx_offset] = measure(01,LTLM_A,155); break;
-		    case 40: tx_data[tx_offset] = measure(01,LTLM_A,159); break;
-		    case 41: tx_data[tx_offset] = measure(01,LTLM_A,163); break;
-		    case 42: tx_data[tx_offset] = measure(01,LTLM_A,167); break;
-		    case 43: tx_data[tx_offset] = measure(01,LTLM_A,171); break;
-		    case 44: tx_data[tx_offset] = measure(01,LTLM_A,175); break;
-		    case 45: tx_data[tx_offset] = measure(01,LTLM_A,179); break;
-		    case 46: tx_data[tx_offset] = measure(01,LTLM_A,183); break;
-		    case 47: tx_data[tx_offset] = measure(01,LTLM_A,187); break;
-		    case 48: tx_data[tx_offset] = measure(01,LTLM_A,191); break;
-		    case 49: tx_data[tx_offset] = measure(01,LTLM_A,195); break;
-		  }
-		break;
-        case 101: tx_data[tx_offset] = measure(200,LTLM_E,0x1A); break;
-        case 102: tx_data[tx_offset] = measure(200,LTLM_E,0x1B); break;
-        case 103: tx_data[tx_offset] = measure(100,LTLM_E,0x03); break;
-        case 104: tx_data[tx_offset] = measure(200,LTLM_A,1); break;
-        case 105: tx_data[tx_offset] = measure(200,LTLM_A,2); break;
-        case 106: tx_data[tx_offset] = measure(200,LTLM_A,3); break;
-        case 107: tx_data[tx_offset] = measure(200,LTLM_A,4); break;
-        case 108: tx_data[tx_offset] = measure(200,LTLM_A,5); break;
-        case 109: tx_data[tx_offset] = measure(200,LTLM_A,6); break;
-        case 110: tx_data[tx_offset] = measure(200,LTLM_A,7); break;
-        case 111: tx_data[tx_offset] = measure(100,LTLM_E,0x04); break;
-        case 112: tx_data[tx_offset] = measure(100,LTLM_A,15); break;
-        case 113: tx_data[tx_offset] = measure(100,LTLM_A,16); break;
-        case 114: tx_data[tx_offset] = measure(100,LTLM_A,17); break;
-        case 115: tx_data[tx_offset] = measure(100,LTLM_A,18); break;
-        case 116: tx_data[tx_offset] = measure(100,LTLM_A,19); break;
-        case 117: tx_data[tx_offset] = measure(100,LTLM_A,20); break;
-        case 118: tx_data[tx_offset] = measure(100,LTLM_A,21); break;
-        case 119: tx_data[tx_offset] = measure(100,LTLM_A,22); break;
-        case 120: // 50DS1A
+	case 1: tx_data[tx_offset] = 0312; break;         // SYNC 2
+	case 2: tx_data[tx_offset] = 0150; break;         // SYNC 3
+	case 3: tx_data[tx_offset] = frame_addr+1; break; // SYNC 4 & FRAME COUNT
+	case 4: // ** MAGIC WORD 0 **
+		switch(frame_addr)
 		{
-			// DOWNRUPT needs time to get data on the bus, so it has to have happened BEFORE we get here!
-			ChannelValue ch13;
-			ch13 = lem->agc.GetOutputChannel(013);
-			data = (lem->agc.GetOutputChannel(034) & 077400) >> 8;
-			if (ch13[DownlinkWordOrderCodeBit]) { data |= 0200; } // WORD ORDER BIT
-			/*
-			sprintf(oapiDebugString(),"LGC DATA: %o (%lo %lo)",data,lem->agc.GetOutputChannel(034),
-				lem->agc.GetOutputChannel(035));
-			*/
-			tx_data[tx_offset] = data;
-			break;
+		case 0: tx_data[tx_offset] = measure(01,LTLM_D,0x001); break;
+		case 1: tx_data[tx_offset] = measure(01,LTLM_A,4); break;
+		case 2: tx_data[tx_offset] = measure(01,LTLM_A,8); break;
+		case 3: tx_data[tx_offset] = measure(01,LTLM_A,12); break;
+		case 4: tx_data[tx_offset] = measure(01,LTLM_A,16); break;
+		case 5: tx_data[tx_offset] = measure(01,LTLM_D,0x003); break;
+		case 6: tx_data[tx_offset] = measure(01,LTLM_A,23); break;
+		case 7: tx_data[tx_offset] = measure(01,LTLM_A,27); break;
+		case 8: tx_data[tx_offset] = measure(01,LTLM_A,31); break;
+		case 9: tx_data[tx_offset] = measure(01,LTLM_A,35); break;
+		case 10: tx_data[tx_offset] = measure(01,LTLM_D,0x005); break;
+		case 11: tx_data[tx_offset] = measure(01,LTLM_A,42); break;
+		case 12: tx_data[tx_offset] = measure(01,LTLM_A,46); break;
+		case 13: tx_data[tx_offset] = measure(01,LTLM_A,50); break;
+		case 14: tx_data[tx_offset] = measure(01,LTLM_A,54); break;
+		case 15: tx_data[tx_offset] = measure(01,LTLM_D,0x007); break;
+		case 16: tx_data[tx_offset] = measure(01,LTLM_A,61); break;
+		case 17: tx_data[tx_offset] = measure(01,LTLM_A,65); break;
+		case 18: tx_data[tx_offset] = measure(01,LTLM_A,69); break;
+		case 19: tx_data[tx_offset] = measure(01,LTLM_A,73); break;
+		case 20: tx_data[tx_offset] = measure(01,LTLM_D,0x009); break;
+		case 21: tx_data[tx_offset] = measure(01,LTLM_A,80); break;
+		case 22: tx_data[tx_offset] = measure(01,LTLM_A,84); break;
+		case 23: tx_data[tx_offset] = measure(01,LTLM_A,88); break;
+		case 24: tx_data[tx_offset] = measure(01,LTLM_A,92); break;
+		case 25: tx_data[tx_offset] = measure(01,LTLM_A,96); break;
+		case 26: tx_data[tx_offset] = measure(01,LTLM_A,100); break;
+		case 27: tx_data[tx_offset] = measure(01,LTLM_A,104); break;
+		case 28: tx_data[tx_offset] = measure(01,LTLM_A,108); break;
+		case 29: tx_data[tx_offset] = measure(01,LTLM_A,112); break;
+		case 30: tx_data[tx_offset] = measure(01,LTLM_A,116); break;
+		case 31: tx_data[tx_offset] = measure(01,LTLM_A,120); break;
+		case 32: tx_data[tx_offset] = measure(01,LTLM_A,124); break;
+		case 33: tx_data[tx_offset] = measure(01,LTLM_A,128); break;
+		case 34: tx_data[tx_offset] = measure(01,LTLM_A,132); break;
+		case 35: tx_data[tx_offset] = measure(01,LTLM_A,136); break;
+		case 36: tx_data[tx_offset] = measure(01,LTLM_A,140); break;
+		case 37: tx_data[tx_offset] = measure(01,LTLM_A,144); break;
+		case 38: tx_data[tx_offset] = measure(01,LTLM_A,148); break;
+		case 39: tx_data[tx_offset] = measure(01,LTLM_A,152); break;
+		case 40: tx_data[tx_offset] = measure(01,LTLM_A,156); break;
+		case 41: tx_data[tx_offset] = measure(01,LTLM_A,160); break;
+		case 42: tx_data[tx_offset] = measure(01,LTLM_A,164); break;
+		case 43: tx_data[tx_offset] = measure(01,LTLM_A,168); break;
+		case 44: tx_data[tx_offset] = measure(01,LTLM_A,172); break;
+		case 45: tx_data[tx_offset] = measure(01,LTLM_A,176); break;
+		case 46: tx_data[tx_offset] = measure(01,LTLM_A,180); break;
+		case 47: tx_data[tx_offset] = measure(01,LTLM_A,184); break;
+		case 48: tx_data[tx_offset] = measure(01,LTLM_A,188); break;
+		case 49: tx_data[tx_offset] = measure(01,LTLM_A,192); break;
 		}
-        case 121: // 50DS1B
-			data = (lem->agc.GetOutputChannel(034)&0377);
-			tx_data[tx_offset] = data; 
-			break;
-		case 122: // 50DS1C
-			// PARITY OF CH 34 GOES IN TOP BIT HERE!
-			data = (lem->agc.GetOutputChannel(035)&077400)>>8;
-			tx_data[tx_offset] = data; 
-			break;
-        case 123: // 50DS1D
-			data = (lem->agc.GetOutputChannel(035)&0377);
-			tx_data[tx_offset] = data; 
-			break;
-        case 124: // 50DS1E
-			// PARITY OF CH 35 GOES IN TOP BIT HERE!
-			data = (lem->agc.GetOutputChannel(034)&077400)>>8;
-			tx_data[tx_offset] = data; 
-		case 125: // 50DS2A - AGS DATA
-			tx_data[tx_offset] = 0; break;
-        case 126: // 50DS2B - AGS DATA
-			tx_data[tx_offset] = 0; break;
-        case 127: // 50DS2C - AGS DATA
-			tx_data[tx_offset] = 0; break;
-		// JUST IN CASE
-		default:
-			tx_data[tx_offset] = 0;
-			break;
+		break;
+    case 5: tx_data[tx_offset] = measure(200,LTLM_E,0x1A); break;
+    case 6: tx_data[tx_offset] = measure(200,LTLM_E,0x1B); break;
+    case 7: tx_data[tx_offset] = measure(100,LTLM_E,0x01); break;
+    case 8: tx_data[tx_offset] = measure(200,LTLM_A,1); break;
+    case 9: tx_data[tx_offset] = measure(200,LTLM_A,2); break;
+    case 10: tx_data[tx_offset] = measure(200,LTLM_A,3); break;
+    case 11: tx_data[tx_offset] = measure(200,LTLM_A,4); break;
+    case 12: tx_data[tx_offset] = measure(200,LTLM_A,5); break;
+    case 13: tx_data[tx_offset] = measure(200,LTLM_A,6); break;
+    case 14: tx_data[tx_offset] = measure(200,LTLM_A,7); break;
+    case 15: tx_data[tx_offset] = measure(100,LTLM_E,0x002); break;
+    case 16: tx_data[tx_offset] = measure(100,LTLM_A,1); break;
+    case 17: tx_data[tx_offset] = measure(100,LTLM_A,2); break;
+    case 18: tx_data[tx_offset] = measure(100,LTLM_A,3); break;
+    case 19: tx_data[tx_offset] = measure(100,LTLM_A,4); break;
+    case 20: tx_data[tx_offset] = measure(100,LTLM_A,5); break;
+    case 21: tx_data[tx_offset] = measure(100,LTLM_A,6); break;
+    case 22: tx_data[tx_offset] = measure(100,LTLM_A,7); break;
+    case 23: tx_data[tx_offset] = measure(50,LTLM_E,0x001); break;
+    case 24: tx_data[tx_offset] = measure(100,LTLM_A,8); break;
+    case 25: tx_data[tx_offset] = measure(100,LTLM_A,9); break;
+    case 26: tx_data[tx_offset] = measure(100,LTLM_A,10); break;
+    case 27: tx_data[tx_offset] = measure(100,LTLM_A,11); break;
+    case 28: tx_data[tx_offset] = measure(100,LTLM_A,12); break;
+    case 29: tx_data[tx_offset] = measure(100,LTLM_A,13); break;
+    case 30: tx_data[tx_offset] = measure(100,LTLM_A,14); break;
+    case 31: tx_data[tx_offset] = measure(50,LTLM_E,0x002); break;
+	case 32:
+		switch (frame_count)
+		{
+		case 0: // 10, LTLM_D, 0x01A
+		{
+			int time = (int)lem->GetMissionTime();
+			tx_data[tx_offset] = (time % 60);
+		}
+		break;
+		case 1: tx_data[tx_offset] = measure(10, LTLM_A, 8); break;
+		case 2: tx_data[tx_offset] = measure(10, LTLM_A, 18); break;
+		case 3: tx_data[tx_offset] = measure(10, LTLM_A, 28); break;
+		case 4: tx_data[tx_offset] = measure(10, LTLM_A, 37); break;
+		}
+		break;
+	case 33:
+		switch (frame_count)
+		{
+		case 0: // 10, LTLM_D, 0x01B
+		{
+			int time = (int)lem->GetMissionTime();
+			tx_data[tx_offset] = (((time % 3600) - (time % 60)) / 60);
+		}
+		break;
+		case 1: tx_data[tx_offset] = measure(10, LTLM_A, 9); break;
+		case 2: tx_data[tx_offset] = measure(10, LTLM_A, 19); break;
+		case 3: tx_data[tx_offset] = measure(10, LTLM_A, 29); break;
+		case 4: tx_data[tx_offset] = measure(10, LTLM_A, 38); break;
+		}
+		break;
+	case 34:
+		switch (frame_count)
+		{
+		case 0: // 10, LTLM_D, 0x01C
+		{
+			int time = (int)lem->GetMissionTime();
+			tx_data[tx_offset] = (((time % 86400) - (time % 3600)) / 3600);
+		}
+		break;
+		case 1: tx_data[tx_offset] = measure(10, LTLM_A, 10); break;
+		case 2: tx_data[tx_offset] = measure(10, LTLM_A, 20); break;
+		case 3: tx_data[tx_offset] = measure(10, LTLM_A, 30); break;
+		case 4: tx_data[tx_offset] = measure(10, LTLM_A, 39); break;
+		}
+		break;
+	case 35:
+		switch (frame_count)
+		{
+		case 0: // 10, LTLM_D, 0x01D
+		{
+			int time = (int)lem->GetMissionTime();
+			tx_data[tx_offset] = ((time - (time % 86400)) / 86400);
+		}
+		break;
+		case 1: tx_data[tx_offset] = measure(10, LTLM_A, 11); break;
+		case 2: tx_data[tx_offset] = measure(10, LTLM_A, 21); break;
+		case 3: tx_data[tx_offset] = measure(10, LTLM_A, 31); break;
+		case 4: tx_data[tx_offset] = measure(10, LTLM_A, 40); break;
+		}
+		break;
+	case 36: // ** MAGIC WORD 1 **
+		switch(frame_addr){
+		case 0: tx_data[tx_offset] = measure(01,LTLM_A,1); break;
+		case 1: tx_data[tx_offset] = measure(01,LTLM_A,5); break;
+		case 2: tx_data[tx_offset] = measure(01,LTLM_A,9); break;
+		case 3: tx_data[tx_offset] = measure(01,LTLM_A,13); break;
+		case 4: tx_data[tx_offset] = measure(01,LTLM_A,17); break;
+		case 5: tx_data[tx_offset] = measure(01,LTLM_A,20); break;
+		case 6: tx_data[tx_offset] = measure(01,LTLM_A,24); break;
+		case 7: tx_data[tx_offset] = measure(01,LTLM_A,28); break;
+		case 8: tx_data[tx_offset] = measure(01,LTLM_A,33); break;
+		case 9: tx_data[tx_offset] = measure(01,LTLM_A,36); break;
+		case 10: tx_data[tx_offset] = measure(01,LTLM_A,39); break;
+		case 11: tx_data[tx_offset] = measure(01,LTLM_A,43); break;
+		case 12: tx_data[tx_offset] = measure(01,LTLM_A,47); break;
+		case 13: tx_data[tx_offset] = measure(01,LTLM_A,51); break;
+		case 14: tx_data[tx_offset] = measure(01,LTLM_A,55); break;
+		case 15: tx_data[tx_offset] = measure(01,LTLM_A,58); break;
+		case 16: tx_data[tx_offset] = measure(01,LTLM_A,62); break;
+		case 17: tx_data[tx_offset] = measure(01,LTLM_A,66); break;
+		case 18: tx_data[tx_offset] = measure(01,LTLM_A,70); break;
+		case 19: tx_data[tx_offset] = measure(01,LTLM_A,74); break;
+		case 20: tx_data[tx_offset] = measure(01,LTLM_A,77); break;
+		case 21: tx_data[tx_offset] = measure(01,LTLM_A,81); break;
+		case 22: tx_data[tx_offset] = measure(01,LTLM_A,85); break;
+		case 23: tx_data[tx_offset] = measure(01,LTLM_A,89); break;
+		case 24: tx_data[tx_offset] = measure(01,LTLM_A,93); break;
+		case 25: tx_data[tx_offset] = measure(01,LTLM_A,97); break;
+		case 26: tx_data[tx_offset] = measure(01,LTLM_A,101); break;
+		case 27: tx_data[tx_offset] = measure(01,LTLM_A,105); break;
+		case 28: tx_data[tx_offset] = measure(01,LTLM_A,109); break;
+		case 29: tx_data[tx_offset] = measure(01,LTLM_A,113); break;
+		case 30: tx_data[tx_offset] = measure(01,LTLM_A,117); break;
+		case 31: tx_data[tx_offset] = measure(01,LTLM_A,121); break;
+		case 32: tx_data[tx_offset] = measure(01,LTLM_A,125); break;
+		case 33: tx_data[tx_offset] = measure(01,LTLM_A,129); break;
+		case 34: tx_data[tx_offset] = measure(01,LTLM_A,133); break;
+		case 35: tx_data[tx_offset] = measure(01,LTLM_A,137); break;
+		case 36: tx_data[tx_offset] = measure(01,LTLM_A,141); break;
+		case 37: tx_data[tx_offset] = measure(01,LTLM_A,145); break;
+		case 38: tx_data[tx_offset] = measure(01,LTLM_A,149); break;
+		case 39: tx_data[tx_offset] = measure(01,LTLM_A,153); break;
+		case 40: tx_data[tx_offset] = measure(01,LTLM_A,157); break;
+		case 41: tx_data[tx_offset] = measure(01,LTLM_A,161); break;
+		case 42: tx_data[tx_offset] = measure(01,LTLM_A,165); break;
+		case 43: tx_data[tx_offset] = measure(01,LTLM_A,169); break;
+		case 44: tx_data[tx_offset] = measure(01,LTLM_A,173); break;
+		case 45: tx_data[tx_offset] = measure(01,LTLM_A,177); break;
+		case 46: tx_data[tx_offset] = measure(01,LTLM_A,181); break;
+		case 47: tx_data[tx_offset] = measure(01,LTLM_A,185); break;
+		case 48: tx_data[tx_offset] = measure(01,LTLM_A,189); break;
+		case 49: tx_data[tx_offset] = measure(01,LTLM_A,193); break;
+		}
+		break;
+    case 37: tx_data[tx_offset] = measure(200,LTLM_E,0x1A); break;
+    case 38: tx_data[tx_offset] = measure(200,LTLM_E,0x1B); break;
+    case 39: tx_data[tx_offset] = measure(100,LTLM_E,0x03); break;
+    case 40: tx_data[tx_offset] = measure(200,LTLM_A,1); break;
+    case 41: tx_data[tx_offset] = measure(200,LTLM_A,2); break;
+    case 42: tx_data[tx_offset] = measure(200,LTLM_A,3); break;
+    case 43: tx_data[tx_offset] = measure(200,LTLM_A,4); break;
+    case 44: tx_data[tx_offset] = measure(200,LTLM_A,5); break;
+    case 45: tx_data[tx_offset] = measure(200,LTLM_A,6); break;
+    case 46: tx_data[tx_offset] = measure(200,LTLM_A,7); break;
+    case 47: tx_data[tx_offset] = measure(100,LTLM_E,0x04); break;
+    case 48: tx_data[tx_offset] = measure(100,LTLM_A,15); break;
+    case 49: tx_data[tx_offset] = measure(100,LTLM_A,16); break;
+    case 50: tx_data[tx_offset] = measure(100,LTLM_A,17); break;
+    case 51: tx_data[tx_offset] = measure(100,LTLM_A,18); break;
+    case 52: tx_data[tx_offset] = measure(100,LTLM_A,19); break;
+    case 53: tx_data[tx_offset] = measure(100,LTLM_A,20); break;
+    case 54: tx_data[tx_offset] = measure(100,LTLM_A,21); break;
+    case 55: tx_data[tx_offset] = measure(100,LTLM_A,22); break;
+    case 56: tx_data[tx_offset] = measure(50,LTLM_A,1); break;
+    case 57: tx_data[tx_offset] = measure(50,LTLM_A,2); break;
+    case 58: tx_data[tx_offset] = measure(50,LTLM_A,3); break;
+    case 59: tx_data[tx_offset] = measure(50,LTLM_A,4); break;
+    case 60: tx_data[tx_offset] = measure(50,LTLM_A,5); break;
+    case 61: tx_data[tx_offset] = measure(50,LTLM_A,6); break;
+    case 62: tx_data[tx_offset] = measure(50,LTLM_A,7); break;
+    case 63: tx_data[tx_offset] = measure(50,LTLM_A,8); break;
+	case 64:
+		switch(frame_count)
+		{
+                case 0: tx_data[tx_offset] = measure(10,LTLM_A,1); break;
+                case 1: tx_data[tx_offset] = measure(10,LTLM_A,12); break;
+                case 2: tx_data[tx_offset] = measure(10,LTLM_A,22); break;
+                case 3: tx_data[tx_offset] = measure(10,LTLM_A,32); break;
+                case 4: tx_data[tx_offset] = measure(10,LTLM_A,41); break;
+		}
+		break;
+	case 65:
+		switch(frame_count)
+		{
+                case 0: tx_data[tx_offset] = measure(10,LTLM_A,2); break;
+                case 1: tx_data[tx_offset] = measure(10,LTLM_A,13); break;
+                case 2: tx_data[tx_offset] = measure(10,LTLM_A,23); break;
+                case 3: tx_data[tx_offset] = measure(10,LTLM_A,33); break;
+                case 4: tx_data[tx_offset] = measure(10,LTLM_A,42); break;
+		}
+		break;
+	case 66:
+		switch(frame_count)
+		{
+                case 0: tx_data[tx_offset] = measure(10,LTLM_A,3); break;
+                case 1: tx_data[tx_offset] = measure(10,LTLM_A,14); break;
+                case 2: tx_data[tx_offset] = measure(10,LTLM_A,24); break;
+                case 3: tx_data[tx_offset] = measure(10,LTLM_A,34); break;
+                case 4: tx_data[tx_offset] = measure(10,LTLM_A,43); break;
+		}
+		break;
+	case 67:
+		switch(frame_count)
+		{
+                case 0: tx_data[tx_offset] = measure(10,LTLM_A,4); break;
+                case 1: tx_data[tx_offset] = measure(10,LTLM_A,15); break;
+                case 2: tx_data[tx_offset] = measure(10,LTLM_A,25); break;
+                case 3: tx_data[tx_offset] = measure(10,LTLM_A,35); break;
+                case 4: tx_data[tx_offset] = measure(10,LTLM_A,44); break;
+		}
+		break;
+	case 68: // ** MAGIC WORD 2 **
+		switch(frame_addr)
+		{
+		case 0: tx_data[tx_offset] = measure(01,LTLM_A,2); break;
+		case 1: tx_data[tx_offset] = measure(01,LTLM_A,6); break;
+		case 2: tx_data[tx_offset] = measure(01,LTLM_A,10); break;
+		case 3: tx_data[tx_offset] = measure(01,LTLM_A,14); break;
+		case 4: tx_data[tx_offset] = measure(01,LTLM_A,18); break;
+		case 5: tx_data[tx_offset] = measure(01,LTLM_A,21); break;
+		case 6: tx_data[tx_offset] = measure(01,LTLM_A,25); break;
+		case 7: tx_data[tx_offset] = measure(01,LTLM_A,29); break;
+		case 8: tx_data[tx_offset] = measure(01,LTLM_A,33); break;
+		case 9: tx_data[tx_offset] = measure(01,LTLM_A,37); break;
+		case 10: tx_data[tx_offset] = measure(01,LTLM_A,40); break;
+		case 11: tx_data[tx_offset] = measure(01,LTLM_A,44); break;
+		case 12: tx_data[tx_offset] = measure(01,LTLM_A,48); break;
+		case 13: tx_data[tx_offset] = measure(01,LTLM_A,52); break;
+		case 14: tx_data[tx_offset] = measure(01,LTLM_A,56); break;
+		case 15: tx_data[tx_offset] = measure(01,LTLM_A,59); break;
+		case 16: tx_data[tx_offset] = measure(01,LTLM_A,63); break;
+		case 17: tx_data[tx_offset] = measure(01,LTLM_A,67); break;
+		case 18: tx_data[tx_offset] = measure(01,LTLM_A,71); break;
+		case 19: tx_data[tx_offset] = measure(01,LTLM_A,75); break;
+		case 20: tx_data[tx_offset] = measure(01,LTLM_A,78); break;
+		case 21: tx_data[tx_offset] = measure(01,LTLM_A,82); break;
+		case 22: tx_data[tx_offset] = measure(01,LTLM_A,86); break;
+		case 23: tx_data[tx_offset] = measure(01,LTLM_A,90); break;
+		case 24: tx_data[tx_offset] = measure(01,LTLM_A,94); break;
+		case 25: tx_data[tx_offset] = measure(01,LTLM_A,98); break;
+		case 26: tx_data[tx_offset] = measure(01,LTLM_A,102); break;
+		case 27: tx_data[tx_offset] = measure(01,LTLM_A,106); break;
+		case 28: tx_data[tx_offset] = measure(01,LTLM_A,110); break;
+		case 29: tx_data[tx_offset] = measure(01,LTLM_A,114); break;
+		case 30: tx_data[tx_offset] = measure(01,LTLM_A,118); break;
+		case 31: tx_data[tx_offset] = measure(01,LTLM_A,122); break;
+		case 32: tx_data[tx_offset] = measure(01,LTLM_A,126); break;
+		case 33: tx_data[tx_offset] = measure(01,LTLM_A,130); break;
+		case 34: tx_data[tx_offset] = measure(01,LTLM_A,134); break;
+		case 35: tx_data[tx_offset] = measure(01,LTLM_A,138); break;
+		case 36: tx_data[tx_offset] = measure(01,LTLM_A,142); break;
+		case 37: tx_data[tx_offset] = measure(01,LTLM_A,146); break;
+		case 38: tx_data[tx_offset] = measure(01,LTLM_A,150); break;
+		case 39: tx_data[tx_offset] = measure(01,LTLM_A,154); break;
+		case 40: tx_data[tx_offset] = measure(01,LTLM_A,158); break;
+		case 41: tx_data[tx_offset] = measure(01,LTLM_A,162); break;
+		case 42: tx_data[tx_offset] = measure(01,LTLM_A,166); break;
+		case 43: tx_data[tx_offset] = measure(01,LTLM_A,170); break;
+		case 44: tx_data[tx_offset] = measure(01,LTLM_A,174); break;
+		case 45: tx_data[tx_offset] = measure(01,LTLM_A,178); break;
+		case 46: tx_data[tx_offset] = measure(01,LTLM_A,182); break;
+		case 47: tx_data[tx_offset] = measure(01,LTLM_A,186); break;
+		case 48: tx_data[tx_offset] = measure(01,LTLM_A,190); break;
+		case 49: tx_data[tx_offset] = measure(01,LTLM_A,194); break;
+		}
+		break;
+    case 69: tx_data[tx_offset] = measure(200,LTLM_E,0x1A); break;
+    case 70: tx_data[tx_offset] = measure(200,LTLM_E,0x1B); break;
+    case 71: tx_data[tx_offset] = measure(100,LTLM_E,0x01); break;
+    case 72: tx_data[tx_offset] = measure(200,LTLM_A,1); break;
+    case 73: tx_data[tx_offset] = measure(200,LTLM_A,2); break;
+    case 74: tx_data[tx_offset] = measure(200,LTLM_A,3); break;
+    case 75: tx_data[tx_offset] = measure(200,LTLM_A,4); break;
+    case 76: tx_data[tx_offset] = measure(200,LTLM_A,5); break;
+    case 77: tx_data[tx_offset] = measure(200,LTLM_A,6); break;
+    case 78: tx_data[tx_offset] = measure(200,LTLM_A,7); break;
+    case 79: tx_data[tx_offset] = measure(100,LTLM_E,0x02); break;
+    case 80: tx_data[tx_offset] = measure(100,LTLM_A,1); break;
+    case 81: tx_data[tx_offset] = measure(100,LTLM_A,2); break;
+    case 82: tx_data[tx_offset] = measure(100,LTLM_A,3); break;
+    case 83: tx_data[tx_offset] = measure(100,LTLM_A,4); break;
+    case 84: tx_data[tx_offset] = measure(100,LTLM_A,5); break;
+    case 85: tx_data[tx_offset] = measure(100,LTLM_A,6); break;
+    case 86: tx_data[tx_offset] = measure(100,LTLM_A,7); break;
+    case 87: tx_data[tx_offset] = measure(50,LTLM_E,0x03); break;
+    case 88: tx_data[tx_offset] = measure(100,LTLM_A,8); break;
+    case 89: tx_data[tx_offset] = measure(100,LTLM_A,9); break;
+    case 90: tx_data[tx_offset] = measure(100,LTLM_A,10); break;
+    case 91: tx_data[tx_offset] = measure(100,LTLM_A,11); break;
+    case 92: tx_data[tx_offset] = measure(100,LTLM_A,12); break;
+    case 93: tx_data[tx_offset] = measure(100,LTLM_A,13); break;
+    case 94: tx_data[tx_offset] = measure(100,LTLM_A,14); break;
+    case 95: tx_data[tx_offset] = measure(50,LTLM_E,0x04); break;
+    case 96: tx_data[tx_offset] = measure(50,LTLM_D,0x002); break;
+	case 97: // ** MAGIC WORD 3 **
+		switch(frame_addr)
+		{
+		case 0: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
+		case 1: tx_data[tx_offset] = measure(01,LTLM_E,0x001); break;
+		case 2: tx_data[tx_offset] = measure(01,LTLM_E,0x002); break;
+		case 3: tx_data[tx_offset] = measure(01,LTLM_E,0x003); break;
+		case 4: tx_data[tx_offset] = measure(01,LTLM_E,0x004); break;
+		case 5: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
+		case 6: tx_data[tx_offset] = measure(01,LTLM_E,0x005); break;
+		case 7: tx_data[tx_offset] = measure(01,LTLM_E,0x006); break;
+		case 8: tx_data[tx_offset] = measure(01,LTLM_E,0x007); break;
+		case 9: tx_data[tx_offset] = measure(01,LTLM_E,0x008); break;
+		case 10: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
+		case 11: tx_data[tx_offset] = measure(01,LTLM_E,0x009); break;
+		case 12: tx_data[tx_offset] = measure(01,LTLM_E,0x010); break;
+		case 13: tx_data[tx_offset] = measure(01,LTLM_E,0x011); break;
+		case 14: tx_data[tx_offset] = measure(01,LTLM_E,0x012); break;
+		case 15: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
+		case 16: tx_data[tx_offset] = measure(01,LTLM_E,0x013); break;
+		case 17: tx_data[tx_offset] = measure(01,LTLM_E,0x014); break;
+		case 18: tx_data[tx_offset] = measure(01,LTLM_E,0x015); break;
+		case 19: tx_data[tx_offset] = measure(01,LTLM_E,0x016); break;
+		case 20: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
+		case 21: tx_data[tx_offset] = measure(01,LTLM_E,0x17); break;
+		case 22: tx_data[tx_offset] = measure(01,LTLM_E,0x18); break;
+		case 23: tx_data[tx_offset] = measure(01,LTLM_E,0x19); break;
+		case 24: tx_data[tx_offset] = measure(01,LTLM_E,0x20); break;
+		case 25: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
+		case 26: tx_data[tx_offset] = measure(01,LTLM_E,0x21); break;
+		case 27: tx_data[tx_offset] = measure(01,LTLM_E,0x22); break;
+		case 28: tx_data[tx_offset] = measure(01,LTLM_E,0x23); break;
+		case 29: tx_data[tx_offset] = measure(01,LTLM_E,0x25); break;
+		case 30: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
+		case 31: tx_data[tx_offset] = measure(01,LTLM_E,0x26); break;
+		case 32: tx_data[tx_offset] = measure(01,LTLM_E,0x27); break;
+		case 33: tx_data[tx_offset] = measure(01,LTLM_E,0x28); break;
+		case 34: tx_data[tx_offset] = measure(01,LTLM_E,0x30); break;
+		case 35: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
+		case 36: tx_data[tx_offset] = measure(01,LTLM_E,0x31); break;
+		case 37: tx_data[tx_offset] = measure(01,LTLM_E,0x32); break;
+		case 38: tx_data[tx_offset] = measure(01,LTLM_E,0x33); break;
+		case 39: tx_data[tx_offset] = measure(01,LTLM_E,0x35); break;
+		case 40: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
+		case 41: tx_data[tx_offset] = measure(01,LTLM_E,0x36); break;
+		case 42: tx_data[tx_offset] = measure(01,LTLM_E,0x37); break;
+		case 43: tx_data[tx_offset] = measure(01,LTLM_E,0x38); break;
+		case 44: tx_data[tx_offset] = measure(01,LTLM_E,0x40); break;
+		case 45: tx_data[tx_offset] = measure(10,LTLM_A,5); break;
+		case 46: tx_data[tx_offset] = measure(01,LTLM_E,0x41); break;
+		case 47: tx_data[tx_offset] = measure(01,LTLM_E,0x42); break;
+		case 48: tx_data[tx_offset] = measure(01,LTLM_E,0x43); break;
+		case 49: tx_data[tx_offset] = measure(01,LTLM_E,0x45); break;
+		}
+		break;
+	case 98:
+		switch(frame_count)
+		{
+                case 0: tx_data[tx_offset] = measure(10,LTLM_A,6); break;
+                case 1: tx_data[tx_offset] = measure(10,LTLM_A,16); break;
+                case 2: tx_data[tx_offset] = measure(10,LTLM_A,26); break;
+                case 3: tx_data[tx_offset] = measure(10,LTLM_A,36); break;
+                case 4: tx_data[tx_offset] = measure(10,LTLM_A,45); break;
+		}
+		break;
+	case 99: // ** MAGIC WORD 4 **
+		switch(frame_addr)
+		{
+		case 0: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
+		case 1: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
+		case 2: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
+		case 3: tx_data[tx_offset] = measure(01,LTLM_D,0x002); break;
+		case 4: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
+		case 5: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
+		case 6: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
+		case 7: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
+		case 8: tx_data[tx_offset] = measure(01,LTLM_D,0x004); break;
+		case 9: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
+		case 10: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
+		case 11: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
+		case 12: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
+		case 13: tx_data[tx_offset] = measure(01,LTLM_D,0x006); break;
+		case 14: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
+		case 15: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
+		case 16: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
+		case 17: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
+		case 18: tx_data[tx_offset] = measure(01,LTLM_D,0x008); break;
+		case 19: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
+		case 20: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
+		case 21: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
+		case 22: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
+		case 23: tx_data[tx_offset] = measure(01,LTLM_D,0x10); break;
+		case 24: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
+		case 25: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
+		case 26: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
+		case 27: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
+		case 28: tx_data[tx_offset] = measure(01,LTLM_E,0x24); break;
+		case 29: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
+		case 30: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
+		case 31: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
+		case 32: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
+		case 33: tx_data[tx_offset] = measure(01,LTLM_E,0x29); break;
+		case 34: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
+		case 35: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
+		case 36: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
+		case 37: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
+		case 38: tx_data[tx_offset] = measure(01,LTLM_E,0x34); break;
+		case 39: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
+		case 40: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
+		case 41: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
+		case 42: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
+		case 43: tx_data[tx_offset] = measure(01,LTLM_E,0x39); break;
+		case 44: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
+		case 45: tx_data[tx_offset] = measure(10,LTLM_A,7); break;
+		case 46: tx_data[tx_offset] = measure(10,LTLM_A,17); break;
+		case 47: tx_data[tx_offset] = measure(10,LTLM_A,27); break;
+		case 48: tx_data[tx_offset] = measure(01,LTLM_E,0x44); break;
+		case 49: tx_data[tx_offset] = measure(10,LTLM_E,0x001); break;
+		}
+		break;
+	case 100: // ** MAGIC WORD 5 **
+		switch(frame_addr)
+		{
+		case 0: tx_data[tx_offset] = measure(01,LTLM_A,3); break;
+		case 1: tx_data[tx_offset] = measure(01,LTLM_A,7); break;
+		case 2: tx_data[tx_offset] = measure(01,LTLM_A,11); break;
+		case 3: tx_data[tx_offset] = measure(01,LTLM_A,15); break;
+		case 4: tx_data[tx_offset] = measure(01,LTLM_A,19); break;
+		case 5: tx_data[tx_offset] = measure(01,LTLM_A,22); break;
+		case 6: tx_data[tx_offset] = measure(01,LTLM_A,26); break;
+		case 7: tx_data[tx_offset] = measure(01,LTLM_A,30); break;
+		case 8: tx_data[tx_offset] = measure(01,LTLM_A,34); break;
+		case 9: tx_data[tx_offset] = measure(01,LTLM_A,38); break;
+		case 10: tx_data[tx_offset] = measure(01,LTLM_A,41); break;
+		case 11: tx_data[tx_offset] = measure(01,LTLM_A,45); break;
+		case 12: tx_data[tx_offset] = measure(01,LTLM_A,49); break;
+		case 13: tx_data[tx_offset] = measure(01,LTLM_A,53); break;
+		case 14: tx_data[tx_offset] = measure(01,LTLM_A,57); break;
+		case 15: tx_data[tx_offset] = measure(01,LTLM_A,60); break;
+		case 16: tx_data[tx_offset] = measure(01,LTLM_A,64); break;
+		case 17: tx_data[tx_offset] = measure(01,LTLM_A,68); break;
+		case 18: tx_data[tx_offset] = measure(01,LTLM_A,72); break;
+		case 19: tx_data[tx_offset] = measure(01,LTLM_A,76); break;
+		case 20: tx_data[tx_offset] = measure(01,LTLM_A,79); break;
+		case 21: tx_data[tx_offset] = measure(01,LTLM_A,83); break;
+		case 22: tx_data[tx_offset] = measure(01,LTLM_A,87); break;
+		case 23: tx_data[tx_offset] = measure(01,LTLM_A,91); break;
+		case 24: tx_data[tx_offset] = measure(01,LTLM_A,95); break;
+		case 25: tx_data[tx_offset] = measure(01,LTLM_A,99); break;
+		case 26: tx_data[tx_offset] = measure(01,LTLM_A,103); break;
+		case 27: tx_data[tx_offset] = measure(01,LTLM_A,107); break;
+		case 28: tx_data[tx_offset] = measure(01,LTLM_A,111); break;
+		case 29: tx_data[tx_offset] = measure(01,LTLM_A,115); break;
+		case 30: tx_data[tx_offset] = measure(01,LTLM_A,119); break;
+		case 31: tx_data[tx_offset] = measure(01,LTLM_A,123); break;
+		case 32: tx_data[tx_offset] = measure(01,LTLM_A,127); break;
+		case 33: tx_data[tx_offset] = measure(01,LTLM_A,131); break;
+		case 34: tx_data[tx_offset] = measure(01,LTLM_A,135); break;
+		case 35: tx_data[tx_offset] = measure(01,LTLM_A,139); break;
+		case 36: tx_data[tx_offset] = measure(01,LTLM_A,143); break;
+		case 37: tx_data[tx_offset] = measure(01,LTLM_A,147); break;
+		case 38: tx_data[tx_offset] = measure(01,LTLM_A,151); break;
+		case 39: tx_data[tx_offset] = measure(01,LTLM_A,155); break;
+		case 40: tx_data[tx_offset] = measure(01,LTLM_A,159); break;
+		case 41: tx_data[tx_offset] = measure(01,LTLM_A,163); break;
+		case 42: tx_data[tx_offset] = measure(01,LTLM_A,167); break;
+		case 43: tx_data[tx_offset] = measure(01,LTLM_A,171); break;
+		case 44: tx_data[tx_offset] = measure(01,LTLM_A,175); break;
+		case 45: tx_data[tx_offset] = measure(01,LTLM_A,179); break;
+		case 46: tx_data[tx_offset] = measure(01,LTLM_A,183); break;
+		case 47: tx_data[tx_offset] = measure(01,LTLM_A,187); break;
+		case 48: tx_data[tx_offset] = measure(01,LTLM_A,191); break;
+		case 49: tx_data[tx_offset] = measure(01,LTLM_A,195); break;
+		}
+		break;
+    case 101: tx_data[tx_offset] = measure(200,LTLM_E,0x1A); break;
+    case 102: tx_data[tx_offset] = measure(200,LTLM_E,0x1B); break;
+    case 103: tx_data[tx_offset] = measure(100,LTLM_E,0x03); break;
+    case 104: tx_data[tx_offset] = measure(200,LTLM_A,1); break;
+    case 105: tx_data[tx_offset] = measure(200,LTLM_A,2); break;
+    case 106: tx_data[tx_offset] = measure(200,LTLM_A,3); break;
+    case 107: tx_data[tx_offset] = measure(200,LTLM_A,4); break;
+    case 108: tx_data[tx_offset] = measure(200,LTLM_A,5); break;
+    case 109: tx_data[tx_offset] = measure(200,LTLM_A,6); break;
+    case 110: tx_data[tx_offset] = measure(200,LTLM_A,7); break;
+    case 111: tx_data[tx_offset] = measure(100,LTLM_E,0x04); break;
+    case 112: tx_data[tx_offset] = measure(100,LTLM_A,15); break;
+    case 113: tx_data[tx_offset] = measure(100,LTLM_A,16); break;
+    case 114: tx_data[tx_offset] = measure(100,LTLM_A,17); break;
+    case 115: tx_data[tx_offset] = measure(100,LTLM_A,18); break;
+    case 116: tx_data[tx_offset] = measure(100,LTLM_A,19); break;
+    case 117: tx_data[tx_offset] = measure(100,LTLM_A,20); break;
+    case 118: tx_data[tx_offset] = measure(100,LTLM_A,21); break;
+    case 119: tx_data[tx_offset] = measure(100,LTLM_A,22); break;
+    case 120: // 50DS1A
+	{
+		// DOWNRUPT needs time to get data on the bus, so it has to have happened BEFORE we get here!
+		ChannelValue ch13;
+		ch13 = lem->agc.GetOutputChannel(013);
+		data = (lem->agc.GetOutputChannel(034) & 077400) >> 8;
+		if (ch13[DownlinkWordOrderCodeBit]) { data |= 0200; } // WORD ORDER BIT
+		/*
+		sprintf(oapiDebugString(),"LGC DATA: %o (%lo %lo)",data,lem->agc.GetOutputChannel(034),
+			lem->agc.GetOutputChannel(035));
+		*/
+		tx_data[tx_offset] = data;
+		break;
+	}
+    case 121: // 50DS1B
+		data = (lem->agc.GetOutputChannel(034)&0377);
+		tx_data[tx_offset] = data; 
+		break;
+	case 122: // 50DS1C
+		// PARITY OF CH 34 GOES IN TOP BIT HERE!
+		data = (lem->agc.GetOutputChannel(035)&077400)>>8;
+		tx_data[tx_offset] = data; 
+		break;
+    case 123: // 50DS1D
+		data = (lem->agc.GetOutputChannel(035)&0377);
+		tx_data[tx_offset] = data; 
+		break;
+    case 124: // 50DS1E
+		// PARITY OF CH 35 GOES IN TOP BIT HERE!
+		data = (lem->agc.GetOutputChannel(034)&077400)>>8;
+		tx_data[tx_offset] = data; 
+		// Trigger telemetry END PULSE --------------------------------------------
+		lem->agc.RaiseInterrupt(ApolloGuidance::Interrupt::DOWNRUPT);
+	case 125: // 50DS2A - AGS DATA
+		tx_data[tx_offset] = 0; break;
+    case 126: // 50DS2B - AGS DATA
+		tx_data[tx_offset] = 0; break;
+    case 127: // 50DS2C - AGS DATA
+		tx_data[tx_offset] = 0; break;
+	// JUST IN CASE
+	default:
+		tx_data[tx_offset] = 0;
+		break;
 	}
 	word_addr++;
-	if(word_addr > 127){
+	if(word_addr > 127)
+	{
 		word_addr = 0;
 		frame_addr++;
-		if(frame_addr > 49){
+		if(frame_addr > 49)
+		{
 			frame_addr = 0;
 		}
 		frame_count++;
-		if(frame_count > 4){
+		if(frame_count > 4)
+		{
 			frame_count = 0;
 		}
 	}
 }
 
-void LM_PCM::generate_stream_lbr(){
+void LM_PCM::generate_stream_lbr()
+{
 	unsigned char data=0;
 	// 200 words per frame, 1 frame per second
-	switch(word_addr){
+	switch(word_addr)
+	{
 		case 0: tx_data[tx_offset] = 0375; break; // SYNC 1
 		case 1: tx_data[tx_offset] = 0312; break; // SYNC 2
 		case 2: tx_data[tx_offset] = 0150; break; // SYNC 3
@@ -1588,7 +1631,8 @@ void LM_PCM::generate_stream_lbr(){
 			break;
 	}
 	word_addr++;
-	if(word_addr > 199){
+	if(word_addr > 199)
+	{
 		word_addr = 0;
 		frame_addr = 0;
 		frame_count = 1;
@@ -1598,799 +1642,1392 @@ void LM_PCM::generate_stream_lbr(){
 // Fetch a telemetry data item from its channel code
 // FIXME: SCALE FACTORS NEED CHECKING AGAINST REAL DATA
 
-unsigned char LM_PCM::measure(int channel, int type, int ccode){
+unsigned char LM_PCM::measure(int rate, int type, int channel)
+{
 	unsigned char rdata;
-	switch(type){
-		case LTLM_A:  // ANALOG
-			switch(ccode){
-				case 1: 
-					if(channel == 10){ return(scale_scea(lem->scera2.GetVoltage(17, 2))); } // X TRANS CMD
-					if(channel == 50){ return(scale_data(0.0, -2.5, 2.5)); } // Y PIPA OUT IN O
-					if(channel == 100){ return(scale_data(0.0, -3.0, 3.0)); } // IG SVO ERR IN O
-					if(channel == 200){ return(scale_data(lem->DPSPropellant.GetFuelEngineInletPressurePSI(), 0.0, 300.0)); } // DPS FUEL PRESS
-				case 2: 
-					if(channel == 1){ return(scale_data(0.0, 85.0, 135.0)); } // PLS TORQ REF
-					if(channel == 10){ return(scale_data(0.0, -90.0, 90.0)); } // SBand ST PH ERR
-					if(channel == 50){ return(scale_data(0.0, -2.5, 2.5)); } // X PIPA OUT IN O
-					if(channel == 200){ return (scale_data(lem->DPSPropellant.GetOxidizerEngineInletPressurePSI(), 0.0, 300.0)); } // DPS OX PRESS
-				case 3: 
-					if(channel == 1){ return(scale_scea(lem->scera1.GetVoltage(10, 3))); } // DPS OX 1 TEMP
-					if(channel == 100){ return(scale_data(0.0, -3.0, 3.0)); } // MG SVO ERR IN O					
-					return(scale_data(0.0, -2.5, 2.5));  // Z PIPA OUT IN O
-				case 4:  
-					if(channel == 1){ return(scale_scea(lem->scera1.GetVoltage(9, 1))); } // DPS FUEL 1 TEMP
-					if(channel == 50){ return(scale_data(lem->DPS.GetInjectorActuatorPosition(), 0.0, 1.0)); } // VAR INJ ACT POS
-					if(channel == 200){ return(scale_data(lem->DPSPropellant.GetFuelEngineInletPressurePSI(), 0.0, 300.0)); } // DPS FUEL PRESS
-					return(scale_data(lem->APSPropellant.GetAscentHelium1PressPSI(), 0.0, 4000.0)); // APS HE 1R PRESS
-				case 5: 
-					if (channel == 1) { return (scale_data(lem->IMU_OPR_CB.Voltage(), 0.0, 31.1)); } // IRIG SUSP 3.2 KC
-					if(channel == 10){ return(scale_scea(lem->scera2.GetVoltage(18, 2))); } // ROLL ERR CMD
-					if (channel == 50) { return(scale_data(0.0, -2.5, 2.5)); } // X PIPA OUT IN O
-					if(channel == 200){ return (scale_data(lem->DPSPropellant.GetOxidizerEngineInletPressurePSI(), 0.0, 300.0)); } // DPS OX PRESS
-				case 6: 
-					if (channel == 1) { return (scale_data(lem->DPSPropellant.GetSupercriticalHeliumPressPSI(), 0.0, 2000.0)); } // DPS HE PRESS
-					if(channel == 200){ return(scale_data(lem->DPS.GetThrustChamberPressurePSI(), 0.0, 200.0)); } // DPS TCP
-					return(scale_data(0.0, -2.5, 2.5));  // Z PIPA OUT IN O
-				case 7:  
-					if(channel == 200){ return(scale_data(lem->APS.GetThrustChamberPressurePSI(), 0.0, 150.0)); } // APS TCP
-					if(channel == 10){ return(scale_scea(lem->scera2.GetVoltage(9, 4))); } // PITCH ATT ERR
-					if(channel == 100){ return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95)); } // DPS OX 2 QTY
-					return (scale_data(0.0, -20.25, 20.25)); // MG RSVR OUT COS
-				case 8: 
-					if (channel == 1) { return (scale_scea(lem->scera1.GetVoltage(20, 1))); } // QUAD 4 TEMP
-					if(channel == 50){ return(scale_data(lem->DPS.GetInjectorActuatorPosition(), 0.0, 1.0)); } // VAR INJ ACT POS
-					if(channel == 100){ return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95)); } // DPS FUEL 1 QTY
-					return(scale_scea(lem->scera2.GetVoltage(17, 3))); // Y TRANS CMD
-				case 9:
-					if(channel == 100){ return(scale_data(0.0, -3.0, 3.0)); } // IG SVO ERR IN O
-					if(channel == 10){ return(scale_data(0.0, -20.25, 20.25)); } // MG RSVR OUT SIN
-					return(scale_scea(lem->scera2.GetVoltage(17, 1))); // BAT 5 VOLT 
-				case 10:
-					if (channel == 1) { return (scale_data(lem->DPSPropellant.GetOxidizerEngineInletPressurePSI(), 0.0, 300.0)); } // DPS OX PRESS
-					return(scale_data(lem->RR.GetShaftCos(), -1.0, 1.0)); // RR SHFT COS
-				case 11: 
-					if(channel == 100){ return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95)); } // DPS OX 1 QTY
-					if(channel == 1){ return (scale_scea(lem->scera2.GetVoltage(9, 2))); } // ROLL GDA POS
-					return(scale_data(lem->RR.GetTrunnionSin(), -1.0, 1.0)); // RR TRUN SIN
-				case 12: 
-					if(channel == 10){ return(scale_data(0.0, -20.25, 20.25)); } // MG RSVR OUT COS
-					return (scale_scea(lem->scera1.GetVoltage(7, 1))); // ASC 1 O2 PRESS
-				case 13: 
-					if(channel == 10){ return(scale_scea(lem->scera2.GetVoltage(10, 1))); } // ROLL ATT ERR
-					if(channel == 100){ return(scale_data(0.0, -3.0, 3.0)); } // OG SVO ERR IN O
-					return(scale_scea(lem->scera2.GetVoltage(21, 4))); // ASC 2 H20 TEMP
-				case 14: 
-					if (channel == 1) { return(scale_data(lem->RCSA.GetRCSFuelManifoldPressPSI(), 0.0, 350.0)); } // A FUEL MFLD PRESS
-					return(scale_data(0.0, -20.25, 20.25)); // IG RSVR OUT COS
-				case 15: 
-					if (channel == 1) { return(scale_data(lem->RCSB.GetRCSFuelManifoldPressPSI(), 0.0, 350.0)); } // B FUEL MFLD PRESS
-					return(scale_scea(lem->scera2.GetVoltage(9, 3))); // YAW ATT ERR
-				case 16: 
-					if(channel == 10){ return(scale_data(0.0, -20.25, 20.25)); } // IG RSVR OUT SIN
-					if(channel == 100){ return(scale_data(0.0, -3.0, 3.0)); } // MG SVO ERR IN O
-					return(scale_data(lem->ecs.GetSecondaryGlycolPressure(), 0.0, 60.0)); // SEC GLY LOOP PRESS
-				case 17: 
-					if(channel == 10){ return(scale_data(0.0, -5.0, 5.0)); } // YAW ATT ERR
-					return(scale_scea(lem->scera1.GetVoltage(5, 2))); // CO2 PARTIAL PRESS
-				case 18: 
-					if(channel == 1){ return(scale_data(lem->DPSPropellant.GetFuelEngineInletPressurePSI(), 0.0, 300.0)); } // DPS FUEL PRESS
-					return(scale_scea(lem->scera2.GetVoltage(17, 4))); // Z TRANS CMD
-				case 19: 
-					if(channel == 10){ return(scale_scea(lem->scera2.GetVoltage(10, 2))); } // RGA YAW RATE
-					if(channel == 100){ return(scale_data(0.0, -3.0, 3.0)); } // OG SVO ERR IN O
-					return(scale_data(lem->ecs.GetSelectedGlycolPressure(), 0.0, 60.0)); // GLY PUMP PRESS
-				case 20: 
-					if(channel == 10){ return(scale_data(lem->RR.GetTrunnionCos(), -1.0, 1.0)); } // RR TRUN COS
-					return(scale_scea(lem->scera1.GetVoltage(8, 1))); // ASC 1 H20 QTY
-				case 21: 
-					if (channel == 1) { return(scale_data(lem->RCSA.GetRCSOxidManifoldPressPSI(), 0.0, 350.0)); } // A OX MFLD PRESS
-					if(channel == 100){ return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95)); } // DPS FUEL 2 QTY
-					return(scale_scea(lem->scera1.GetVoltage(15, 1))); // AUTO THRUST CMD
-				case 22: 
-					if (channel == 10) { return(scale_data(lem->APSPropellant.GetAscentHelium2PressPSI(), 0.0, 4000.0)); } // APS HE 2R PRESS
-					return(scale_scea(lem->scera2.GetVoltage(9, 1))); // PITCH GDA POS
-				case 23: 
-					if(channel == 10){ return(scale_data(0.0, -5.0, 5.0)); } // ROLL ATT ERR
-					return(scale_scea(scale_data(2.5, 0.0, 5.0))); // 2.5 VDC TM BIAS
-				case 24: 
-					if(channel == 10){ return(scale_data(0.0, -20.25, 20.25)); } // OG RSVR OUT SIN
-					return(scale_scea(lem->scera1.GetVoltage(8, 2))); // ASC 2 H20 QTY
-				case 25: 
-					if(channel == 10){ return(scale_scea(lem->scera2.GetVoltage(18, 3))); } // YAW ERR CMD
-					return(scale_scea(lem->scera1.GetVoltage(5, 3))); // H2O SEP RPM
-				case 26: 
-					if (channel == 10) { return scale_data(4.25, 0, 5.0); } // CAL 85 PCT
-					return(scale_scea(lem->scera2.GetVoltage(9, 3))); // YAW ATT ERR
-				case 27: 
-					if (channel == 10) { return scale_data(0.75, 0, 5.0); } // CAL 15 PCT
-					return(scale_scea(lem->scera2.GetVoltage(21, 4))); // ASC 2 H20 TEMP
-				case 28: 
-					if(channel == 10){ return(scale_data(0.0, -20.25, 20.25)); } // OG RSVR OUT COS
-					return(scale_scea(lem->scera1.GetVoltage(7, 1))); // ASC 1 O2 PRESS
-				case 29: 
-					if(channel == 10){ return(scale_scea(lem->scera2.GetVoltage(10, 3))); } // RGA PITCH RATE
-					return(scale_data(lem->ecs.GetSelectedGlycolPressure(), 0.0, 60.0)); // GLY PUMP PRESS
-				case 30: 
-					if (channel == 1) { return(scale_data(lem->DPSPropellant.GetSupercriticalHeliumPressPSI(), 0.0, 2000.0)); } // DPS HE PRESS
-					return(scale_scea(lem->scera2.GetVoltage(9, 1))); // PITCH GDA POS
-				case 31: 
-					if(channel == 1){ return(scale_scea(lem->scera1.GetVoltage(21, 4))); } // RR ANT TEMP
-					return (scale_scea(lem->scera2.GetVoltage(9, 2))); // ROLL GDA POS
-				case 32: // RR SHFT SIN
-					return(scale_data(lem->RR.GetShaftSin(), -1.0, 1.0));
-				case 33: 
-					if(channel == 10){ return(scale_scea(lem->scera2.GetVoltage(18, 4))); } // PITCH ERR CMD
-					return(scale_data(lem->ecs.DescentWaterTankPressure(), 0.0, 60.0)); // DES H20 PRESS 
-				case 34: 
-					if(channel == 1){ return(scale_scea(lem->scera1.GetVoltage(10, 4))); } // DPS OX 2 TEMP
-					return(scale_scea(lem->scera2.GetVoltage(10, 4)));  // RGA ROLL RATE
-				case 35: 
-					if(channel == 1){ return (scale_scea(lem->scera1.GetVoltage(20, 2))); } // QUAD 3 TEMP
-					return(scale_data(0.0, -5.0, 5.0));  // PITCH ATT ERR
-				case 36: 
-					if (channel == 10) { return scale_data(0.75, 0.0, 5.0); } // CAL 15 PCT
-					return(scale_scea(lem->scera2.GetVoltage(18, 1))); // BAT 6 VOLT
-				case 37: 
-					if(channel == 1){ return(scale_scea(lem->scera1.GetVoltage(8, 3))); } // APS HE REG PRESS
-					return(scale_scea(lem->scera2.GetVoltage(10, 1))); // ROLL ATT ERR
-				case 38: 
-					if(channel == 1){ return(scale_data(lem->RCSB.GetRCSOxidManifoldPressPSI(), 0.0, 350.0)); } // B OX MFLD PRESS
-					return(scale_scea(lem->scera2.GetVoltage(10, 4))); // RGA ROLL RATE
-				case 39: // YAW ATT ERR
-					return(scale_scea(lem->scera2.GetVoltage(9, 3)));
-				case 40: 
-					if (channel == 1) { return(scale_data(lem->DPSPropellant.GetAmbientHeliumPressPSI(), 0.0, 1750.0)); } // DPS START TANK PRESS
-					return(scale_data(0.0, -20.25, 20.25)); // MG RSVR OUT SIN
-				case 41: 
-					if(channel == 10){ return scale_data(4.25, 0, 5.0); } // CAL 85 PCT
-					return(scale_scea(lem->scera2.GetVoltage(16, 2))); // BAT 2 VOLT
-				case 42: 
-					if(channel == 1){ return(scale_scea(lem->scera1.GetVoltage(19, 2))); } // DPS HE REG PRESS
-					return(scale_scea(lem->scera2.GetVoltage(9, 4))); // PITCH ATT ERR
-				case 43: 
-					if(channel == 10){ return(scale_scea(lem->scera2.GetVoltage(10, 2))); } // RGA YAW RATE
-					return(scale_data(lem->ecs.GetSecondaryGlycolPressure(), 0.0, 60.0)); // SEC GLY LOOP PRESS
-				case 44: // B FUEL MFLD PRESS
-					return(scale_data(lem->RCSB.GetRCSFuelManifoldPressPSI(), 0.0, 350.0));;
-				case 45: 
-					if(channel == 1){ return(scale_data(lem->RCSA.GetRCSFuelManifoldPressPSI(), 0.0, 350.0)); } // A FUEL MFLD PRESS
-					return(scale_scea(lem->scera2.GetVoltage(10, 3))); // RGA PITCH RATE
-				case 46: // CO2 PARTIAL PRESS
-					return(scale_scea(lem->scera1.GetVoltage(5, 2)));
-				case 47: // DPS FUEL 1 TEMP
-					return(scale_scea(lem->scera1.GetVoltage(9, 1)));
-				case 48: // DPS OX 1 TEMP
-					return(scale_scea(lem->scera1.GetVoltage(10, 3)));
-				case 49: // PLS TORQ REF
-					return(scale_data(0.0, 85.0, 135.0));
-				case 50: // ASC 2 H20 QTY
-					return(scale_scea(lem->scera1.GetVoltage(8, 2)));
-				case 51: // 2.5 VDC TM BIAS
-					return(scale_scea(scale_data(2.5, 0.0, 5.0)));
-				case 52: // B OX MFLD PRESS
-					return(scale_data(lem->RCSB.GetRCSOxidManifoldPressPSI(), 0.0, 350.0));
-				case 53: // A OX MFLD PRESS
-					return(scale_data(lem->RCSA.GetRCSOxidManifoldPressPSI(), 0.0, 350.0));
-				case 54: // ASC 1 H20 QTY
-					return(scale_scea(lem->scera1.GetVoltage(8, 1)));
-				case 55: // RR ANT TEMP
-					return(scale_scea(lem->scera1.GetVoltage(21, 4)));
-				case 56: // DPS OX 2 TEMP
-					return(scale_scea(lem->scera1.GetVoltage(10, 4)));
-				case 57: // BAT 4 VOLT
-					return(scale_scea(lem->scera2.GetVoltage(16, 4)));
-				case 58: // DES H20 QTY
-					return(scale_scea(lem->scera1.GetVoltage(7, 3)));
-				case 59: // PRI GLY PUMP P
-					return(scale_data(lem->ecs.GetPrimaryGlycolPumpDP(), 0.0, 50.0));
-				case 60: // PITCH ATT ERR
-					return(scale_scea(lem->scera2.GetVoltage(9, 4)));
-				case 61: // APS OX PRESS
-					return(scale_scea(lem->scera1.GetVoltage(19, 4)));
-				case 62: // APS FUEL PRESS
-					return(scale_scea(lem->scera1.GetVoltage(19, 3)));
-				case 63: // BAT 3 CUR
-					if(lem->status < 2){ return(scale_data(lem->Battery3->Current(),0,60)); }else{ return(0); }
-				case 64: // OG RSVR OUT COS
-					return (scale_data(0.0, -20.25, 20.25));
-				case 65: // ASA TEMP
-					return(scale_scea(lem->scera1.GetVoltage(10, 2)));
-				case 66: // RCS A FUEL TEMP
-					return(scale_scea(lem->scera2.GetVoltage(20, 2)));
-				case 67: // BAT 4 CUR
-					if(lem->status < 2){ return(scale_data(lem->Battery4->Current(),0,60)); }else{ return(0); }
-				case 68: // BAT 5 CUR
-					return(scale_data(lem->Battery5->Current(),0,120));
-				case 69: // DPS FUEL 2 QTY
-					return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95));
-				case 70: // REG OUT MANIFOLD
-					return(scale_data(lem->APSPropellant.GetHeliumRegulator2OutletPressurePSI(), 0.0, 300.0));
-				case 71: // UNKNOWN, HBR
+	int time = 0;
+
+	switch (type)
+	{
+	case LTLM_A:  // ANALOG
+		switch (rate)
+		{
+		case 1:
+			switch (channel)
+			{
+			case 1: // UNKNOWN
+				return(0);
+
+			case 2: // PLS TORQ REF
+				return(scale_data(0.0, 85.0, 135.0));
+
+			case 3: // DPS OX 1 TEMP
+				return(scale_scea(lem->scera1.GetVoltage(10, 3)));
+
+			case 4: // DPS FUEL 1 TEMP
+				return(scale_scea(lem->scera1.GetVoltage(9, 1)));
+
+			case 5: // IRIG SUSP 3.2 KC
+				return (scale_data(lem->IMU_OPR_CB.Voltage(), 0.0, 31.1));
+
+			case 6: // DPS HE PRESS
+				return (scale_data(lem->DPSPropellant.GetSupercriticalHeliumPressPSI(), 0.0, 2000.0));
+
+			case 7: // MG RSVR OUT COS
+				return (scale_data(0.0, -20.25, 20.25));
+
+			case 8: // QUAD 4 TEMP
+				return (scale_scea(lem->scera1.GetVoltage(20, 1)));
+
+			case 9: // BAT 5 VOLT
+				return(scale_scea(lem->scera2.GetVoltage(17, 1)));
+
+			case 10: // DPS OX PRESS
+				return (scale_data(lem->DPSPropellant.GetOxidizerEngineInletPressurePSI(), 0.0, 300.0));
+
+			case 11: // ROLL GDA POS
+				return (scale_scea(lem->scera2.GetVoltage(9, 2)));
+
+			case 12: // ASC 1 O2 PRESS
+				return (scale_scea(lem->scera1.GetVoltage(7, 1)));
+
+			case 13: // ASC 2 H20 TEMP
+				return(scale_scea(lem->scera2.GetVoltage(21, 4)));
+
+			case 14: // A FUEL MFLD PRESS
+				return(scale_data(lem->RCSA.GetRCSFuelManifoldPressPSI(), 0.0, 350.0));
+
+			case 15: // B FUEL MFLD PRESS
+				return(scale_data(lem->RCSB.GetRCSFuelManifoldPressPSI(), 0.0, 350.0));
+
+			case 16: // SEC GLY LOOP PRESS
+				return(scale_data(lem->ecs.GetSecondaryGlycolPressure(), 0.0, 60.0));
+
+			case 17: // CO2 PARTIAL PRESS
+				return(scale_scea(lem->scera1.GetVoltage(5, 2)));
+
+			case 18: // DPS FUEL PRESS
+				return(scale_data(lem->DPSPropellant.GetFuelEngineInletPressurePSI(), 0.0, 300.0));
+
+			case 19: // GLY PUMP PRESS
+				return(scale_data(lem->ecs.GetSelectedGlycolPressure(), 0.0, 60.0));
+
+			case 20: // ASC 1 H20 QTY
+				return(scale_scea(lem->scera1.GetVoltage(8, 1)));
+
+			case 21: // A OX MFLD PRESS
+				return(scale_data(lem->RCSA.GetRCSOxidManifoldPressPSI(), 0.0, 350.0));
+
+			case 22: // PITCH GDA POS
+				return(scale_scea(lem->scera2.GetVoltage(9, 1)));
+
+			case 23: // 2.5 VDC TM BIAS
+				return(scale_scea(scale_data(2.5, 0.0, 5.0)));
+
+			case 24: // ASC 2 H20 QTY
+				return(scale_scea(lem->scera1.GetVoltage(8, 2)));
+
+			case 25: // H2O SEP RPM
+				return(scale_scea(lem->scera1.GetVoltage(5, 3)));
+
+			case 26: // YAW ATT ERR
+				return(scale_scea(lem->scera2.GetVoltage(9, 3)));
+
+			case 27: // ASC 2 H20 TEMP
+				return(scale_scea(lem->scera2.GetVoltage(21, 4)));
+
+			case 28: // ASC 1 O2 PRESS
+				return(scale_scea(lem->scera1.GetVoltage(7, 1)));
+
+			case 29: // GLY PUMP PRESS
+				return(scale_data(lem->ecs.GetSelectedGlycolPressure(), 0.0, 60.0));
+
+			case 30: // DPS HE PRESS
+				return(scale_data(lem->DPSPropellant.GetSupercriticalHeliumPressPSI(), 0.0, 2000.0));
+
+			case 31: // RR ANT TEMP
+				return(scale_scea(lem->scera1.GetVoltage(21, 4)));
+
+			case 32: // RR SHFT SIN
+				return(scale_data(0.0, -21.5, 21.5));
+
+			case 33: // DES H20 PRESS
+				return(scale_data(lem->ecs.DescentWaterTankPressure(), 0.0, 60.0));
+
+			case 34: // DPS OX 2 TEMP
+				return(scale_scea(lem->scera1.GetVoltage(10, 4)));
+
+			case 35: // QUAD 3 TEMP
+				return (scale_scea(lem->scera1.GetVoltage(20, 2)));
+
+			case 36: // BAT 6 VOLT
+				return(scale_scea(lem->scera2.GetVoltage(18, 1)));
+
+			case 37: // APS HE REG PRESS
+				return(scale_scea(lem->scera1.GetVoltage(8, 3)));
+
+			case 38: // B OX MFLD PRESS
+				return(scale_data(lem->RCSB.GetRCSOxidManifoldPressPSI(), 0.0, 350.0));
+
+			case 39: // YAW ATT ERR
+				return(scale_scea(lem->scera2.GetVoltage(9, 3)));
+
+			case 40: // DPS START TANK PRESS
+				return(scale_data(lem->DPSPropellant.GetAmbientHeliumPressPSI(), 0.0, 1750.0));
+
+			case 41: // BAT 2 VOLT
+				return(scale_scea(lem->scera2.GetVoltage(16, 2)));
+
+			case 42: // DPS HE REG PRESS
+				return(scale_scea(lem->scera1.GetVoltage(19, 2)));
+
+			case 43: // SEC GLY LOOP PRESS
+				return(scale_data(lem->ecs.GetSecondaryGlycolPressure(), 0.0, 60.0));
+
+			case 44: // B FUEL MFLD PRESS
+				return(scale_data(lem->RCSB.GetRCSFuelManifoldPressPSI(), 0.0, 350.0));
+
+			case 45: // A FUEL MFLD PRESS
+				return(scale_data(lem->RCSA.GetRCSFuelManifoldPressPSI(), 0.0, 350.0));
+
+			case 46: // CO2 PARTIAL PRESS
+				return(scale_scea(lem->scera1.GetVoltage(5, 2)));
+
+			case 47: // DPS FUEL 1 TEMP
+				return(scale_scea(lem->scera1.GetVoltage(9, 1)));
+
+			case 48: // DPS OX 1 TEMP
+				return(scale_scea(lem->scera1.GetVoltage(10, 3)));
+
+			case 49: // PLS TORQ REF
+				return(scale_data(0.0, 85.0, 135.0));
+
+			case 50: // ASC 2 H20 QTY
+				return(scale_scea(lem->scera1.GetVoltage(8, 2)));
+
+			case 51: // 2.5 VDC TM BIAS
+				return(scale_scea(scale_data(2.5, 0.0, 5.0)));
+
+			case 52: // B OX MFLD PRESS
+				return(scale_data(lem->RCSB.GetRCSOxidManifoldPressPSI(), 0.0, 350.0));
+
+			case 53: // A OX MFLD PRESS
+				return(scale_data(lem->RCSA.GetRCSOxidManifoldPressPSI(), 0.0, 350.0));
+
+			case 54: // ASC 1 H20 QTY
+				return(scale_scea(lem->scera1.GetVoltage(8, 1)));
+
+			case 55: // RR ANT TEMP
+				return(scale_scea(lem->scera1.GetVoltage(21, 4)));
+
+			case 56: // DPS OX 2 TEMP
+				return(scale_scea(lem->scera1.GetVoltage(10, 4)));
+
+			case 57: // BAT 4 VOLT
+				return(scale_scea(lem->scera2.GetVoltage(16, 4)));
+
+			case 58: // DES H20 QTY
+				return(scale_scea(lem->scera1.GetVoltage(7, 3)));
+
+			case 59: // PRI GLY PUMP P
+				return(scale_data(lem->ecs.GetPrimaryGlycolPumpDP(), 0.0, 50.0));
+
+			case 60: // PITCH ATT ERR
+				return(scale_scea(lem->scera2.GetVoltage(9, 4)));
+
+			case 61: // APS OX PRESS
+				return(scale_scea(lem->scera1.GetVoltage(19, 4)));
+
+			case 62: // APS FUEL PRESS
+				return(scale_scea(lem->scera1.GetVoltage(19, 3)));
+
+			case 63: // BAT 3 CUR
+				if (lem->status < 2)
+				{
+					return(scale_data(lem->Battery3->Current(), 0, 60));
+				}
+				else
+				{
 					return(0);
-			    case 72: // BAT 1 VOLT
-					return(scale_scea(lem->scera2.GetVoltage(16, 1)));
-				case 73: // ASC 2 O2 PRESS
-					return(scale_scea(lem->scera1.GetVoltage(7, 2)));
-				case 74: // RCS B FUEL TEMP
-					return(scale_scea(lem->scera2.GetVoltage(20, 3)));
-				case 75: // BAT 6 CUR
-					return(scale_data(lem->Battery6->Current(),0,120));
-				case 76: // DPS TCP
-					return(scale_data(lem->DPS.GetThrustChamberPressurePSI(), 0.0, 200.0));
-				case 77: // DPS FUEL 1 QTY
-					return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95));
-				case 78: // UNKNOWN, HBR
+				}
+
+			case 64: // OG RSVR OUT COS
+				return (scale_data(0.0, -20.25, 20.25));
+
+			case 65: // ASA TEMP
+				return(scale_scea(lem->scera1.GetVoltage(10, 2)));
+
+			case 66: // RCS A FUEL TEMP
+				return(scale_scea(lem->scera2.GetVoltage(20, 2)));
+
+			case 67: // BAT 4 CUR
+				if (lem->status < 2)
+				{
+					return(scale_data(lem->Battery4->Current(), 0, 60));
+				}
+				else
+				{
 					return(0);
-				case 79: // BAT 3 VOLT
-					return(scale_scea(lem->scera2.GetVoltage(16, 3)));
-				case 80: // QUAD 2 TEMP
-					return (scale_scea(lem->scera1.GetVoltage(20, 3)));
-				case 81: // VHF B RX AGC
-					return(scale_data(0.0, 0.176, 0.282));
-			    case 82: // AC BUS VOLT
-					return (scale_scea(lem->scera1.GetVoltage(18, 2)));
-				case 83: // CABIN PRESS
-					return(scale_data(lem->ecs.GetCabinPressurePSI(), 0.0, 10.0));
-				case 84: // QUAD 1 TEMP
-					return (scale_scea(lem->scera1.GetVoltage(20, 4)));
-				case 85: // PCM OSC FAIL 3
-					return(scale_data(0.0, 0.0, 5.0));
-				case 86: // DPS TCP
-					return(scale_data(lem->DPS.GetThrustChamberPressurePSI(), 0.0, 200.0));
-				case 87: // BAT 6 CUR
-					return(scale_data(lem->Battery6->Current(),0,120));
-				case 88: // DES H20 QTY
-					return(scale_scea(lem->scera1.GetVoltage(7, 3)));
-				case 89: // ASA TEMP
-					return(scale_scea(lem->scera1.GetVoltage(10, 2)));
-				case 90: // O2 MANIFOLD PRESS
-					return(scale_data(lem->ecs.GetPLSSFillPressurePSI(), 0.0, 1400.0));
-				case 91: // BAT 1 CUR
-					if(lem->status < 2){ return(scale_data(lem->Battery1->Current(),0,120)); }else{ return(0); }
-				case 92: // APS FUEL PRESS
-					return(scale_scea(lem->scera1.GetVoltage(19, 3)));
-				case 93: // APS HE 2 PRESS
-					return(scale_scea(lem->scera1.GetVoltage(19, 1)));
-				case 94: // BAT 4 CUR
-					if(lem->status < 2){ return(scale_data(lem->Battery4->Current(),0,120)); }else{ return(0); }
-				case 95: // BAT 3 CUR
-					if(lem->status < 2){ return(scale_data(lem->Battery3->Current(),0,120)); }else{ return(0); }
-				case 96: // VHF B RX AGC
-					return(scale_data(0.0, 0.176, 0.282));
-				case 97: // ASC 2 O2 PRESS
-					return(scale_scea(lem->scera1.GetVoltage(7, 2)));
-				case 98: // CABIN PRESS
-					return(scale_data(lem->ecs.GetCabinPressurePSI(), 0.0, 10.0));
-				case 99: // PRI GLY PUMP P
-					return(scale_data(lem->ecs.GetPrimaryGlycolPumpDP(), 0.0, 50.0));
-				case 100: // APS HE 2 PRESS
-					return(scale_scea(lem->scera1.GetVoltage(19, 1)));
-				case 101: // DPS FUEL 2 QTY
-					return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95));
-				case 102: // BAT 5 CUR
-					return(scale_data(lem->Battery5->Current(),0,120));
-				case 103: // O2 MANIFOLD PRESS
-					return(scale_data(lem->ecs.GetPLSSFillPressurePSI(), 0.0, 1400.0));
-				case 104: // DPS FUEL 1 QTY
-					return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95));
-				case 105: // APS OX PRESS
-					return(scale_scea(lem->scera1.GetVoltage(19, 4)));
-				case 106: // BAT 1 CUR
-					if(lem->status < 2){ return(scale_data(lem->Battery1->Current(),0,120)); }else{ return(0); }
-				case 107: // S-BAND ANT TEMP
-					return(scale_scea(lem->scera2.GetVoltage(21, 2)));
-				case 108: // DPS HE REG PRESS
-					return(scale_scea(lem->scera1.GetVoltage(19, 2)));
-				case 109: // UNKNOWN, HBR
+				}
+
+			case 68: // BAT 5 CUR
+				return(scale_data(lem->Battery5->Current(), 0, 120));
+
+			case 69: // DPS FUEL 2 QTY
+				return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95));
+
+			case 70: // REG OUT MANIFOLD
+				return(scale_data(lem->APSPropellant.GetHeliumRegulator2OutletPressurePSI(), 0.0, 300.0));
+
+			case 71: // UNKNOWN, HBR
+				return(0);
+
+			case 72: // BAT 1 VOLT
+				return(scale_scea(lem->scera2.GetVoltage(16, 1)));
+
+			case 73: // ASC 2 O2 PRESS
+				return(scale_scea(lem->scera1.GetVoltage(7, 2)));
+
+			case 74: // RCS B FUEL TEMP
+				return(scale_scea(lem->scera2.GetVoltage(20, 3)));
+
+			case 75: // BAT 6 CUR
+				return(scale_data(lem->Battery6->Current(), 0, 120));
+
+			case 76: // DPS TCP
+				return(scale_data(lem->DPS.GetThrustChamberPressurePSI(), 0.0, 200.0));
+
+			case 77: // DPS FUEL 1 QTY
+				return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95));
+
+			case 78: // UNKNOWN, HBR
+				return(0);
+
+			case 79: // BAT 3 VOLT
+				return(scale_scea(lem->scera2.GetVoltage(16, 3)));
+
+			case 80: // QUAD 2 TEMP
+				return (scale_scea(lem->scera1.GetVoltage(20, 3)));
+
+			case 81: // VHF B RX AGC
+				return(scale_data(0.0, 0.176, 0.282));
+
+			case 82: // AC BUS VOLT
+				return (scale_scea(lem->scera1.GetVoltage(18, 2)));
+
+			case 83: // CABIN PRESS
+				return(scale_data(lem->ecs.GetCabinPressurePSI(), 0.0, 10.0));
+
+			case 84: // QUAD 1 TEMP
+				return (scale_scea(lem->scera1.GetVoltage(20, 4)));
+
+			case 85: // PCM OSC FAIL 3
+				return(scale_data(0.0, 0.0, 5.0));
+
+			case 86: // DPS TCP
+				return(scale_data(lem->DPS.GetThrustChamberPressurePSI(), 0.0, 200.0));
+
+			case 87: // BAT 6 CUR
+				return(scale_data(lem->Battery6->Current(), 0, 120));
+
+			case 88: // DES H20 QTY
+				return(scale_scea(lem->scera1.GetVoltage(7, 3)));
+
+			case 89: // ASA TEMP
+				return(scale_scea(lem->scera1.GetVoltage(10, 2)));
+
+			case 90: // O2 MANIFOLD PRESS
+				return(scale_data(lem->ecs.GetPLSSFillPressurePSI(), 0.0, 1400.0));
+
+			case 91: // BAT 1 CUR
+				if (lem->status < 2)
+				{
+					return(scale_data(lem->Battery1->Current(), 0, 120));
+				}
+				else
+				{
 					return(0);
-				case 110: // RCS A REG PRESS
-					return(scale_scea(lem->scera1.GetVoltage(6, 3)));
-				case 111: // UNKNOWN, HBR
+				}
+
+			case 92: // APS FUEL PRESS
+				return(scale_scea(lem->scera1.GetVoltage(19, 3)));
+
+			case 93: // APS HE 2 PRESS
+				return(scale_scea(lem->scera1.GetVoltage(19, 1)));
+
+			case 94: // BAT 4 CUR
+				if (lem->status < 2)
+				{
+					return(scale_data(lem->Battery4->Current(), 0, 120));
+				}
+				else
+				{
 					return(0);
-				case 112: // RCS A REG PRESS
-					return(scale_scea(lem->scera1.GetVoltage(6, 3)));
-				case 113: // DPS BALL VLV TEMP
-					return(scale_scea(lem->scera2.GetVoltage(21, 1)));
-				case 114: // APS FUEL TEMP
-					return(scale_scea(lem->scera1.GetVoltage(9, 3)));
-				case 115: // ROLL ATT ERR
-					return(scale_scea(lem->scera2.GetVoltage(10, 1)));
-				case 116: // DPS OX 1 QTY
-					return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95));
-				case 117: // DPS FUEL 2 TEMP
-					return(scale_scea(lem->scera1.GetVoltage(9, 2)));
-				case 118: // UNKNOWN, HBR
+				}
+
+			case 95: // BAT 3 CUR
+				if (lem->status < 2)
+				{
+					return(scale_data(lem->Battery3->Current(), 0, 120));
+				}
+				else
+				{
 					return(0);
-				case 119: // RCS PROP B QTY
-					return(scale_data(lem->RCSB.GetRCSPropellantQuantity(), 0.0, 1.0));
-				case 120: // GLY TEMP
-					return(scale_scea(lem->scera1.GetVoltage(10, 1)));
-				case 121: // IMU 28 VAC 800
-					return(scale_data(28.0, 0.0, 31.1));
-				case 122: // BAT 2 CUR
-					if(lem->status < 2){ return(scale_data(lem->Battery2->Current(),0,60)); }else{ return(0); }
-				case 123: // PIPA TEMP
-					return(scale_data(lem->imu.GetPIPATempF(), 120.0, 140.0));
-				case 124: // RCS B HE PRESS
-					return(scale_scea(lem->scera1.GetVoltage(6, 2)));
-				case 125: // RCS A HE PRESS
-					return(scale_scea(lem->scera1.GetVoltage(6, 1)));
-				case 126: // CDR BUS VOLT
-					return(scale_scea(lem->scera1.GetVoltage(18, 3)));
-				case 127: // "W/B GLY OUT TEMP" = Main Sublimator Outlet Temp
-					return(scale_scea(lem->scera2.GetVoltage(20, 4)));
-				case 128: // CABIN TEMP
-					return(scale_scea(lem->scera1.GetVoltage(21, 2)));
-				case 129: // APS OX TEMP
-					return(scale_scea(lem->scera1.GetVoltage(9, 4)));
-				case 130: // ECS SUIT PRESS
-					return(scale_scea(lem->scera1.GetVoltage(5, 1)));
-				case 131: // DES O2 PRESS
-					return(scale_scea(lem->scera2.GetVoltage(8, 2)));
-				case 132: // MAN THRUST CMD
-					return(scale_scea(lem->scera1.GetVoltage(15, 2)));
-				case 133: // DPS OX 2 QTY
-					return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95));
-				case 134: // SE BUS VOLT
-					return(scale_scea(lem->scera2.GetVoltage(8, 4)));
-				case 135: // ASC 1 H20 TEMP
-					return(scale_scea(lem->scera2.GetVoltage(21, 3)));
-				case 136: // UNKNOWN, HBR
+				}
+
+			case 96: // VHF B RX AGC
+				return(scale_data(0.0, 0.176, 0.282));
+
+			case 97: // ASC 2 O2 PRESS
+				return(scale_scea(lem->scera1.GetVoltage(7, 2)));
+
+			case 98: // CABIN PRESS
+				return(scale_data(lem->ecs.GetCabinPressurePSI(), 0.0, 10.0));
+
+			case 99: // PRI GLY PUMP P
+				return(scale_data(lem->ecs.GetPrimaryGlycolPumpDP(), 0.0, 50.0));
+
+			case 100: // APS HE 2 PRESS
+				return(scale_scea(lem->scera1.GetVoltage(19, 1)));
+
+			case 101: // DPS FUEL 2 QTY
+				return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95));
+
+			case 102: // BAT 5 CUR
+				return(scale_data(lem->Battery5->Current(), 0, 120));
+
+			case 103: // O2 MANIFOLD PRESS
+				return(scale_data(lem->ecs.GetPLSSFillPressurePSI(), 0.0, 1400.0));
+
+			case 104: // DPS FUEL 1 QTY
+				return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95));
+
+			case 105: // APS OX PRESS
+				return(scale_scea(lem->scera1.GetVoltage(19, 4)));
+
+			case 106: // BAT 1 CUR
+				if (lem->status < 2)
+				{
+					return(scale_data(lem->Battery1->Current(), 0, 120));
+				}
+				else
+				{
 					return(0);
-				case 137: // "W/B GLY IN TEMP" = Main Sublimator Inlet Temp
-					return(scale_scea(lem->scera2.GetVoltage(20, 1)));
-				case 138: // RR ANT TEMP
-					return(scale_scea(lem->scera1.GetVoltage(21, 4)));
-				case 139: // YAW ERR CMD
-					return(scale_scea(lem->scera2.GetVoltage(18, 3)));
-				case 140: // RCS B REG PRESS
-					return(scale_scea(lem->scera1.GetVoltage(6, 4)));
-				case 141: // PRI H2O REG DP
-					return(scale_scea(lem->scera1.GetVoltage(18, 4)));
-				case 142: // DES O2 PRESS
-					return(scale_scea(lem->scera2.GetVoltage(8, 2)));
-				case 143: // SE BUS VOLT
-					return(scale_scea(lem->scera2.GetVoltage(8, 4)));
-				case 144: // APS OX TEMP
-					return(scale_scea(lem->scera1.GetVoltage(9, 4)));
-				case 145: // RCS B HE PRESS
-					return(scale_scea(lem->scera1.GetVoltage(6, 2)));
-				case 146: // RCS PROP B QTY
-					return(scale_data(lem->RCSB.GetRCSPropellantQuantity(), 0.0, 1.0));
-				case 147: // ECS SUIT PRESS
-					return(scale_scea(lem->scera1.GetVoltage(5, 1)));
-				case 148: // DPS FUEL 2 TEMP
-					return(scale_scea(lem->scera1.GetVoltage(9, 1)));
-				case 149: // LR ANT TEMP
-					return(scale_scea(lem->scera1.GetVoltage(21, 3)));
-				case 150: // UNKNOWN, HBR
+				}
+
+			case 107: // S-BAND ANT TEMP
+				return(scale_scea(lem->scera2.GetVoltage(21, 2)));
+
+			case 108: // DPS HE REG PRESS
+				return(scale_scea(lem->scera1.GetVoltage(19, 2)));
+
+			case 109: // UNKNOWN, HBR
+				return(0);
+
+			case 110: // RCS A REG PRESS
+				return(scale_scea(lem->scera1.GetVoltage(6, 3)));
+
+			case 111: // UNKNOWN, HBR
+				return(0);
+
+			case 112: // RCS A REG PRESS
+				return(scale_scea(lem->scera1.GetVoltage(6, 3)));
+
+			case 113: // DPS BALL VLV TEMP
+				return(scale_scea(lem->scera2.GetVoltage(21, 1)));
+
+			case 114: // APS FUEL TEMP
+				return(scale_scea(lem->scera1.GetVoltage(9, 3)));
+
+			case 115: // ROLL ATT ERR
+				return(scale_scea(lem->scera2.GetVoltage(10, 1)));
+
+			case 116: // DPS OX 1 QTY
+				return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95));
+
+			case 117: // DPS FUEL 2 TEMP
+				return(scale_scea(lem->scera1.GetVoltage(9, 2)));
+
+			case 118: // UNKNOWN, HBR
+				return(0);
+
+			case 119: // RCS PROP B QTY
+				return(scale_data(lem->RCSB.GetRCSPropellantQuantity(), 0.0, 1.0));
+
+			case 120: // GLY TEMP
+				return(scale_scea(lem->scera1.GetVoltage(10, 1)));
+
+			case 121: // IMU 28 VAC 800
+				return(scale_data(28.0, 0.0, 31.1));
+
+			case 122: // BAT 2 CUR
+				if (lem->status < 2)
+				{
+					return(scale_data(lem->Battery2->Current(), 0, 60));
+				}
+				else
+				{
 					return(0);
-				case 151: // RCS PROP A QTY
-					return(scale_data(lem->RCSA.GetRCSPropellantQuantity(), 0.0, 1.0));
-				case 152: // S-BND RCVR SIG
-					return(scale_scea(lem->scera1.GetVoltage(5, 4)));
-				case 153: // APS HE 1 PRESS
-					return(scale_scea(lem->scera1.GetVoltage(8, 4)));
-				case 154: // "PRI W/B H20 TEMP" = Main Sublimator Inlet Water Temp
-					return(scale_scea(lem->scera2.GetVoltage(6, 4)));
-				case 155: // PITCH ERR CMD
-					return(scale_scea(lem->scera2.GetVoltage(18, 4)));
-				case 156: // UNKNOWN, HBR
+				}
+
+			case 123: // PIPA TEMP
+				return(scale_data(lem->imu.GetPIPATempF(), 120.0, 140.0));
+
+			case 124: // RCS B HE PRESS
+				return(scale_scea(lem->scera1.GetVoltage(6, 2)));
+
+			case 125: // RCS A HE PRESS
+				return(scale_scea(lem->scera1.GetVoltage(6, 1)));
+
+			case 126: // CDR BUS VOLT
+				return(scale_scea(lem->scera1.GetVoltage(18, 3)));
+
+			case 127: // "W/B GLY OUT TEMP" = Main Sublimator Outlet Temp
+				return(scale_scea(lem->scera2.GetVoltage(20, 4)));
+
+			case 128: // CABIN TEMP
+				return(scale_scea(lem->scera1.GetVoltage(21, 2)));
+
+			case 129: // APS OX TEMP
+				return(scale_scea(lem->scera1.GetVoltage(9, 4)));
+
+			case 130: // ECS SUIT PRESS
+				return(scale_scea(lem->scera1.GetVoltage(5, 1)));
+
+			case 131: // DES O2 PRESS
+				return(scale_scea(lem->scera2.GetVoltage(8, 2)));
+
+			case 132: // MAN THRUST CMD
+				return(scale_scea(lem->scera1.GetVoltage(15, 2)));
+
+			case 133: // DPS OX 2 QTY
+				return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95));
+
+			case 134: // SE BUS VOLT
+				return(scale_scea(lem->scera2.GetVoltage(8, 4)));
+
+			case 135: // ASC 1 H20 TEMP
+				return(scale_scea(lem->scera2.GetVoltage(21, 3)));
+
+			case 136: // UNKNOWN, HBR
+				return(0);
+
+			case 137: // "W/B GLY IN TEMP" = Main Sublimator Inlet Temp
+				return(scale_scea(lem->scera2.GetVoltage(20, 1)));
+
+			case 138: // RR ANT TEMP
+				return(scale_scea(lem->scera1.GetVoltage(21, 4)));
+
+			case 139: // YAW ERR CMD
+				return(scale_scea(lem->scera2.GetVoltage(18, 3)));
+
+			case 140: // RCS B REG PRESS
+				return(scale_scea(lem->scera1.GetVoltage(6, 4)));
+
+			case 141: // PRI H2O REG DP
+				return(scale_scea(lem->scera1.GetVoltage(18, 4)));
+
+			case 142: // DES O2 PRESS
+				return(scale_scea(lem->scera2.GetVoltage(8, 2)));
+
+			case 143: // SE BUS VOLT
+				return(scale_scea(lem->scera2.GetVoltage(8, 4)));
+
+			case 144: // APS OX TEMP
+				return(scale_scea(lem->scera1.GetVoltage(9, 4)));
+
+			case 145: // RCS B HE PRESS
+				return(scale_scea(lem->scera1.GetVoltage(6, 2)));
+
+			case 146: // RCS PROP B QTY
+				return(scale_data(lem->RCSB.GetRCSPropellantQuantity(), 0.0, 1.0));
+
+			case 147: // ECS SUIT PRESS
+				return(scale_scea(lem->scera1.GetVoltage(5, 1)));
+
+			case 148: // DPS FUEL 2 TEMP
+				return(scale_scea(lem->scera1.GetVoltage(9, 1)));
+
+			case 149: // LR ANT TEMP
+				return(scale_scea(lem->scera1.GetVoltage(21, 3)));
+
+			case 150: // UNKNOWN, HBR
+				return(0);
+
+			case 151: // RCS PROP A QTY
+				return(scale_data(lem->RCSA.GetRCSPropellantQuantity(), 0.0, 1.0));
+
+			case 152: // S-BND RCVR SIG
+				return(scale_scea(lem->scera1.GetVoltage(5, 5)));
+
+			case 153: // APS HE 1 PRESS
+				return(scale_scea(lem->scera1.GetVoltage(8, 4)));
+
+			case 154: // "PRI W/B H20 TEMP" = Main Sublimator Inlet Water Temp
+				return(scale_scea(lem->scera2.GetVoltage(6, 4)));
+
+			case 155: // PITCH ERR CMD
+				return(scale_scea(lem->scera2.GetVoltage(18, 4)));
+
+			case 156: // UNKNOWN, HBR
+				return(0);
+
+			case 157: // UNKNOWN, HBR
+				return(0);
+
+			case 158: // AC BUS FREQ
+				return(scale_scea(lem->scera1.GetVoltage(18, 1)));
+
+			case 159: // UNKNOWN, HBR
+				return(0);
+
+			case 160: // RCS A HE PRESS
+				return(scale_scea(lem->scera1.GetVoltage(6, 1)));
+
+			case 161: //S-BND RCVR SIG
+				return(scale_scea(lem->scera1.GetVoltage(5, 5)));
+
+			case 162: // RCS PROP A QTY
+				return(scale_data(lem->RCSA.GetRCSPropellantQuantity(), 0.0, 1.0));
+
+			case 163: // "PRI W/B H20 TEMP" = Main Sublimator Inlet Water Temp
+				return(scale_scea(lem->scera2.GetVoltage(6, 4)));
+
+			case 164: // LR ANT TEMP
+				return(scale_scea(lem->scera1.GetVoltage(21, 3)));
+
+			case 165: // DPS OX 1 QTY
+				return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95));
+
+			case 166: // PIPA TEMP
+				return(scale_data(lem->imu.GetPIPATempF(), 120.0, 140.0));
+
+			case 167: // BAT 2 CUR
+				if (lem->status < 2)
+				{
+					return(scale_data(lem->Battery2->Current(), 0, 60));
+				}
+				else
+				{
 					return(0);
-				case 157: // UNKNOWN, HBR
-					return(0);
-			    case 158: // AC BUS FREQ
-					return(scale_scea(lem->scera1.GetVoltage(18, 1)));
-				case 159: // UNKNOWN, HBR
-					return(0);
-				case 160: // RCS A HE PRESS
-					return(scale_scea(lem->scera1.GetVoltage(6, 1)));
-				case 161: //S-BND RCVR SIG
-					return(scale_scea(lem->scera1.GetVoltage(5, 4)));
-				case 162: // RCS PROP A QTY
-					return(scale_data(lem->RCSA.GetRCSPropellantQuantity(), 0.0, 1.0));
-				case 163: // "PRI W/B H20 TEMP" = Main Sublimator Inlet Water Temp
-					return(scale_scea(lem->scera2.GetVoltage(6, 4)));
-				case 164: // LR ANT TEMP
-					return(scale_scea(lem->scera1.GetVoltage(21, 3)));
-				case 165: // DPS OX 1 QTY
-					return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95));
-				case 166: // PIPA TEMP
-					return(scale_data(lem->imu.GetPIPATempF(), 120.0, 140.0));
-				case 167: // BAT 2 CUR
-					if (lem->status < 2) { return(scale_data(lem->Battery2->Current(), 0, 60)); } else { return(0); }
-				case 168: // PRI H2O REG DP
-					return(scale_scea(lem->scera1.GetVoltage(18, 4)));
-				case 169: // GLY TEMP
-					return(scale_scea(lem->scera1.GetVoltage(10, 1)));
-				case 170: // ASC 1 H20 TEMP
-					return(scale_scea(lem->scera2.GetVoltage(21, 3)));
-				case 171: // PCM OSC FAIL 2
-					return(scale_data(0.0, 0.0, 5.0));
-				case 172: // ECS SUIT TEMP
-					return(scale_scea(lem->scera1.GetVoltage(21, 1)));
-				case 173: // APS TCP
-					return(scale_data(lem->APS.GetThrustChamberPressurePSI(), 0.0, 150.0));
-			    case 174: // AC BUS FREQ
-					return(scale_scea(lem->scera1.GetVoltage(18, 1)));
-				case 175: // ROLL ERR CMD
-					return(scale_scea(lem->scera2.GetVoltage(18, 2)));
-				case 176: // DPS OX 2 QTY
-					return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95));
-				case 177: // ECS SUIT TEMP
-					return(scale_scea(lem->scera1.GetVoltage(21, 1)));
-				case 178: // APS TCP
-					return(scale_data(lem->APS.GetThrustChamberPressurePSI(), 0.0, 150.0));
-				case 179: // APS HE 1 PRESS
-					return(scale_scea(lem->scera1.GetVoltage(8, 4)));
-				case 180: // RTG CASK SHIELD TEMP
-					return(scale_scea(lem->scera2.GetVoltage(6, 3)));
-				case 181: // UNKNOWN, LBR
-					return(0);
-				case 182: // UNKNOWN, LBR
-					return(0);
-				case 183: // F/H RLF PRESS
-					return(scale_data(lem->ecs.GetCabinPressurePSI(), 0.0, 25.0));
-				case 184: // UNKNOWN, LBR
-					return(0);
-				case 185: // SBand ST PH ERR
-					return(scale_data(0.0, -90.0, 90.0));
-				case 186: // AUTO THRUST CMD
-					return(scale_scea(lem->scera1.GetVoltage(15, 1)));
-				case 187: // UNKNOWN, HBR
-					return(0);
-				case 188: // UNKNOWN, HBR
-					return(0);
-				case 189: // UNKNOWN, HBR
-					return(0);
-				case 190: // UNKNOWN, HBR
-					return(0);
-				case 191: // UNKNOWN, HBR
-					return(0);
-				case 192: // UNKNOWN, HBR
-					return(0);
-				case 193: // VAR INJ ACT POS
-					return(scale_data(lem->DPS.GetInjectorActuatorPosition(), 0.0, 1.0));
-				case 194: // U/H RLF PRESS
-					return(scale_data(lem->ecs.GetCabinPressurePSI(), 0.0, 25.0));
-				case 195: // SBand XMTR PO
-					return(scale_data(0.0, 0.3, 1.75));
-				default:
-					sprintf(oapiDebugString(),"MEASURE: UNKNOWN A-%d",ccode);
-					break;
+				}
+
+			case 168: // PRI H2O REG DP
+				return(scale_scea(lem->scera1.GetVoltage(18, 4)));
+
+			case 169: // GLY TEMP
+				return(scale_scea(lem->scera1.GetVoltage(10, 1)));
+
+			case 170: // ASC 1 H20 TEMP
+				return(scale_scea(lem->scera2.GetVoltage(21, 3)));
+
+			case 171: // PCM OSC FAIL 2
+				return(scale_data(0.0, 0.0, 5.0));
+
+			case 172: // ECS SUIT TEMP
+				return(scale_scea(lem->scera1.GetVoltage(21, 1)));
+
+			case 173: // APS TCP
+				return(scale_data(lem->APS.GetThrustChamberPressurePSI(), 0.0, 150.0));
+
+			case 174: // AC BUS FREQ
+				return(scale_scea(lem->scera1.GetVoltage(18, 1)));
+
+			case 175: // ROLL ERR CMD
+				return(scale_scea(lem->scera2.GetVoltage(18, 2)));
+
+			case 176: // DPS OX 2 QTY
+				return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95));
+
+			case 177: // ECS SUIT TEMP
+				return(scale_scea(lem->scera1.GetVoltage(21, 1)));
+
+			case 178: // APS TCP
+				return(scale_data(lem->APS.GetThrustChamberPressurePSI(), 0.0, 150.0));
+
+			case 179: // APS HE 1 PRESS
+				return(scale_scea(lem->scera1.GetVoltage(8, 4)));
+
+			case 180: // RTG CASK SHIELD TEMP
+				return(scale_scea(lem->scera2.GetVoltage(6, 3)));
+
+			case 181: // UNKNOWN, LBR
+				return(0);
+
+			case 182: // UNKNOWN, LBR
+				return(0);
+
+			case 183: // F/H RLF PRESS
+				return(scale_data(lem->ecs.GetCabinPressurePSI(), 0.0, 25.0));
+
+			case 184: // UNKNOWN, LBR
+				return(0);
+
+			case 185: // SBand ST PH ERR
+				return(scale_data(0.0, -90.0, 90.0));
+
+			case 186: // AUTO THRUST CMD
+				return(scale_scea(lem->scera1.GetVoltage(15, 1)));
+
+			case 187: // UNKNOWN, HBR
+				return(0);
+
+			case 188: // UNKNOWN, HBR
+				return(0);
+
+			case 189: // UNKNOWN, HBR
+				return(0);
+
+			case 190: // UNKNOWN, HBR
+				return(0);
+
+			case 191: // UNKNOWN, HBR
+				return(0);
+
+			case 192: // UNKNOWN, HBR
+				return(0);
+
+			case 193: // VAR INJ ACT POS
+				return(scale_data(lem->DPS.GetInjectorActuatorPosition(), 0.0, 1.0));
+
+			case 194: // U/H RLF PRESS
+				return(scale_data(lem->ecs.GetCabinPressurePSI(), 0.0, 25.0));
+
+			case 195: // SBand XMTR PO
+				return(scale_data(0.0, 0.3, 1.75));
+
+			default:
+				sprintf(oapiDebugString(), "MEASURE: UNKNOWN A-%d", channel);
+				break;
+
 			}
+			break;
+
+		case 10:
+			switch (channel)
+			{
+			case 1: // X TRANS CMD
+				return(scale_scea(lem->scera2.GetVoltage(17, 2)));
+
+			case 2: // SBand ST PH ERR
+				return(scale_data(0.0, -90.0, 90.0));
+
+			case 3: // Z PIPA OUT IN O
+				return(scale_data(0.0, -2.5, 2.5));
+
+			case 4: // APS HE 1R PRESS
+				return(scale_data(lem->APSPropellant.GetAscentHelium1PressPSI(), 0.0, 4000.0));
+
+			case 5: // ROLL ERR CMD
+				return(scale_scea(lem->scera2.GetVoltage(18, 2)));
+
+			case 6: // Z PIPA OUT IN O
+				return(scale_data(0.0, -2.5, 2.5));
+
+			case 7: // PITCH ATT ERR
+				return(scale_scea(lem->scera2.GetVoltage(9, 4)));
+
+			case 8: // Y TRANS CMD
+				return(scale_scea(lem->scera2.GetVoltage(17, 3)));
+
+			case 9: // MG RSVR OUT SIN
+				return(scale_data(0.0, -20.25, 20.25));
+
+			case 10: // RR SHFT COS
+				return(scale_data(0.0, -21.5, 21.5));
+
+			case 11: // RR TRUN SIN
+				return(scale_data(0.0, -21.5, 21.5));
+
+			case 12: // MG RSVR OUT COS
+				return(scale_data(0.0, -20.25, 20.25));
+
+			case 13: // ROLL ATT ERR
+				return(scale_scea(lem->scera2.GetVoltage(10, 1)));
+
+			case 14: // IG RSVR OUT COS
+				return(scale_data(0.0, -20.25, 20.25));
+
+			case 15: // YAW ATT ERR
+				return(scale_scea(lem->scera2.GetVoltage(9, 3)));
+
+			case 16: // IG RSVR OUT SIN
+				return(scale_data(0.0, -20.25, 20.25));
+
+			case 17: // YAW ATT ERR
+				return(scale_data(0.0, -5.0, 5.0));
+
+			case 18: // Z TRANS CMD
+				return(scale_scea(lem->scera2.GetVoltage(17, 4)));
+
+			case 19: // RGA YAW RATE
+				return(scale_scea(lem->scera2.GetVoltage(10, 2)));
+
+			case 20: // RR TRUN COS
+				return(scale_data(0.0, -21.5, 21.5));
+
+			case 21: // AUTO THRUST CMD
+				return(scale_scea(lem->scera1.GetVoltage(15, 1)));
+
+			case 22: // APS HE 2R PRESS
+				return(scale_data(lem->APSPropellant.GetAscentHelium2PressPSI(), 0.0, 4000.0));
+
+			case 23: // ROLL ATT ERR
+				return(scale_data(0.0, -5.0, 5.0));
+
+			case 24: // OG RSVR OUT SIN
+				return(scale_data(0.0, -20.25, 20.25));
+
+			case 25: // YAW ERR CMD
+				return(scale_scea(lem->scera2.GetVoltage(18, 3)));
+
+			case 26: // CAL 85 PCT
+				return scale_data(4.25, 0, 5.0);
+
+			case 27: // CAL 15 PCT
+				return scale_data(0.75, 0, 5.0);
+
+			case 28: // OG RSVR OUT COS
+				return(scale_data(0.0, -20.25, 20.25));
+
+			case 29: // RGA PITCH RATE
+				return(scale_scea(lem->scera2.GetVoltage(10, 3)));
+
+			case 30: // PITCH GDA POS
+				return(scale_scea(lem->scera2.GetVoltage(9, 1)));
+
+			case 31: // ROLL GDA POS
+				return (scale_scea(lem->scera2.GetVoltage(9, 2)));
+
+			case 32: // RR SHFT SIN?
+				return(0);
+
+			case 33: // PITCH ERR CMD
+				return(scale_scea(lem->scera2.GetVoltage(18, 4)));
+
+			case 34: // RGA ROLL RATE
+				return(scale_scea(lem->scera2.GetVoltage(10, 4)));
+
+			case 35: // PITCH ATT ERR
+				return(scale_data(0.0, -5.0, 5.0));
+
+			case 36: // CAL 15 PCT
+				return scale_data(0.75, 0.0, 5.0);
+
+			case 37: // ROLL ATT ERR
+				return(scale_scea(lem->scera2.GetVoltage(10, 1)));
+
+			case 38: // RGA ROLL RATE
+				return(scale_scea(lem->scera2.GetVoltage(10, 4)));
+
+			case 39: // YAW ATT ERR?
+				return(0);
+
+			case 40: // MG RSVR OUT SIN
+				return(scale_data(0.0, -20.25, 20.25));
+
+			case 41: // CAL 85 PCT
+				return scale_data(4.25, 0, 5.0);
+
+			case 42: // PITCH ATT ERR
+				return(scale_scea(lem->scera2.GetVoltage(9, 4)));
+
+			case 43: // RGA YAW RATE
+				return(scale_scea(lem->scera2.GetVoltage(10, 2)));
+
+			case 44: // B FUEL MFLD PRESS?
+				return(0);
+
+			case 45: // RGA PITCH RATE
+				return(scale_scea(lem->scera2.GetVoltage(10, 3)));
+			}
+			break;
+
+		case 50:
+			switch (channel)
+			{
+			case 1: // Y PIPA OUT IN O
+				return(scale_data(0.0, -2.5, 2.5));
+
+			case 2: // X PIPA OUT IN O
+				return(scale_data(0.0, -2.5, 2.5));
+
+			case 3: // UNKNOWN
+				return(0);
+
+			case 4: // VAR INJ ACT POS
+				return(scale_data(lem->DPS.GetInjectorActuatorPosition(), 0.0, 1.0));
+
+			case 5: // X PIPA OUT IN O
+				return(scale_data(0.0, -2.5, 2.5));
+
+			case 6: // UNKNOWN
+				return(0);
+
+			case 7: // UNKNOWN
+				return(0);
+
+			case 8: // VAR INJ ACT POS
+				return(scale_data(lem->DPS.GetInjectorActuatorPosition(), 0.0, 1.0));
+			}
+			break;
+
+		case 100:
+			switch (channel)
+			{
+			case 1: // IG SVO ERR IN O
+				return(scale_data(0.0, -3.0, 3.0));
+
+			case 2: // UNKNOWN
+				return(0);
+
+			case 3: // MG SVO ERR IN O
+				return(scale_data(0.0, -3.0, 3.0));
+
+			case 4: // UNKNOWN
+				return(0);
+
+			case 5: // UNKNOWN
+				return(0);
+
+			case 6: // UNKNOWN
+				return(0);
+
+			case 7: // DPS OX 2 QTY
+				return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95));
+
+			case 8: // DPS FUEL 1 QTY
+				return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95));
+
+			case 9: // IG SVO ERR IN O
+				return(scale_data(0.0, -3.0, 3.0));
+
+			case 10: // UNKNOWN
+				return(0);
+
+			case 11: // DPS OX 1 QTY
+				return(scale_data(lem->DPSPropellant.GetOxidPercent(), 0.0, 0.95));
+
+			case 12: // UNKNOWN
+				return(0);
+
+			case 13: // OG SVO ERR IN O
+				return(scale_data(0.0, -3.0, 3.0));
+
+			case 14: // UNKNOWN
+				return(0);
+
+			case 15: // UNKNOWN
+				return(0);
+
+			case 16: // MG SVO ERR IN O
+				return(scale_data(0.0, -3.0, 3.0));
+
+			case 17: // UNKNOWN
+				return(0);
+
+			case 18: // UNKNOWN
+				return(0);
+
+			case 19: // OG SVO ERR IN O
+				return(scale_data(0.0, -3.0, 3.0));
+
+			case 20: // UNKNOWN
+				return(0);
+
+			case 21: // DPS FUEL 2 QTY
+				return(scale_data(lem->DPSPropellant.GetFuelPercent(), 0.0, 0.95));
+
+			case 22: // UNKNOWN
+				return(0);
+			}
+			break;
+
+		case 200:
+			switch (channel)
+			{
+			case 1: // DPS FUEL PRESS
+				return(scale_data(lem->DPSPropellant.GetFuelEngineInletPressurePSI(), 0.0, 300.0));
+
+			case 2: // DPS OX PRESS
+				return (scale_data(lem->DPSPropellant.GetOxidizerEngineInletPressurePSI(), 0.0, 300.0));
+
+			case 3: // UNKNOWN
+				return(0);
+
+			case 4: // DPS FUEL PRESS
+				return(scale_data(lem->DPSPropellant.GetFuelEngineInletPressurePSI(), 0.0, 300.0));
+
+			case 5: // DPS OX PRESS
+				return (scale_data(lem->DPSPropellant.GetOxidizerEngineInletPressurePSI(), 0.0, 300.0));
+
+			case 6: // DPS TCP
+				return(scale_data(lem->DPS.GetThrustChamberPressurePSI(), 0.0, 200.0));
+
+			case 7: // APS TCP
+				return(scale_data(lem->APS.GetThrustChamberPressurePSI(), 0.0, 150.0));
+			}
+			break;
+
+		default:
+			sprintf(oapiDebugString(), "MEASURE: UNKNOWN A-%d", channel);
+			break;
+		}
 		break;
-		case LTLM_D:  // DIGITAL
-			switch(ccode){
-				case 0x001: // FORMAT ID
-					if (lem->TLMBitrateSwitch.IsUp()) { return (033); }
+
+	case LTLM_D:  // DIGITAL PARALLEL
+
+		switch (rate)
+		{
+
+		case 1:
+
+			switch (channel)
+			{
+			case 0x001: // FORMAT ID
+				if (lem->TLMBitrateSwitch.IsUp())
+				{
+					return (033);
+				}
+				else
+				{
 					return(0344);
-				case 0x002: // DUA STATUS (DIGITAL UPLINK ASSEMBLY)
-					return(0);
-				case 0x003: // UNKNOWN, LBR
-					return(0);
-				case 0x004: // UNKNOWN, LBR
-					return(0);
-				case 0x005: // UNKNOWN, LBR
-					return(0);
-				case 0x006: // UNKNOWN, LBR
-					return(0);
-				case 0x007: // UNKNOWN, LBR
-					return(0);
-				case 0x008: // UNKNOWN, LBR
-					return(0);
-				case 0x009: // UNKNOWN, LBR
-					return(0);
-				case 0x010: // UNKNOWN, LBR
-					return(0);
-				case 0x01A: // MET
-					return(0);
-				case 0x01B: // MET
-					return(0);
-				case 0x01C: // MET
-					return(0);
-				case 0x01D: // MET
-					return(0);
-				default:
-					sprintf(oapiDebugString(),"MEASURE: UNKNOWN D-0x%x",ccode);
-					break;
+				}
+
+			case 0x002: // DUA STATUS (DIGITAL UPLINK ASSEMBLY)
+				return(0);
+
+			case 0x003: // UNKNOWN, LBR
+				return(0);
+
+			case 0x004: // UNKNOWN, LBR
+				return(0);
+
+			case 0x005: // UNKNOWN, LBR
+				return(0);
+
+			case 0x006: // UNKNOWN, LBR
+				return(0);
+
+			case 0x007: // UNKNOWN, LBR
+				return(0);
+
+			case 0x008: // UNKNOWN, LBR
+				return(0);
+
+			case 0x009: // UNKNOWN, LBR
+				return(0);
+
+			case 0x010: // UNKNOWN, LBR
+				return(0);
+
+			default:
+				sprintf(oapiDebugString(), "MEASURE: UNKNOWN D-0x%x", channel);
+				break;
 			}
+			break;
+
+		case 10:
+
+			switch (channel)
+			{
+			case 0x01A: // MET
+				//time = (int)lem->GetMissionTime(); Not required as handled directly in generate_stream_hbr
+				//return(time % 60);
+				break;
+
+			case 0x01B: // MET
+				//time = (int)lem->GetMissionTime();
+				//return(((time % 3600) - (time % 60)) / 60);
+				break;
+
+			case 0x01C: // MET
+				//time = (int)lem->GetMissionTime();
+				//return(((time % 86400) - (time % 3600)) / 3600);
+				break;
+
+			case 0x01D: // MET
+				//time = (int)lem->GetMissionTime();
+				//return((time - (time % 86400)) / 86400);
+				break;
+			}
+			break;
+		}
 		break;
-		case LTLM_DS:  // DIGITAL SERIAL
-			//switch(ccode){
-			//	default:
-					sprintf(oapiDebugString(),"MEASURE: UNKNOWN DS-0x%x",ccode);
-			//		break;
-			//}
+
+	case LTLM_DS:  // DIGITAL SERIAL
+
+		switch (rate)
+		{
+		case 50:
+			switch (channel)
+			{
+			case 11: // 1st 8 bits
+				break;
+			case 12: // 2nd 8 bits
+				break;
+			case 13: // 3rd 8 bits
+				break;
+			case 14: // 4th 8 bits
+				break;
+			case 15: // 5th 8 bits
+				break;
+
+			case 21: // AGS DATA
+				break;
+			case 22: // AGS DATA
+				break;
+			case 23: // AGS DATA
+				break;
+			}
+			break;
+		}
+		//switch(ccode){
+		//	default:
+		sprintf(oapiDebugString(), "MEASURE: UNKNOWN DS-0x%x", channel);
+		//		break;
+		//}
 		break;
-		case LTLM_E:  // EVENT
-			if(channel == 200){
-				// Channel 100
-				switch(ccode){
-					case 0x01A: // RCS TCP nn
-						rdata = 0;
-						if (lem->scera1.IsSet(11, 8)) { rdata |= 0x01; } // Bit 8 = 3S
-						if (lem->scera1.IsSet(11, 7)) { rdata |= 0x02; } // Bit 7 = 3F
-						if (lem->scera1.IsSet(11, 6)) { rdata |= 0x04; } // Bit 6 = 3D
-						if (lem->scera1.IsSet(11, 5)) { rdata |= 0x08; } // Bit 5 = 3U
-						if (lem->scera1.IsSet(11, 4)) { rdata |= 0x10; } // Bit 4 = 4S
-						if (lem->scera1.IsSet(11, 3)) { rdata |= 0x20; } // Bit 3 = 4F
-						if (lem->scera1.IsSet(11, 2)) { rdata |= 0x40; } // Bit 2 = 4D
-						if (lem->scera1.IsSet(11, 1)) { rdata |= 0x80; } // Bit 1 = 4U
-						return rdata;
-					case 0x01B: // RCS TCP nn
-						rdata = 0;
-						if (lem->scera1.IsSet(3, 8)) { rdata |= 0x01; }// Bit 8 = 1S
-						if (lem->scera1.IsSet(3, 7)) { rdata |= 0x02; }// Bit 7 = 1F
-						if (lem->scera1.IsSet(3, 6)) { rdata |= 0x04; }// Bit 6 = 1D
-						if (lem->scera1.IsSet(3, 5)) { rdata |= 0x08; }// Bit 5 = 1U
-						if (lem->scera1.IsSet(3, 4)) { rdata |= 0x10; }// Bit 4 = 2S
-						if (lem->scera1.IsSet(3, 3)) { rdata |= 0x20; }// Bit 3 = 2F
-						if (lem->scera1.IsSet(11, 10)) { rdata |= 0x40; }// Bit 2 = 2D
-						if (lem->scera1.IsSet(11, 9)) { rdata |= 0x80; }// Bit 1 = 2U
-						return rdata;
-					default:
-						sprintf(oapiDebugString(),"MEASURE: UNKNOWN 200-E-0x%x",ccode);
-						break;
-				}
+
+	case LTLM_E:  // EVENT BITS
+
+		switch (rate)
+		{
+		case 1:
+			switch (channel)
+			{
+			case 0x01: // PNGS Statuses
+			case 0x12: // PNGS Statuses
+				rdata = 0;
+				if (lem->scera2.IsSet(2, 3)) { rdata |= 0x01; } // Bit 8 = LR Range Bad
+				if (lem->scera2.IsSet(2, 4)) { rdata |= 0x02; } // Bit 7 = LR Vel Bad
+				if (lem->scera2.IsSet(2, 5)) { rdata |= 0x04; } // Bit 6 = RR No Track
+				return rdata;
+
+			case 0x02: // PNGS Statuses
+			case 0x13: // PNGS Statuses
+				rdata = 0;
+				if (lem->scera2.IsSet(3, 11)) { rdata |= 0x01; } // Bit 8 = LGC Warning
+				if (lem->scera2.IsSet(3, 12)) { rdata |= 0x02; } // Bit 7 = ISS Warning
+				return rdata;
+
+			case 0x03: // ECS Statuses
+			case 0x14: // ECS Statuses
+				rdata = 0;
+				if (lem->scera2.IsSet(5, 11)) { rdata |= 0x01; } // Bit 8 = CDR Suit Disc
+				if (lem->scera2.IsSet(5, 12)) { rdata |= 0x02; } // Bit 7 = SE Suit Disc
+				if (lem->scera2.IsSet(3, 3)) { rdata |= 0x04; } // Bit 6 = Selected Gly Level Low
+				if (lem->scera2.IsSet(3, 8)) { rdata |= 0x08; } // Bit 5 = Repr Elec Open
+				return rdata;
+
+			case 0x04: // ECS Statuses
+			case 0x15: // ECS Statuses
+				rdata = 0;
+				if (lem->scera2.IsSet(5, 9)) { rdata |= 0x01; } // Bit 8 = Cabin Ret Closed
+				if (lem->scera2.IsSet(5, 10)) { rdata |= 0x02; } // Bit 7 = Cabin Ret Open
+				if (lem->scera2.IsSet(5, 5)) { rdata |= 0x04; } // Bit 6 = Demand Reg A Closed
+				if (lem->scera2.IsSet(5, 7)) { rdata |= 0x10; } // Bit 4 = Demand Reg B Closed
+				if (lem->scera2.IsSet(12, 2)) { rdata |= 0x40; } // Bit 2 = Sec Gly Pump Fail
+				return rdata;
+
+			case 0x05: // ECS Statuses
+			case 0x16: // ECS Statuses
+				rdata = 0;
+				if (lem->scera2.IsSet(3, 2)) { rdata |= 0x01; } // Bit 8 = Suit Fan 1 Malf
+				if (lem->scera2.IsSet(3, 6)) { rdata |= 0x02; } // Bit 7 = Suit Fan 2 Malf
+				if (lem->scera2.IsSet(5, 3)) { rdata |= 0x04; } // Bit 6 = Suit Rlf Closed
+				if (lem->scera2.IsSet(5, 4)) { rdata |= 0x08; }// Bit 5 = Suit Rlf Open
+				if (lem->scera2.IsSet(5, 2)) { rdata |= 0x10; }// Bit 4 = Suit Div Egress
+				if (lem->scera2.IsSet(5, 1)) { rdata |= 0x20; }// Bit 3 = Sec CO2 Sel
+				return rdata;
+
+			case 0x06: // PNGS Statuses
+			case 0x17: // PNGS Statuses
+				rdata = 0;
+				if (lem->IMU_SBY_CB.IsPowered()) { rdata |= 0x01; } // Bit 8 = IMU STBY
+				if (lem->LGC_DSKY_CB.IsPowered()) { rdata |= 0x02; }// Bit 7 = IMU OPR
+				return rdata;
+
+			case 0x07: // IS Statuses
+			case 0x18: // IS Statuses
+				rdata = 0;
+				if (lem->scera2.IsSet(2, 1)) { rdata |= 0x01; } // Bit 8 = CES AC Power Fail
+				if (lem->scera2.IsSet(2, 12)) { rdata |= 0x02; }// Bit 7 = CES DC Power Fail
+				if (lem->scera2.IsSet(2, 2)) { rdata |= 0x04; }// Bit 6 = AGS Power Fail
+				if (lem->scera2.IsSet(12, 1)) { rdata |= 0x08; }// Bit 5 = C&W Power Fail
+				if (lem->scera2.IsSet(2, 8)) { rdata |= 0x10; }// Bit 4 = Master Alarm On
+				if (lem->scera2.IsSet(3, 7)) { rdata |= 0x20; }// Bit 3 = EPS Battery Caution
+				// Bit 1 = PCM Osc Fail 1
+				return rdata;
+
+			case 0x08: // ???
+			case 0x19: // ???
+				// UNKNOWN - LBR
+				return 0;
+
+			case 0x09: // ???
+			case 0x20: // ???
+				// UNKNOWN - LBR
+				return 0;
+
+			case 0x10: // RCS Statuses
+			case 0x21: // RCS Statuses
+				rdata = 0;
+				if (lem->scera1.IsSet(12, 3)) { rdata |= 0x01; } // Bit 8 = SIG ASC Feed A OX Open
+				if (lem->scera1.IsSet(12, 4)) { rdata |= 0x02; } // Bit 7 = SIG ASC Feed B OX Open
+				if (lem->scera1.IsSet(12, 1)) { rdata |= 0x04; } // Bit 6 = RCS MAIN A CLOSED
+				if (lem->scera1.IsSet(12, 2)) { rdata |= 0x08; } // Bit 5 = RCS MAIN B CLOSED
+				if (lem->scera1.IsSet(13, 10)) { rdata |= 0x10; } // Bit 4 = ASC Feed A Open
+				if (lem->scera1.IsSet(13, 11)) { rdata |= 0x20; } // Bit 3 = ASC Feed B Open
+				if (lem->scera1.IsSet(13, 12)) { rdata |= 0x40; } // Bit 2 = A/B Crossfeed Open
+				return rdata;
+
+			case 0x11: // EDS Statuses
+			case 0x22: // EDS Statuses
+				rdata = 0;
+				if (lem->scera1.IsSet(2, 9)) { rdata |= 0x01; } // Bit 8 = Abort Command
+				if (lem->scera1.IsSet(14, 9)) { rdata |= 0x08; }// Bit 5 = ED Relay A K7-K15
+				if (lem->scera1.IsSet(14, 10)) { rdata |= 0x10; }// Bit 4 = ED Relay B K7-K15
+				if (lem->scera1.IsSet(14, 11)) { rdata |= 0x20; }// Bit 3 = ED Relay A K3-K6
+				if (lem->scera1.IsSet(14, 12)) { rdata |= 0x40; }// Bit 2 = ED Relay B K3-K6
+				return rdata;
+
+			case 0x23:
+				rdata = 0;
+				if (lem->scera2.IsSet(14, 6)) { rdata |= 0x01; } // Bit 8 = Auto On
+				if (lem->scera2.IsSet(3, 4)) { rdata |= 0x02; } // Bit 7 = DPS On
+				if (lem->scera2.IsSet(3, 9)) { rdata |= 0x04; } // Bit 6 = Pitch Trim Fail
+				if (lem->scera2.IsSet(3, 10)) { rdata |= 0x08; } // Bit 5 = Roll Trim Fail
+				if (lem->scera2.IsSet(3, 5)) { rdata |= 0x10; } // Bit 4 = AGS Selected
+				return rdata;
+
+			case 0x24:
+				rdata = 0;
+				if (lem->scera2.IsSet(2, 6)) { rdata |= 0x01; } // Bit 8 = APS Fuel Low
+				if (lem->scera2.IsSet(2, 7)) { rdata |= 0x02; } // Bit 7 = APS Ox Low
+				return rdata;
+
+			case 0x25: // UNKNOWN, LBR
+			case 0x26: // UNKNOWN, LBR
+				return(0);
+
+			case 0x27:
+				rdata = 0;
+				if (lem->scera2.IsSet(13, 1)) { rdata |= 0x01; } // Bit 8 = Roll Pulsed/Direct
+				if (lem->scera2.IsSet(13, 2)) { rdata |= 0x02; } // Bit 7 = Pitch Pulsed/Direct
+				if (lem->scera2.IsSet(13, 6)) { rdata |= 0x04; } // Bit 6 = Yaw Pulsed/Direct
+				if (lem->scera2.IsSet(2, 11)) { rdata |= 0x08; } // Bit 5 = AGS Warmup
+				if (lem->scera2.IsSet(13, 5)) { rdata |= 0x10; } // Bit 4 = AGS Standby
+				return rdata;
+
+			case 0x28: // UNKNOWN, HBR
+				return 0;
+
+			case 0x29: // Battery Malfunction Flags
+				rdata = 0;
+				if (lem->scera2.IsSet(12, 7)) { rdata |= 0x01; } // B1 Malfunction
+				if (lem->scera2.IsSet(12, 8)) { rdata |= 0x02; } // B2 Malfunction
+				if (lem->scera2.IsSet(12, 9)) { rdata |= 0x04; } // B3 Malfunction
+				if (lem->scera2.IsSet(12, 10)) { rdata |= 0x08; } // B4 Malfunction
+				if (lem->scera2.IsSet(12, 11)) { rdata |= 0x10; } // B5 Malfunction
+				if (lem->scera2.IsSet(12, 12)) { rdata |= 0x20; } // B6 Malfunction
+				return rdata;
+
+			case 0x30: // Descent Battery Status Flags
+				rdata = 0;
+				if (lem->scera2.IsSet(4, 1)) { rdata |= 0x01; } // B1 HI tap
+				if (lem->scera2.IsSet(4, 2)) { rdata |= 0x02; } // B1 LO tap
+				if (lem->scera2.IsSet(4, 3)) { rdata |= 0x04; } // B2 HI tap
+				if (lem->scera2.IsSet(4, 4)) { rdata |= 0x08; } // B2 LO tap
+				if (lem->scera2.IsSet(4, 5)) { rdata |= 0x10; } // B3 HI tap
+				if (lem->scera2.IsSet(4, 6)) { rdata |= 0x20; } // B3 LO tap
+				if (lem->scera2.IsSet(4, 7)) { rdata |= 0x40; } // B4 HI tap
+				if (lem->scera2.IsSet(4, 8)) { rdata |= 0x80; } // B4 LO tap
+				return rdata;
+
+			case 0x31: // ???
+				rdata = 0;
+				if (lem->scera2.IsSet(14, 5)) { rdata |= 0x01; } // Bit 8 = Out Det
+				if (lem->scera2.IsSet(14, 7)) { rdata |= 0x02; } // Bit 7 = Auto Off
+				if (lem->scera2.IsSet(14, 2)) { rdata |= 0x04; } // Bit 6 = Engine Fire Override
+				if (lem->scera2.IsSet(14, 3)) { rdata |= 0x08; } // Bit 5 = PNGS Mode Auto
+				if (lem->scera2.IsSet(14, 4)) { rdata |= 0x10; } // Bit 4 = PNGS Mode Att Hold
+				if (lem->scera2.IsSet(14, 8)) { rdata |= 0x20; } // Bit 3 = Unbalanced Couples
+				if (lem->scera2.IsSet(12, 5)) { rdata |= 0x40; } // Bit 2 = AGS Mode Att Hold
+				if (lem->scera2.IsSet(12, 6)) { rdata |= 0x80; } // Bit 1 = AGS Mode Auto
+				return rdata;
+
+			case 0x32: // DPS Statuses
+				rdata = 0;
+				if (lem->scera2.IsSet(12, 3)) { rdata |= 0x02; } // Bit 7 = DES Prop Lo
+				if (lem->scera2.IsSet(14, 11)) { rdata |= 0x04; } // Bit 6 = PROP VLVS DEL P
+				if (lem->scera2.IsSet(14, 12)) { rdata |= 0x08; } // Bit 5 = PROP VLVS DEL P
+				return rdata;
+
+			case 0x33: // Ascent Battery Status Flags
+				rdata = 0;
+				if (lem->scera2.IsSet(4, 9)) { rdata |= 0x01; } // B5 Backup
+				if (lem->scera2.IsSet(4, 10)) { rdata |= 0x02; } // B6 Normal
+				if (lem->scera2.IsSet(4, 11)) { rdata |= 0x04; } // B5 Normal
+				if (lem->scera2.IsSet(4, 12)) { rdata |= 0x08; } // B6 Backup
+				return rdata;
+
+			case 0x34: // UNKNOWN, HBR
+				return 0;
+
+			case 0x35: // UNKNOWN, HBR
+				return 0;
+
+			case 0x36: // UNKNOWN, HBR
+				return 0;
+
+			case 0x37: // UNKNOWN, HBR
+				return 0;
+
+			case 0x38: // UNKNOWN, HBR
+				return 0;
+
+			case 0x39: // UNKNOWN, HBR
+				return 0;
+
+			case 0x40:
+				rdata = 0;
+				if (lem->scera1.IsSet(13, 9)) { rdata |= 0x01; } // Bit 8 = Landing Gear Deploy
+				return rdata;
+
+			case 0x41:
+				rdata = 0;
+				if (lem->scera1.IsSet(3, 2)) { rdata |= 0x01; } // Bit 8 = APS Arm
+				if (lem->scera1.IsSet(3, 9)) { rdata |= 0x02; } // Bit 7 = DPS Arm
+				if (lem->scera1.IsSet(3, 1)) { rdata |= 0x04; } // Bit 6 = Min Deadband
+				if (lem->scera1.IsSet(3, 10)) { rdata |= 0x08; } // Bit 5 = X Trans Override
+				return rdata;
+
+			case 0x42: // RCS Isolation valve xx closed
+				rdata = 0;
+				if (lem->scera1.IsSet(14, 1)) { rdata |= 0x01; } // Bit 8 = 4A 
+				if (lem->scera1.IsSet(14, 2)) { rdata |= 0x02; } // Bit 7 = 4B
+				if (lem->scera1.IsSet(14, 3)) { rdata |= 0x04; } // Bit 6 = 3A
+				if (lem->scera1.IsSet(14, 4)) { rdata |= 0x08; } // Bit 5 = 3B
+				if (lem->scera1.IsSet(14, 5)) { rdata |= 0x10; } // Bit 4 = 2A
+				if (lem->scera1.IsSet(14, 6)) { rdata |= 0x20; } // Bit 3 = 2B
+				if (lem->scera1.IsSet(14, 7)) { rdata |= 0x40; } // Bit 2 = 1A
+				if (lem->scera1.IsSet(14, 8)) { rdata |= 0x80; } // Bit 1 = 1B
+				return rdata;
+
+			case 0x43:
+				rdata = 0;
+				if (lem->scera1.IsSet(12, 6)) { rdata |= 0x01; } // Bit 8 = APS He 1 Closed
+				if (lem->scera1.IsSet(12, 7)) { rdata |= 0x02; } // Bit 7 = APS He 2 Closed
+				return rdata;
+
+			case 0x44: // UNKNOWN, HBR
+				return 0;
+
+			case 0x45: // UNKNOWN, HBR
+				return 0;
+
+			default:
+				sprintf(oapiDebugString(), "MEASURE: UNKNOWN E-0x%x", channel);
+				break;
+
 			}
-			if(channel == 100){
-				// Channel 100
-				switch(ccode){
-					case 0x01: // RCS JET DRIVERS
-					case 0x02:
-						rdata = 0;
-						if (lem->scera1.IsSet(2, 6)) { rdata |= 0x01; } // Bit 8 = JD 1D OUTPUT
-						if (lem->scera1.IsSet(2, 5)) { rdata |= 0x02; } // Bit 7 = JD 1U OUTPUT
-						if (lem->scera1.IsSet(2, 2)) { rdata |= 0x04; } // Bit 6 = JD 2D OUTPUT
-						if (lem->scera1.IsSet(2, 1)) { rdata |= 0x08; } // Bit 5 = JD 2U OUTPUT
-						if (lem->scera1.IsSet(4, 8)) { rdata |= 0x10; } // Bit 4 = JD 3D OUTPUT
-						if (lem->scera1.IsSet(4, 7)) { rdata |= 0x20; } // Bit 3 = JD 3U OUTPUT
-						if (lem->scera1.IsSet(4, 5)) { rdata |= 0x40; } // Bit 2 = JD 4D OUTPUT
-						if (lem->scera1.IsSet(4, 3)) { rdata |= 0x80; } // Bit 1 = JD 4U OUTPUT
-						return rdata;
-					case 0x03: // UNKNOWN, HBR
-						return 0;
-					case 0x04: // MORE RCS JET DRIVERS
-						rdata = 0;
-						if (lem->scera1.IsSet(2, 7)) { rdata |= 0x01; } // Bit 8 = JD 1S OUTPUT
-						if (lem->scera1.IsSet(2, 8)) { rdata |= 0x02; } // Bit 7 = JD 1F OUTPUT
-						if (lem->scera1.IsSet(2, 4)) { rdata |= 0x04; } // Bit 6 = JD 2S OUTPUT
-						if (lem->scera1.IsSet(2, 3)) { rdata |= 0x08; } // Bit 5 = JD 2F OUTPUT
-						if (lem->scera1.IsSet(4, 10)) { rdata |= 0x10; } // Bit 4 = JD 3S OUTPUT
-						if (lem->scera1.IsSet(4, 9)) { rdata |= 0x20; } // Bit 3 = JD 3F OUTPUT
-						if (lem->scera1.IsSet(4, 6)) { rdata |= 0x40; } // Bit 2 = JD 4S OUTPUT
-						if (lem->scera1.IsSet(4, 4)) { rdata |= 0x80; } // Bit 1 = JD 4F OUTPUT
-						return rdata;
-					default:
-						sprintf(oapiDebugString(),"MEASURE: UNKNOWN 100-E-0x%x",ccode);
-						break;
-				}
+			break;
+
+		case 50:
+			switch (channel)
+			{
+			case 0x01:
+			case 0x02:
+				rdata = 0;
+				if (lem->scera2.IsSet(2, 10)) { rdata |= 0x01; } // Bit 8 = APS On
+				if (lem->scera2.IsSet(14, 1)) { rdata |= 0x02; } // Bit 7 = Abort Stage
+				return rdata;
+
+			case 0x03: // UNKNOWN, HBR
+			case 0x04:
+				return 0;
+
+			default:
+				sprintf(oapiDebugString(), "MEASURE: UNKNOWN 50-E-0x%x", channel);
+				break;
+
 			}
-			if(channel == 50){
-				// Channel 50
-				switch(ccode){
-					case 0x01:
-					case 0x02:
-						rdata = 0;
-						if (lem->scera2.IsSet(2, 10)) { rdata |= 0x01; } // Bit 8 = APS On
-						if (lem->scera2.IsSet(14, 1)) { rdata |= 0x02; } // Bit 7 = Abort Stage
-						return rdata;
-					case 0x03: // UNKNOWN, HBR
-					case 0x04:
-						return 0;
-					default:
-						sprintf(oapiDebugString(),"MEASURE: UNKNOWN 50-E-0x%x",ccode);
-						break;
-				}
+			break;
+
+		case 100:
+			switch (channel)
+			{
+			case 0x01: // RCS JET DRIVERS
+			case 0x02:
+				rdata = 0;
+				if (lem->scera1.IsSet(2, 6)) { rdata |= 0x01; } // Bit 8 = JD 1D OUTPUT
+				if (lem->scera1.IsSet(2, 5)) { rdata |= 0x02; } // Bit 7 = JD 1U OUTPUT
+				if (lem->scera1.IsSet(2, 2)) { rdata |= 0x04; } // Bit 6 = JD 2D OUTPUT
+				if (lem->scera1.IsSet(2, 1)) { rdata |= 0x08; } // Bit 5 = JD 2U OUTPUT
+				if (lem->scera1.IsSet(4, 8)) { rdata |= 0x10; } // Bit 4 = JD 3D OUTPUT
+				if (lem->scera1.IsSet(4, 7)) { rdata |= 0x20; } // Bit 3 = JD 3U OUTPUT
+				if (lem->scera1.IsSet(4, 5)) { rdata |= 0x40; } // Bit 2 = JD 4D OUTPUT
+				if (lem->scera1.IsSet(4, 3)) { rdata |= 0x80; } // Bit 1 = JD 4U OUTPUT
+				return rdata;
+
+			case 0x03: // UNKNOWN, HBR
+				return 0;
+
+			case 0x04: // MORE RCS JET DRIVERS
+				rdata = 0;
+				if (lem->scera1.IsSet(2, 7)) { rdata |= 0x01; } // Bit 8 = JD 1S OUTPUT
+				if (lem->scera1.IsSet(2, 8)) { rdata |= 0x02; } // Bit 7 = JD 1F OUTPUT
+				if (lem->scera1.IsSet(2, 4)) { rdata |= 0x04; } // Bit 6 = JD 2S OUTPUT
+				if (lem->scera1.IsSet(2, 3)) { rdata |= 0x08; } // Bit 5 = JD 2F OUTPUT
+				if (lem->scera1.IsSet(4, 10)) { rdata |= 0x10; } // Bit 4 = JD 3S OUTPUT
+				if (lem->scera1.IsSet(4, 9)) { rdata |= 0x20; } // Bit 3 = JD 3F OUTPUT
+				if (lem->scera1.IsSet(4, 6)) { rdata |= 0x40; } // Bit 2 = JD 4S OUTPUT
+				if (lem->scera1.IsSet(4, 4)) { rdata |= 0x80; } // Bit 1 = JD 4F OUTPUT
+				return rdata;
+
+			default:
+				sprintf(oapiDebugString(), "MEASURE: UNKNOWN 100-E-0x%x", channel);
+				break;
+
 			}
-			// Channel 1
-			switch(ccode){
-				case 0x01: // PNGS Statuses
-				case 0x12: // PNGS Statuses
-					rdata = 0;
-					if (lem->scera2.IsSet(2, 3)) { rdata |= 0x01; } // Bit 8 = LR Range Bad
-					if (lem->scera2.IsSet(2, 4)) { rdata |= 0x02; } // Bit 7 = LR Vel Bad
-					if (lem->scera2.IsSet(2, 5)) { rdata |= 0x04; } // Bit 6 = RR No Track
-					return rdata;
-				case 0x02: // PNGS Statuses
-				case 0x13: // PNGS Statuses
-					rdata = 0;
-					if (lem->scera2.IsSet(3, 11)) { rdata |= 0x01; } // Bit 8 = LGC Warning
-					if (lem->scera2.IsSet(3, 12)) { rdata |= 0x02; } // Bit 7 = ISS Warning
-					return rdata;
-				case 0x03: // ECS Statuses
-				case 0x14: // ECS Statuses
-					rdata = 0;
-					if (lem->scera2.IsSet(5, 11)) { rdata |= 0x01; } // Bit 8 = CDR Suit Disc
-					if (lem->scera2.IsSet(5, 12)) { rdata |= 0x02; } // Bit 7 = SE Suit Disc
-					if (lem->scera2.IsSet(3, 3)) { rdata |= 0x04; } // Bit 6 = Selected Gly Level Low
-					if (lem->scera2.IsSet(3, 8)) { rdata |= 0x08; } // Bit 5 = Repr Elec Open
-					return rdata;
-				case 0x04: // ECS Statuses
-				case 0x15: // ECS Statuses
-					rdata = 0;
-					if (lem->scera2.IsSet(5, 9)) { rdata |= 0x01; } // Bit 8 = Cabin Ret Closed
-					if (lem->scera2.IsSet(5, 10)) { rdata |= 0x02; } // Bit 7 = Cabin Ret Open
-					if (lem->scera2.IsSet(5, 5)) { rdata |= 0x04; } // Bit 6 = Demand Reg A Closed
-					if (lem->scera2.IsSet(5, 7)) { rdata |= 0x10; } // Bit 4 = Demand Reg B Closed
-					if (lem->scera2.IsSet(12, 2)) { rdata |= 0x40; } // Bit 2 = Sec Gly Pump Fail
-					return rdata;
-				case 0x05: // ECS Statuses
-				case 0x16: // ECS Statuses
-					rdata = 0;
-					if (lem->scera2.IsSet(3, 2)) { rdata |= 0x01; } // Bit 8 = Suit Fan 1 Malf
-					if (lem->scera2.IsSet(3, 6)) { rdata |= 0x02; } // Bit 7 = Suit Fan 2 Malf
-					if (lem->scera2.IsSet(5, 3)) { rdata |= 0x04; } // Bit 6 = Suit Rlf Closed
-					if (lem->scera2.IsSet(5, 4)) { rdata |= 0x08; }// Bit 5 = Suit Rlf Open
-					if (lem->scera2.IsSet(5, 2)) { rdata |= 0x10; }// Bit 4 = Suit Div Egress
-					if (lem->scera2.IsSet(5, 1)) { rdata |= 0x20; }// Bit 3 = Sec CO2 Sel
-					return rdata;
-				case 0x06: // PNGS Statuses
-				case 0x17: // PNGS Statuses
-					rdata = 0;
-					if (lem->IMU_SBY_CB.IsPowered()) { rdata |= 0x01; } // Bit 8 = IMU STBY
-					if (lem->LGC_DSKY_CB.IsPowered()) { rdata |= 0x02; }// Bit 7 = IMU OPR
-					return rdata;
-				case 0x07: // IS Statuses
-				case 0x18: // IS Statuses
-					rdata = 0;
-					if (lem->scera2.IsSet(2, 1)) { rdata |= 0x01; } // Bit 8 = CES AC Power Fail
-					if (lem->scera2.IsSet(2, 12)) { rdata |= 0x02; }// Bit 7 = CES DC Power Fail
-					if (lem->scera2.IsSet(2, 2)) { rdata |= 0x04; }// Bit 6 = AGS Power Fail
-					if (lem->scera2.IsSet(12, 1)) { rdata |= 0x08; }// Bit 5 = C&W Power Fail
-					if (lem->scera2.IsSet(2, 8)) { rdata |= 0x10; }// Bit 4 = Master Alarm On
-					if (lem->scera2.IsSet(3, 7)) { rdata |= 0x20; }// Bit 3 = EPS Battery Caution
-					// Bit 1 = PCM Osc Fail 1
-					return rdata;
-				case 0x08: // ???
-				case 0x19: // ???
-					// UNKNOWN - LBR
-					return 0;
-				case 0x09: // ???
-				case 0x20: // ???
-					// UNKNOWN - LBR
-					return 0;
-				case 0x10: // RCS Statuses
-				case 0x21: // RCS Statuses
-					rdata = 0;
-					if (lem->scera1.IsSet(12, 3)) { rdata |= 0x01; } // Bit 8 = SIG ASC Feed A OX Open
-					if (lem->scera1.IsSet(12, 4)) { rdata |= 0x02; } // Bit 7 = SIG ASC Feed B OX Open
-					if (lem->scera1.IsSet(12, 1)) { rdata |= 0x04; } // Bit 6 = RCS MAIN A CLOSED
-					if (lem->scera1.IsSet(12, 2)) { rdata |= 0x08; } // Bit 5 = RCS MAIN B CLOSED
-					if (lem->scera1.IsSet(13, 10)) { rdata |= 0x10; } // Bit 4 = ASC Feed A Open
-					if (lem->scera1.IsSet(13, 11)) { rdata |= 0x20; } // Bit 3 = ASC Feed B Open
-					if (lem->scera1.IsSet(13, 12)) { rdata |= 0x40; } // Bit 2 = A/B Crossfeed Open
-					return rdata;
-				case 0x11: // EDS Statuses
-				case 0x22: // EDS Statuses
-					rdata = 0;
-					if (lem->scera1.IsSet(2, 9)) { rdata |= 0x01; } // Bit 8 = Abort Command
-					if (lem->scera1.IsSet(14, 9)) { rdata |= 0x08; }// Bit 5 = ED Relay A K7-K15
-					if (lem->scera1.IsSet(14, 10)) { rdata |= 0x10; }// Bit 4 = ED Relay B K7-K15
-					if (lem->scera1.IsSet(14, 11)) { rdata |= 0x20; }// Bit 3 = ED Relay A K3-K6
-					if (lem->scera1.IsSet(14, 12)) { rdata |= 0x40; }// Bit 2 = ED Relay B K3-K6
-					return rdata;
-				case 0x23:
-					rdata = 0;
-					if (lem->scera2.IsSet(14, 6)) { rdata |= 0x01; } // Bit 8 = Auto On
-					if (lem->scera2.IsSet(3, 4)) { rdata |= 0x02; } // Bit 7 = DPS On
-					if (lem->scera2.IsSet(3, 9)) { rdata |= 0x04; } // Bit 6 = Pitch Trim Fail
-					if (lem->scera2.IsSet(3, 10)) { rdata |= 0x08; } // Bit 5 = Roll Trim Fail
-					if (lem->scera2.IsSet(3, 5)) { rdata |= 0x10; } // Bit 4 = AGS Selected
-					return rdata;
-				case 0x24:
-					rdata = 0;
-					if (lem->scera2.IsSet(2, 6)) { rdata |= 0x01; } // Bit 8 = APS Fuel Low
-					if (lem->scera2.IsSet(2, 7)) { rdata |= 0x02; } // Bit 7 = APS Ox Low
-					return rdata;
-				case 0x25: // UNKNOWN, LBR
-				case 0x26: // UNKNOWN, LBR
-					return(0);
-				case 0x27:
-					rdata = 0;
-					if (lem->scera2.IsSet(13, 1)) { rdata |= 0x01; } // Bit 8 = Roll Pulsed/Direct
-					if (lem->scera2.IsSet(13, 2)) { rdata |= 0x02; } // Bit 7 = Pitch Pulsed/Direct
-					if (lem->scera2.IsSet(13, 6)) { rdata |= 0x04; } // Bit 6 = Yaw Pulsed/Direct
-					if (lem->scera2.IsSet(2, 11)) { rdata |= 0x08; } // Bit 5 = AGS Warmup
-					if (lem->scera2.IsSet(13, 5)) { rdata |= 0x10; } // Bit 4 = AGS Standby
-					return rdata;
-				case 0x28: // UNKNOWN, HBR
-					return 0;
-				case 0x29: // Battery Malfunction Flags
-					rdata = 0;
-					if (lem->scera2.IsSet(12, 7)) { rdata |= 0x01; } // B1 Malfunction
-					if (lem->scera2.IsSet(12, 8)) { rdata |= 0x02; } // B2 Malfunction
-					if (lem->scera2.IsSet(12, 9)) { rdata |= 0x04; } // B3 Malfunction
-					if (lem->scera2.IsSet(12, 10)) { rdata |= 0x08; } // B4 Malfunction
-					if (lem->scera2.IsSet(12, 11)) { rdata |= 0x10; } // B5 Malfunction
-					if (lem->scera2.IsSet(12, 12)) { rdata |= 0x20; } // B6 Malfunction
-					return rdata;
-				case 0x30: // Descent Battery Status Flags
-					rdata = 0;
-					if(lem->scera2.IsSet(4, 1)){ rdata |= 0x01; } // B1 HI tap
-					if(lem->scera2.IsSet(4, 2)){ rdata |= 0x02; } // B1 LO tap
-					if(lem->scera2.IsSet(4, 3)){ rdata |= 0x04; } // B2 HI tap
-					if(lem->scera2.IsSet(4, 4)){ rdata |= 0x08; } // B2 LO tap
-					if(lem->scera2.IsSet(4, 5)){ rdata |= 0x10; } // B3 HI tap
-					if(lem->scera2.IsSet(4, 6)){ rdata |= 0x20; } // B3 LO tap
-					if(lem->scera2.IsSet(4, 7)){ rdata |= 0x40; } // B4 HI tap
-					if(lem->scera2.IsSet(4, 8)){ rdata |= 0x80; } // B4 LO tap
-					return rdata;
-				case 0x31: // ???
-					rdata = 0;
-					if (lem->scera2.IsSet(14, 5)) { rdata |= 0x01; } // Bit 8 = Out Det
-					if (lem->scera2.IsSet(14, 7)) { rdata |= 0x02; } // Bit 7 = Auto Off
-					if (lem->scera2.IsSet(14, 2)) { rdata |= 0x04; } // Bit 6 = Engine Fire Override
-					if (lem->scera2.IsSet(14, 3)) { rdata |= 0x08; } // Bit 5 = PNGS Mode Auto
-					if (lem->scera2.IsSet(14, 4)) { rdata |= 0x10; } // Bit 4 = PNGS Mode Att Hold
-					if (lem->scera2.IsSet(14, 8)) { rdata |= 0x20; } // Bit 3 = Unbalanced Couples
-					if (lem->scera2.IsSet(12, 5)) { rdata |= 0x40; } // Bit 2 = AGS Mode Att Hold
-					if (lem->scera2.IsSet(12, 6)) { rdata |= 0x80; } // Bit 1 = AGS Mode Auto
-					return rdata;
-				case 0x32: // DPS Statuses
-					rdata = 0;
-					if (lem->scera2.IsSet(12, 3)) { rdata |= 0x02; } // Bit 7 = DES Prop Lo
-					if (lem->scera2.IsSet(14, 11)) { rdata |= 0x04; } // Bit 6 = PROP VLVS DEL P
-					if (lem->scera2.IsSet(14, 12)) { rdata |= 0x08; } // Bit 5 = PROP VLVS DEL P
-					return rdata;
-				case 0x33: // Ascent Battery Status Flags
-					rdata = 0;
-					if (lem->scera2.IsSet(4, 9)) { rdata |= 0x01; } // B5 Backup
-					if(lem->scera2.IsSet(4, 10)){ rdata |= 0x02; } // B6 Normal
-					if(lem->scera2.IsSet(4, 11)){ rdata |= 0x04; } // B5 Normal
-					if(lem->scera2.IsSet(4, 12)){ rdata |= 0x08; } // B6 Backup
-					return rdata;
-				case 0x34: // UNKNOWN, HBR
-					return 0;
-				case 0x35: // UNKNOWN, HBR
-					return 0;
-				case 0x36: // UNKNOWN, HBR
-					return 0;
-				case 0x37: // UNKNOWN, HBR
-					return 0;
-				case 0x38: // UNKNOWN, HBR
-					return 0;
-				case 0x39: // UNKNOWN, HBR
-					return 0;
-				case 0x40:
-					rdata = 0;
-					if (lem->scera1.IsSet(13, 9)) { rdata |= 0x01; } // Bit 8 = Landing Gear Deploy
-					return rdata;
-				case 0x41:
-					rdata = 0;
-					if (lem->scera1.IsSet(3, 2)) { rdata |= 0x01; } // Bit 8 = APS Arm
-					if (lem->scera1.IsSet(3, 9)) { rdata |= 0x02; } // Bit 7 = DPS Arm
-					if (lem->scera1.IsSet(3, 1)) { rdata |= 0x04; } // Bit 6 = Min Deadband
-					if (lem->scera1.IsSet(3, 10)) { rdata |= 0x08; } // Bit 5 = X Trans Override
-					return rdata;
-				case 0x42: // RCS Isolation valve xx closed
-					rdata = 0;
-					if (lem->scera1.IsSet(14, 1)) { rdata |= 0x01; } // Bit 8 = 4A 
-					if (lem->scera1.IsSet(14, 2)) { rdata |= 0x02; } // Bit 7 = 4B
-					if (lem->scera1.IsSet(14, 3)) { rdata |= 0x04; } // Bit 6 = 3A
-					if (lem->scera1.IsSet(14, 4)) { rdata |= 0x08; } // Bit 5 = 3B
-					if (lem->scera1.IsSet(14, 5)) { rdata |= 0x10; } // Bit 4 = 2A
-					if (lem->scera1.IsSet(14, 6)) { rdata |= 0x20; } // Bit 3 = 2B
-					if (lem->scera1.IsSet(14, 7)) { rdata |= 0x40; } // Bit 2 = 1A
-					if (lem->scera1.IsSet(14, 8)) { rdata |= 0x80; } // Bit 1 = 1B
-					return rdata;
-				case 0x43:
-					rdata = 0;
-					if (lem->scera1.IsSet(12, 6)) { rdata |= 0x01; } // Bit 8 = APS He 1 Closed
-					if (lem->scera1.IsSet(12, 7)) { rdata |= 0x02; } // Bit 7 = APS He 2 Closed
-					return rdata;
-				case 0x44: // UNKNOWN, HBR
-					return 0;
-				case 0x45: // UNKNOWN, HBR
-					return 0;
-				default:
-					sprintf(oapiDebugString(),"MEASURE: UNKNOWN E-0x%x",ccode);
-					break;
+			break;
+
+		case 200:
+			switch (channel)
+			{
+			case 0x01A: // RCS TCP nn
+				rdata = 0;
+				if (lem->scera1.IsSet(11, 8)) { rdata |= 0x01; } // Bit 8 = 3S
+				if (lem->scera1.IsSet(11, 7)) { rdata |= 0x02; } // Bit 7 = 3F
+				if (lem->scera1.IsSet(11, 6)) { rdata |= 0x04; } // Bit 6 = 3D
+				if (lem->scera1.IsSet(11, 5)) { rdata |= 0x08; } // Bit 5 = 3U
+				if (lem->scera1.IsSet(11, 4)) { rdata |= 0x10; } // Bit 4 = 4S
+				if (lem->scera1.IsSet(11, 3)) { rdata |= 0x20; } // Bit 3 = 4F
+				if (lem->scera1.IsSet(11, 2)) { rdata |= 0x40; } // Bit 2 = 4D
+				if (lem->scera1.IsSet(11, 1)) { rdata |= 0x80; } // Bit 1 = 4U
+				return rdata;
+
+			case 0x01B: // RCS TCP nn
+				rdata = 0;
+				if (lem->scera1.IsSet(3, 8)) { rdata |= 0x01; }// Bit 8 = 1S
+				if (lem->scera1.IsSet(3, 7)) { rdata |= 0x02; }// Bit 7 = 1F
+				if (lem->scera1.IsSet(3, 6)) { rdata |= 0x04; }// Bit 6 = 1D
+				if (lem->scera1.IsSet(3, 5)) { rdata |= 0x08; }// Bit 5 = 1U
+				if (lem->scera1.IsSet(3, 4)) { rdata |= 0x10; }// Bit 4 = 2S
+				if (lem->scera1.IsSet(3, 3)) { rdata |= 0x20; }// Bit 3 = 2F
+				if (lem->scera1.IsSet(11, 10)) { rdata |= 0x40; }// Bit 2 = 2D
+				if (lem->scera1.IsSet(11, 9)) { rdata |= 0x80; }// Bit 1 = 2U
+				return rdata;
+
+			default:
+				sprintf(oapiDebugString(), "MEASURE: UNKNOWN 200-E-0x%x", channel);
+				break;
 			}
+			break;
+		}
 		break;
 	}
-	return (0);
 }
 
 // S-Band System

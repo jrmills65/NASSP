@@ -44,8 +44,29 @@ typedef union {
 
 typedef std::bitset<16> ChannelValue;
 
+typedef union
+{
+	struct {
+		unsigned ISSWarning : 1;				// 0
+		unsigned LightComputerActivity : 1;		// 1
+		unsigned LightUplink : 1;				// 2
+		unsigned LightTempCaution : 1;			// 3
+		unsigned LightKbRel : 1;				// 4
+		unsigned FlashVerbNoun : 1;				// 5
+		unsigned LightOprErr : 1;				// 6
+		unsigned Spare1 : 1;					// 7
+		unsigned TestConnectorOut : 1;			// 8
+		unsigned CautionReset : 1;				// 9
+		unsigned Spare2 : 1;					// 10
+		unsigned Spare3 : 1;					// 11
+		unsigned EngineOn : 1;					// 12
+		unsigned EngineOff : 1;					// 13
+	} Bits;
+	unsigned int Value;
+} ChannelValue11;
+
 ///
-/// AGC output channel ten, used to control the DSKY lights.
+/// AGC output channel eleven, used to control the DSKY lights.
 ///
 /// \ingroup AGCIO
 /// \brief AGC output channel 11.

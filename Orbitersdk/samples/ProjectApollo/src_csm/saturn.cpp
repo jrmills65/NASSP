@@ -1569,7 +1569,6 @@ void Saturn::SetAnimations(double simdt)
 }
 
 void Saturn::clbkPreStep(double simt, double simdt, double mjd)
-
 {
 	char buffer[100];
 	TRACESETUP("Saturn::clbkPreStep");
@@ -1633,8 +1632,10 @@ void Saturn::clbkPreStep(double simt, double simdt, double mjd)
 
 	Timestep(simt, simdt, mjd);
 
-	if (oapiGetFocusObject() == GetHandle()) {
+	if (oapiGetFocusObject() == GetHandle()) 
+	{
 		dsky.SendNetworkPacketDSKY();
+		//dsky.MySendNetworkPacketDSKY();
 	}
 
 	if ((oapiGetFocusObject() == GetHandle()) && (oapiCockpitMode() == COCKPIT_VIRTUAL) && (oapiCameraMode() == CAM_COCKPIT)) {
